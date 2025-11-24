@@ -69,3 +69,27 @@ class AuditLog(models.Model):
 
     def __str__(self):
         return f"[{self.created_at:%Y-%m-%d %H:%M}] {self.actor} -> {self.action}"
+
+class Course(models.Model):
+    """
+    Возможные курсы для абитуриента/ученика.
+    """
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
+    # примерная логика: сколько занятий в пакете и базовая цена
+    default_lessons = models.PositiveIntegerField(default=4)
+    default_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    def __str__(self):
+        return self.title
+    
+class StudentProfile(models.Model):
+   
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="student_profile")
+    level = models.PositiveIntegerField(default=1)
+    xp = models.PositiveIntegerField(default=0)
+    season_currency = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"StudentProfile({self.user}): lvl={self.level}, xp={self.xp}"

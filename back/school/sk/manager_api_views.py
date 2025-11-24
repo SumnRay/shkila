@@ -136,6 +136,7 @@ class ManagerPaymentsListCreateAPI(generics.ListCreateAPIView):
 class ManagerPaymentConfirmAPI(APIView):
     """
     Подтвердить оплату и начислить N занятий на баланс.
+    + Если студент был абитуриентом (APPLICANT), меняем роль на STUDENT.
     POST /api/manager/payments/{id}/confirm/
     Body: {"lessons_to_add": 4}
     """
@@ -146,6 +147,7 @@ class ManagerPaymentConfirmAPI(APIView):
         lessons_to_add = int(request.data.get("lessons_to_add", 0))
         if lessons_to_add <= 0:
             return Response({"detail": "lessons_to_add must be > 0"}, status=400)
+
         try:
             p = Payment.objects.select_for_update().get(pk=pk)
         except Payment.DoesNotExist:
@@ -154,17 +156,31 @@ class ManagerPaymentConfirmAPI(APIView):
         if p.confirmed:
             return Response({"detail": "already confirmed"}, status=400)
 
+        # подтверждаем оплату
         p.confirmed = True
         p.save()
 
+        # начисляем занятия на баланс
         bal, _ = LessonBalance.objects.get_or_create(student=p.student)
         bal.lessons_available += lessons_to_add
         bal.save()
 
+        # 🔹 промоушен: APPLICANT → STUDENT
+        student = p.student
+        if getattr(student, "role", None) == "APPLICANT":
+            student.role = "STUDENT"
+            student.save(update_fields=["role"])
+
         AuditLog.objects.create(
             actor=request.user,
             action="MANAGER_CONFIRM_PAYMENT",
-            meta={"payment_id": p.id, "student": p.student_id, "lessons_added": lessons_to_add}
+            meta={
+                "payment_id": p.id,
+                "student_id": student.id,
+                "lessons_added": lessons_to_add,
+                "old_role": "APPLICANT" if student.role == "STUDENT" else student.role,
+                "new_role": student.role,
+            },
         )
         return Response({"detail": "ok"})
 

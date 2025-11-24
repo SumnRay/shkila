@@ -79,9 +79,10 @@ class AdminPaymentListAPI(generics.ListCreateAPIView):
 
 class AdminPaymentConfirmAPI(APIView):
     """
-    Подтверждение оплаты и начисление занятий на баланс.
+    Подтвердить оплату и начислить N занятий на баланс (через ЛК админа).
+    + Если студент был абитуриентом (APPLICANT), меняем роль на STUDENT.
     POST /api/admin/payments/{id}/confirm/
-    body: {"lessons_to_add": 4}
+    Body: {"lessons_to_add": 4}
     """
     permission_classes = [IsAuthenticated, IsAdminRole]
 
@@ -90,6 +91,7 @@ class AdminPaymentConfirmAPI(APIView):
         lessons_to_add = int(request.data.get("lessons_to_add", 0))
         if lessons_to_add <= 0:
             return Response({"detail": "lessons_to_add must be > 0"}, status=400)
+
         try:
             p = Payment.objects.select_for_update().get(pk=pk)
         except Payment.DoesNotExist:
@@ -98,19 +100,32 @@ class AdminPaymentConfirmAPI(APIView):
         if p.confirmed:
             return Response({"detail": "already confirmed"}, status=400)
 
-        # confirm
+        # подтверждаем оплату
         p.confirmed = True
         p.save()
 
-        # update balance
+        # начисляем занятия на баланс
         bal, _ = LessonBalance.objects.get_or_create(student=p.student)
         bal.lessons_available += lessons_to_add
         bal.save()
 
+        # 🔹 промоушен: APPLICANT → STUDENT
+        student = p.student
+        old_role = getattr(student, "role", None)
+        if old_role == "APPLICANT":
+            student.role = "STUDENT"
+            student.save(update_fields=["role"])
+
         AuditLog.objects.create(
             actor=request.user,
-            action="CONFIRM_PAYMENT",
-            meta={"payment_id": p.id, "student": p.student_id, "lessons_added": lessons_to_add},
+            action="ADMIN_CONFIRM_PAYMENT",
+            meta={
+                "payment_id": p.id,
+                "student_id": student.id,
+                "lessons_added": lessons_to_add,
+                "old_role": old_role,
+                "new_role": student.role,
+            },
         )
         return Response({"detail": "ok"})
 
