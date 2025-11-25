@@ -2,10 +2,11 @@
 import axios from 'axios'
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8000', // бэк крутится на 8000
+  baseURL: 'http://127.0.0.1:8000', // твой бэк
   withCredentials: false,
 })
 
+// подставляем access-токен из localStorage
 apiClient.interceptors.request.use((config) => {
   const access = localStorage.getItem('access')
   if (access) {

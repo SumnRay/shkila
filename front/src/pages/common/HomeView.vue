@@ -2,9 +2,12 @@
 <template>
   <div class="home">
     <h1>Личный кабинет</h1>
+
     <p v-if="auth.user">
-      Вы вошли как: {{ auth.user.email }} (роль: {{ auth.role || '—' }})
+      Вы вошли как: <strong>{{ auth.user.email }}</strong><br />
+      Роль: <strong>{{ auth.normalizedRole || '—' }}</strong>
     </p>
+
     <button @click="handleLogout">Выйти</button>
   </div>
 </template>

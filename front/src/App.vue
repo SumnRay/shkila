@@ -12,5 +12,7 @@
 <style scoped>
 .app {
   min-height: 100vh;
+  background: #050505;
+  color: #f5f5f5;
 }
 </style>

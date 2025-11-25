@@ -1,7 +1,7 @@
 <!-- src/pages/auth/LoginView.vue -->
 <template>
   <div class="login-page">
-    <h1>Вход в систему</h1>
+    <h1>Вход</h1>
 
     <form class="login-form" @submit.prevent="handleSubmit">
       <label class="field">
@@ -10,7 +10,7 @@
           v-model="email"
           type="email"
           required
-          placeholder="you@example.com"
+          placeholder="admin@test.com"
         />
       </label>
 
@@ -48,8 +48,8 @@ const router = useRouter()
 const handleSubmit = async () => {
   const ok = await auth.login({ email: email.value, password: password.value })
   if (ok) {
-    // позже здесь сделаем разный редирект по ролям
-    router.push({ name: 'home' })
+    const target = auth.getRedirectRouteByRole()
+    router.push(target)
   }
 }
 </script>
