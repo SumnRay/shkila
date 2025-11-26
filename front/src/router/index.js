@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 
 import LoginView from '../pages/auth/LoginView.vue'
+import RegisterView from '../pages/auth/RegisterView.vue'
 import HomeView from '../pages/common/HomeView.vue'
 import AdminDashboardView from '../pages/admin/AdminDashboardView.vue'
 
@@ -11,6 +12,12 @@ const routes = [
     path: '/login',
     name: 'login',
     component: LoginView,
+    meta: { guestOnly: true },
+  },
+  {
+    path: '/register',
+    name: 'register',
+    component: RegisterView,
     meta: { guestOnly: true },
   },
   {
@@ -60,21 +67,16 @@ const router = createRouter({
   routes,
 })
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach((to, from, next) => {
   const auth = useAuthStore()
-
-  // если есть токен, но нет user — пробуем подтянуть
-  if (auth.access && !auth.user) {
-    await auth.fetchMe()
-  }
-
-  if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    return next({ name: 'login' })
-  }
 
   if (to.meta.guestOnly && auth.isAuthenticated) {
     const target = auth.getRedirectRouteByRole()
     return next(target)
+  }
+
+  if (to.meta.requiresAuth && !auth.isAuthenticated) {
+    return next({ name: 'login' })
   }
 
   if (to.meta.roles && to.meta.roles.length > 0) {

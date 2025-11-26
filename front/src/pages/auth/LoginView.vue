@@ -32,6 +32,11 @@
         {{ auth.error }}
       </p>
     </form>
+
+    <p class="hint">
+      Нет аккаунта?
+      <router-link :to="{ name: 'register' }">Зарегистрироваться</router-link>
+    </p>
   </div>
 </template>
 
@@ -79,14 +84,18 @@ const handleSubmit = async () => {
 
 input {
   padding: 8px 10px;
-  border-radius: 8px;
+  border-radius: 6px;
   border: 1px solid #444;
-  background: #222;
+  background: #000;
   color: #fff;
 }
 
 .btn {
-  padding: 10px 12px;
+  margin-top: 8px;
+  padding: 10px 14px;
+  background: #42b983;
+  color: #000;
+  font-weight: 600;
   border-radius: 8px;
   border: none;
   cursor: pointer;
@@ -100,5 +109,14 @@ input {
 .error {
   color: #ff6b6b;
   font-size: 14px;
+}
+
+.hint {
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.hint a {
+  color: #42b983;
 }
 </style>

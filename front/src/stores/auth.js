@@ -1,6 +1,6 @@
 // src/stores/auth.js
 import { defineStore } from 'pinia'
-import { loginApi, getMeApi } from '../api/auth'
+import { loginApi, getMeApi, registerApi } from '../api/auth'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -45,6 +45,63 @@ export const useAuthStore = defineStore('auth', {
           'Ошибка авторизации'
         this.access = null
         this.refresh = null
+        localStorage.removeItem('access')
+        localStorage.removeItem('refresh')
+        return false
+      } finally {
+        this.loading = false
+      }
+    },
+
+    // регистрация + автологин
+    async register(payload) {
+      this.loading = true
+      this.error = null
+      try {
+        const { data } = await registerApi(payload)
+
+        // tokens и пользователь приходят сразу
+        this.access = data.tokens?.access || null
+        this.refresh = data.tokens?.refresh || null
+        this.user = data.user || null
+
+        if (this.access) {
+          localStorage.setItem('access', this.access)
+        }
+        if (this.refresh) {
+          localStorage.setItem('refresh', this.refresh)
+        }
+
+        return true
+      } catch (err) {
+        console.error('Register error:', err)
+
+        if (err?.response?.data) {
+          const d = err.response.data
+          if (typeof d === 'string') {
+            this.error = d
+          } else if (d.detail || d.error) {
+            this.error = d.detail || d.error
+          } else {
+            // собираем сообщения валидаторов в одну строку
+            const msgs = []
+            for (const key in d) {
+              const val = d[key]
+              if (Array.isArray(val)) {
+                msgs.push(val.join(' '))
+              } else if (typeof val === 'string') {
+                msgs.push(val)
+              }
+            }
+            this.error = msgs.join(' ') || 'Ошибка регистрации'
+          }
+        } else {
+          this.error = 'Ошибка регистрации'
+        }
+
+        this.access = null
+        this.refresh = null
+        this.user = null
         localStorage.removeItem('access')
         localStorage.removeItem('refresh')
         return false
