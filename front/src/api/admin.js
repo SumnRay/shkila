@@ -1,6 +1,8 @@
 // src/api/admin.js
 import apiClient from './http'
 
+// ===== USERS =====
+
 // список пользователей (фильтры: role, search)
 export function adminGetUsers(params = {}) {
   return apiClient.get('/api/admin/users/', { params })
@@ -19,4 +21,11 @@ export function adminDeleteUser(id) {
 // смена роли пользователя
 export function adminSetUserRole(id, role) {
   return apiClient.patch(`/api/admin/users/${id}/set-role/`, { role })
+}
+
+// ===== AUDIT LOGS =====
+
+// получить список логов (поддерживает search, ordering, page — если включена пагинация)
+export function adminGetAuditLogs(params = {}) {
+  return apiClient.get('/api/admin/audit/', { params })
 }

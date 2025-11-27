@@ -5,7 +5,10 @@ import { useAuthStore } from '../stores/auth'
 import LoginView from '../pages/auth/LoginView.vue'
 import RegisterView from '../pages/auth/RegisterView.vue'
 import HomeView from '../pages/common/HomeView.vue'
+
 import AdminDashboardView from '../pages/admin/AdminDashboardView.vue'
+import AdminScheduleView from '../pages/admin/AdminScheduleView.vue'
+import AdminLogsView from '../pages/admin/AdminLogsView.vue'
 
 const routes = [
   {
@@ -27,15 +30,27 @@ const routes = [
     meta: { requiresAuth: true },
   },
 
-  // админка
+  // ===== АДМИНКА =====
   {
     path: '/admin',
     name: 'admin-dashboard',
     component: AdminDashboardView,
     meta: { requiresAuth: true, roles: ['admin'] },
   },
+  {
+    path: '/admin/schedule',
+    name: 'admin-schedule',
+    component: AdminScheduleView,
+    meta: { requiresAuth: true, roles: ['admin'] },
+  },
+  {
+    path: '/admin/logs',
+    name: 'admin-logs',
+    component: AdminLogsView,
+    meta: { requiresAuth: true, roles: ['admin'] },
+  },
 
-  // заглушки для других ролей (пока можно использовать HomeView)
+  // заглушки для других ролей
   {
     path: '/student',
     name: 'student-dashboard',
@@ -70,20 +85,27 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const auth = useAuthStore()
 
+  // страница только для гостей (login/register)
   if (to.meta.guestOnly && auth.isAuthenticated) {
-    const target = auth.getRedirectRouteByRole()
+    const target = auth.getRedirectRouteByRole
+      ? auth.getRedirectRouteByRole()
+      : { name: 'home' }
     return next(target)
   }
 
+  // требуется авторизация
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    return next({ name: 'login' })
+    return next({ name: 'login', query: { redirect: to.fullPath } })
   }
 
+  // ограничение по ролям
   if (to.meta.roles && to.meta.roles.length > 0) {
     const role = auth.normalizedRole
     const allowed = to.meta.roles.map((r) => r.toLowerCase())
-    if (!allowed.includes(role)) {
-      const target = auth.getRedirectRouteByRole()
+    if (!allowed.includes((role || '').toLowerCase())) {
+      const target = auth.getRedirectRouteByRole
+        ? auth.getRedirectRouteByRole()
+        : { name: 'home' }
       return next(target)
     }
   }

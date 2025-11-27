@@ -23,9 +23,8 @@ class AdminUserListSerializer(serializers.ModelSerializer):
 class AdminUserDetailSerializer(serializers.ModelSerializer):
     """
     Детальный просмотр/редактирование пользователя в админке.
-    Роль здесь только для отображения — менять её лучше отдельным эндпоинтом.
+    Роль тут только для отображения — менять её отдельным эндпоинтом.
     """
-
     class Meta:
         model = User
         fields = (

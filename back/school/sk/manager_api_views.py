@@ -8,181 +8,221 @@ from django_filters.rest_framework import DjangoFilterBackend
 from accounts.permissions import IsManagerOrAdmin
 from .models import Lesson, LessonBalance, Payment, AuditLog
 from .manager_serializers import (
-    ManagerClientSerializer, ManagerLessonSerializer, ManagerLessonUpdateSerializer,
-    ManagerBalanceSerializer, ManagerPaymentSerializer
+    ManagerClientSerializer,
+    ManagerLessonSerializer,
+    ManagerLessonUpdateSerializer,
+    ManagerBalanceSerializer,
+    ManagerPaymentSerializer,
 )
 
 User = get_user_model()
 
-# ======= CLIENTS =======
+
+# ======= КЛИЕНТЫ =======
+
 
 class ManagerClientsListAPI(generics.ListAPIView):
     """
-    Список клиентов (обычно STUDENT и APPLICANT), с поиском/фильтрами.
-    ?role=STUDENT|APPLICANT & search=email_or_name
+    Список клиентов (учеников/абитуриентов).
     """
     permission_classes = [IsManagerOrAdmin]
     serializer_class = ManagerClientSerializer
+    queryset = User.objects.all().order_by("-date_joined")
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["role"]
     search_fields = ["email", "student_full_name", "parent_full_name"]
-    ordering_fields = ["id", "email"]
-    queryset = User.objects.all().order_by("-id")
+    ordering_fields = ["id", "email", "date_joined"]
 
 
-# ======= SCHEDULE / LESSONS =======
+# ======= УРОКИ / РАСПИСАНИЕ =======
+
 
 class ManagerLessonsListCreateAPI(generics.ListCreateAPIView):
     """
-    Расписание/список уроков (GET) + назначить урок (POST).
-    Фильтры: student, teacher, status; сортировки: scheduled_at, created_at.
+    GET: список уроков (фильтры: status, student, teacher)
+    POST: создать урок (назначить занятие)
     """
     permission_classes = [IsManagerOrAdmin]
     serializer_class = ManagerLessonSerializer
+    queryset = Lesson.objects.select_related("student", "teacher").all().order_by(
+        "-created_at"
+    )
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
-    filterset_fields = ["student", "teacher", "status"]
+    filterset_fields = ["status", "student", "teacher"]
     ordering_fields = ["scheduled_at", "created_at", "id"]
-    queryset = Lesson.objects.select_related("student", "teacher").all().order_by("-created_at")
+
+    def perform_create(self, serializer):
+        lesson = serializer.save()
+        AuditLog.objects.create(
+            actor=self.request.user,
+            action="MANAGER_CREATE_LESSON",
+            meta={
+                "lesson_id": lesson.id,
+                "student": lesson.student_id,
+                "teacher": lesson.teacher_id,
+                "scheduled_at": lesson.scheduled_at.isoformat(),
+            },
+        )
+
 
 class ManagerLessonUpdateAPI(generics.UpdateAPIView):
     """
-    Перенести/обновить урок (время, ссылка, статус, назначить учителя).
+    Частичное обновление урока:
     PATCH /api/manager/lessons/{id}/
     """
     permission_classes = [IsManagerOrAdmin]
     serializer_class = ManagerLessonUpdateSerializer
-    queryset = Lesson.objects.all()
+    queryset = Lesson.objects.select_related("student", "teacher").all()
+    http_method_names = ["patch", "options", "head"]
 
     def perform_update(self, serializer):
-        obj = serializer.save()
+        lesson = serializer.save()
         AuditLog.objects.create(
             actor=self.request.user,
             action="MANAGER_UPDATE_LESSON",
-            meta={"lesson_id": obj.id}
+            meta={
+                "lesson_id": lesson.id,
+                "student": lesson.student_id,
+                "teacher": lesson.teacher_id,
+                "status": lesson.status,
+            },
         )
+
 
 class ManagerLessonCancelAPI(APIView):
     """
-    Отменить урок.
+    Отмена урока менеджером:
     POST /api/manager/lessons/{id}/cancel/
     """
     permission_classes = [IsManagerOrAdmin]
 
     def post(self, request, pk):
         try:
-            les = Lesson.objects.get(pk=pk)
+            lesson = Lesson.objects.get(pk=pk)
         except Lesson.DoesNotExist:
             return Response({"detail": "lesson not found"}, status=404)
-        les.status = "CANCELLED"
-        les.save()
+
+        if lesson.status == Lesson.STATUS_CANCELLED:
+            return Response({"detail": "already cancelled"}, status=400)
+
+        lesson.status = Lesson.STATUS_CANCELLED
+        lesson.save()
+
         AuditLog.objects.create(
             actor=request.user,
             action="MANAGER_CANCEL_LESSON",
-            meta={"lesson_id": les.id}
+            meta={"lesson_id": lesson.id, "student": lesson.student_id},
         )
+
         return Response({"detail": "ok"})
 
 
 class ManagerLessonDebitAPI(APIView):
     """
-    Списать одно занятие по уроку (и опционально отметить как проведён).
+    Списание занятия с баланса (менеджер):
+
     POST /api/manager/lessons/{id}/debit/
-    Body: {"mark_done": true}
+    body: {"mark_done": true/false}
     """
     permission_classes = [IsManagerOrAdmin]
 
-    @transaction.atomic
     def post(self, request, pk):
-        mark_done = bool(request.data.get("mark_done", False))
+        mark_done = bool(request.data.get("mark_done", True))
         try:
-            les = Lesson.objects.select_for_update().get(pk=pk)
+            les = Lesson.objects.select_related("student").get(pk=pk)
         except Lesson.DoesNotExist:
             return Response({"detail": "lesson not found"}, status=404)
 
-        if not les.debited_from_balance:
-            bal, _ = LessonBalance.objects.get_or_create(student=les.student)
-            if bal.lessons_available <= 0:
+        if les.debited_from_balance:
+            return Response({"detail": "already debited"}, status=400)
+
+        with transaction.atomic():
+            lb, _ = LessonBalance.objects.select_for_update().get_or_create(
+                student=les.student
+            )
+            if lb.lessons_available <= 0:
                 return Response({"detail": "no lessons available"}, status=400)
-            bal.lessons_available -= 1
-            bal.save()
+
+            lb.lessons_available -= 1
+            lb.save()
+
             les.debited_from_balance = True
+            if mark_done:
+                les.status = Lesson.STATUS_DONE
+            les.save()
 
-        if mark_done:
-            les.status = "DONE"
-        les.save()
+            AuditLog.objects.create(
+                actor=request.user,
+                action="MANAGER_DEBIT_LESSON",
+                meta={
+                    "lesson_id": les.id,
+                    "student": les.student_id,
+                    "mark_done": mark_done,
+                },
+            )
 
-        AuditLog.objects.create(
-            actor=request.user,
-            action="MANAGER_DEBIT_LESSON",
-            meta={"lesson_id": les.id, "mark_done": mark_done}
-        )
         return Response({"detail": "ok"})
 
 
-# ======= PAYMENTS / BALANCE =======
+# ======= ПЛАТЕЖИ / БАЛАНС =======
+
 
 class ManagerPaymentsListCreateAPI(generics.ListCreateAPIView):
     """
-    Список оплат (GET) и создание записи оплаты (POST).
-    Фильтры: confirmed, student.
+    GET: список платежей
+    POST: создать оплату (без подтверждения)
     """
     permission_classes = [IsManagerOrAdmin]
     serializer_class = ManagerPaymentSerializer
+    queryset = Payment.objects.select_related("student").all().order_by("-paid_at")
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ["confirmed", "student"]
     ordering_fields = ["paid_at", "amount", "id"]
-    queryset = Payment.objects.select_related("student").all().order_by("-paid_at")
+
 
 class ManagerPaymentConfirmAPI(APIView):
     """
-    Подтвердить оплату и начислить N занятий на баланс.
-    + Если студент был абитуриентом (APPLICANT), меняем роль на STUDENT.
+    Подтверждение оплаты менеджером + начисление занятий:
     POST /api/manager/payments/{id}/confirm/
-    Body: {"lessons_to_add": 4}
+    body: {"lessons_to_add": 4}
     """
     permission_classes = [IsManagerOrAdmin]
 
-    @transaction.atomic
     def post(self, request, pk):
+        try:
+            payment = Payment.objects.select_related("student").get(pk=pk)
+        except Payment.DoesNotExist:
+            return Response({"detail": "payment not found"}, status=404)
+
+        if payment.confirmed:
+            return Response({"detail": "already confirmed"}, status=400)
+
         lessons_to_add = int(request.data.get("lessons_to_add", 0))
         if lessons_to_add <= 0:
             return Response({"detail": "lessons_to_add must be > 0"}, status=400)
 
-        try:
-            p = Payment.objects.select_for_update().get(pk=pk)
-        except Payment.DoesNotExist:
-            return Response({"detail": "payment not found"}, status=404)
+        with transaction.atomic():
+            lb, _ = LessonBalance.objects.select_for_update().get_or_create(
+                student=payment.student
+            )
+            lb.lessons_available += lessons_to_add
+            lb.save()
 
-        if p.confirmed:
-            return Response({"detail": "already confirmed"}, status=400)
+            payment.confirmed = True
+            payment.save()
 
-        # подтверждаем оплату
-        p.confirmed = True
-        p.save()
+            AuditLog.objects.create(
+                actor=request.user,
+                action="MANAGER_CONFIRM_PAYMENT",
+                meta={
+                    "payment_id": payment.id,
+                    "student": payment.student_id,
+                    "lessons_added": lessons_to_add,
+                },
+            )
 
-        # начисляем занятия на баланс
-        bal, _ = LessonBalance.objects.get_or_create(student=p.student)
-        bal.lessons_available += lessons_to_add
-        bal.save()
-
-        # 🔹 промоушен: APPLICANT → STUDENT
-        student = p.student
-        if getattr(student, "role", None) == "APPLICANT":
-            student.role = "STUDENT"
-            student.save(update_fields=["role"])
-
-        AuditLog.objects.create(
-            actor=request.user,
-            action="MANAGER_CONFIRM_PAYMENT",
-            meta={
-                "payment_id": p.id,
-                "student_id": student.id,
-                "lessons_added": lessons_to_add,
-                "old_role": "APPLICANT" if student.role == "STUDENT" else student.role,
-                "new_role": student.role,
-            },
-        )
         return Response({"detail": "ok"})
+
 
 class ManagerStudentBalanceAPI(generics.RetrieveAPIView):
     """

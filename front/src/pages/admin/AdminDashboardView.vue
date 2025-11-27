@@ -1,19 +1,74 @@
 <!-- src/pages/admin/AdminDashboardView.vue -->
 <template>
   <div class="admin-page">
+    <!-- ШАПКА -->
     <header class="admin-header">
-      <h1>Админ-панель</h1>
+      <div class="title-block">
+        <h1>Админ-панель</h1>
+        <p class="subtitle">
+          Управление пользователями, расписанием и журналом логов.
+        </p>
+      </div>
+
       <div class="admin-info" v-if="auth.user">
-        <span>{{ auth.user.email }}</span>
-        <span class="role-badge">ADMIN</span>
-        <button @click="handleLogout">Выйти</button>
+        <div class="admin-user">
+          <span class="admin-email">{{ auth.user.email }}</span>
+          <span class="role-badge">ADMIN</span>
+        </div>
+
+        <div class="admin-actions">
+          <button class="btn secondary" @click="goToSchedule">
+            Календарь уроков
+          </button>
+          <button class="btn secondary" @click="goToLogs">
+            Система логов
+          </button>
+          <button class="btn" @click="handleLogout">
+            Выйти
+          </button>
+        </div>
       </div>
     </header>
 
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
     <main class="admin-main">
-      <!-- Пользователи -->
+      <!-- ВЕРХНИЕ КАРТОЧКИ (навигаторы) -->
+      <section class="admin-card quick-links-card">
+        <h2>Быстрые действия</h2>
+        <div class="quick-links">
+          <div class="quick-link" @click="goToSchedule">
+            <div class="ql-title">Календарь уроков</div>
+            <div class="ql-desc">
+              Смотреть расписание, создавать и переносить занятия для учеников
+              и преподавателей.
+            </div>
+          </div>
+
+          <div class="quick-link" @click="goToLogs">
+            <div class="ql-title">Система логов</div>
+            <div class="ql-desc">
+              История действий: создание и изменение уроков, аккаунтов и ролей.
+            </div>
+          </div>
+
+          <div class="quick-link" @click="loadUsers">
+            <div class="ql-title">Управление пользователями</div>
+            <div class="ql-desc">
+              Список всех пользователей: роли, контакты, редактирование и
+              удаление.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ПОЛЬЗОВАТЕЛИ -->
       <section class="admin-card users-card">
-        <h2>Пользователи</h2>
+        <div class="section-header">
+          <h2>Пользователи</h2>
+          <button class="btn small" @click="loadUsers" :disabled="loadingUsers">
+            {{ loadingUsers ? 'Обновляем...' : 'Обновить список' }}
+          </button>
+        </div>
 
         <div class="filters">
           <input
@@ -21,6 +76,7 @@
             type="text"
             placeholder="Поиск по email / ФИО"
           />
+
           <select v-model="roleFilter">
             <option value="">Все роли</option>
             <option value="ADMIN">ADMIN</option>
@@ -29,16 +85,15 @@
             <option value="STUDENT">STUDENT</option>
             <option value="APPLICANT">APPLICANT</option>
           </select>
-          <button @click="loadUsers" :disabled="loadingUsers">
-            {{ loadingUsers ? 'Обновляем...' : 'Обновить' }}
-          </button>
         </div>
 
         <p v-if="usersError" class="error">
           {{ usersError }}
         </p>
 
-        <p v-if="loadingUsers">Загружаем пользователей...</p>
+        <p v-if="loadingUsers" class="status-text">
+          Загружаем пользователей...
+        </p>
 
         <table
           v-if="!loadingUsers && users.length"
@@ -76,18 +131,22 @@
                 </select>
               </td>
               <td class="actions">
-                <button @click="openEdit(u)">Изменить</button>
-                <button class="danger" @click="handleDelete(u)">Удалить</button>
+                <button class="btn small secondary" @click="openEdit(u)">
+                  Изменить
+                </button>
+                <button class="btn small danger" @click="handleDelete(u)">
+                  Удалить
+                </button>
               </td>
             </tr>
           </tbody>
         </table>
 
-        <p v-else-if="!loadingUsers && !users.length">
+        <p v-else-if="!loadingUsers && !users.length" class="status-text">
           Пользователей пока нет.
         </p>
 
-        <!-- Панель редактирования -->
+        <!-- ПАНЕЛЬ РЕДАКТИРОВАНИЯ -->
         <div v-if="editUser" class="edit-panel">
           <h3>Редактирование пользователя #{{ editUser.id }}</h3>
           <form @submit.prevent="handleSave">
@@ -112,10 +171,12 @@
             </label>
 
             <div class="edit-actions">
-              <button type="submit" :disabled="savingUser">
+              <button class="btn small" type="submit" :disabled="savingUser">
                 {{ savingUser ? 'Сохраняем...' : 'Сохранить' }}
               </button>
-              <button type="button" @click="cancelEdit">Отмена</button>
+              <button class="btn small secondary" type="button" @click="cancelEdit">
+                Отмена
+              </button>
             </div>
 
             <p v-if="editError" class="error">
@@ -125,15 +186,19 @@
         </div>
       </section>
 
-      <!-- Заглушка под будущие разделы -->
+      <!-- ЗАГЛУШКИ ПОД ДРУГИЕ РАЗДЕЛЫ (платежи, логи и т.п. можно потом оживить) -->
       <section class="admin-card">
         <h2>Платежи</h2>
-        <p>Функционал работы с платежами будет добавлен позже.</p>
+        <p class="muted">
+          Здесь позже будет раздел работы с пакетами, оплатами и балансами уроков.
+        </p>
       </section>
 
       <section class="admin-card">
-        <h2>Логи</h2>
-        <p>Здесь будет отображаться история действий в системе.</p>
+        <h2>Прочее</h2>
+        <p class="muted">
+          Дополнительные сервисы админ-панели можно будет добавить сюда.
+        </p>
       </section>
     </main>
   </div>
@@ -170,6 +235,7 @@ const editForm = ref({
 const savingUser = ref(false)
 const editError = ref(null)
 
+// ===== ЗАГРУЗКА ПОЛЬЗОВАТЕЛЕЙ =====
 const loadUsers = async () => {
   loadingUsers.value = true
   usersError.value = null
@@ -179,7 +245,6 @@ const loadUsers = async () => {
     if (roleFilter.value) params.role = roleFilter.value
 
     const { data } = await adminGetUsers(params)
-    // бэк возвращает обычный список без пагинации
     users.value = Array.isArray(data) ? data : data.results || []
   } catch (err) {
     console.error('admin users load error:', err)
@@ -190,6 +255,7 @@ const loadUsers = async () => {
   }
 }
 
+// ===== СМЕНА РОЛИ =====
 const handleChangeRole = async (user) => {
   try {
     await adminSetUserRole(user.id, user.role)
@@ -197,11 +263,11 @@ const handleChangeRole = async (user) => {
     console.error('set role error:', err)
     usersError.value =
       err?.response?.data?.detail || 'Не удалось изменить роль пользователя'
-    // откатим на актуальные данные с сервера
     await loadUsers()
   }
 }
 
+// ===== РЕДАКТИРОВАНИЕ =====
 const openEdit = (user) => {
   editUser.value = { ...user }
   editForm.value = {
@@ -222,6 +288,7 @@ const handleSave = async () => {
   if (!editUser.value) return
   savingUser.value = true
   editError.value = null
+
   try {
     const payload = { ...editForm.value }
     const { data } = await adminUpdateUser(editUser.value.id, payload)
@@ -239,6 +306,7 @@ const handleSave = async () => {
   }
 }
 
+// ===== УДАЛЕНИЕ =====
 const handleDelete = async (user) => {
   if (!confirm(`Удалить пользователя ${user.email}?`)) return
   try {
@@ -254,9 +322,18 @@ const handleDelete = async (user) => {
   }
 }
 
+// ===== НАВИГАЦИЯ / АВТОРИЗАЦИЯ =====
 const handleLogout = () => {
   auth.logout()
   router.push({ name: 'login' })
+}
+
+const goToSchedule = () => {
+  router.push({ name: 'admin-schedule' })
+}
+
+const goToLogs = () => {
+  router.push({ name: 'admin-logs' })
 }
 
 onMounted(() => {
@@ -269,50 +346,94 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* тот же стиль, что и раньше, без изменений по сути */
 .admin-page {
   min-height: 100vh;
   background: #080808;
   color: #f5f5f5;
   padding: 24px;
   box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .admin-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
-.admin-header h1 {
-  font-size: 24px;
+.title-block h1 {
+  font-size: 26px;
   font-weight: 600;
+}
+
+.subtitle {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #aaa;
 }
 
 .admin-info {
   display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.admin-user {
+  display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+}
+
+.admin-email {
+  font-size: 14px;
 }
 
 .role-badge {
-  padding: 4px 8px;
+  padding: 3px 8px;
   border-radius: 999px;
   border: 1px solid #444;
-  font-size: 12px;
+  font-size: 11px;
   text-transform: uppercase;
 }
 
-.admin-header button {
+.admin-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
   padding: 6px 12px;
   border-radius: 8px;
   border: none;
   cursor: pointer;
+  background: #1e88e5;
+  color: #fff;
+  font-size: 13px;
 }
 
+.btn.secondary {
+  background: #333;
+  color: #f5f5f5;
+}
+
+.btn.danger {
+  background: #c62828;
+}
+
+.btn.small {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+/* layout */
 .admin-main {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  grid-auto-rows: min-content;
   gap: 16px;
 }
 
@@ -323,15 +444,59 @@ onMounted(() => {
   background: #111;
 }
 
-.users-card {
+.quick-links-card {
   grid-column: 1 / -1;
+}
+
+.users-card {
+  grid-column: 1 / 3;
+}
+
+.quick-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.quick-link {
+  border-radius: 10px;
+  border: 1px solid #333;
+  padding: 10px 12px;
+  background: #151515;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s, border-color 0.15s;
+}
+
+.quick-link:hover {
+  background: #1c1c1c;
+  border-color: #1e88e5;
+  transform: translateY(-1px);
+}
+
+.ql-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.ql-desc {
+  font-size: 13px;
+  color: #bbb;
+}
+
+/* users table */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
 }
 
 .filters {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .filters input,
@@ -341,22 +506,14 @@ onMounted(() => {
   border: 1px solid #444;
   background: #000;
   color: #f5f5f5;
-}
-
-.filters button {
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: none;
-  background: #1e88e5;
-  color: #fff;
-  cursor: pointer;
+  font-size: 13px;
 }
 
 .users-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 8px;
-  font-size: 14px;
+  margin-top: 4px;
+  font-size: 13px;
 }
 
 .users-table th,
@@ -384,22 +541,10 @@ onMounted(() => {
   gap: 6px;
 }
 
-.actions button {
-  padding: 4px 8px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.actions .danger {
-  background: #c62828;
-  color: #fff;
-}
-
+/* edit panel */
 .edit-panel {
-  margin-top: 16px;
-  padding-top: 12px;
+  margin-top: 14px;
+  padding-top: 10px;
   border-top: 1px solid #333;
   display: flex;
   flex-direction: column;
@@ -416,7 +561,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .edit-panel input {
@@ -433,16 +578,39 @@ onMounted(() => {
   margin-top: 4px;
 }
 
-.edit-actions button {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-}
-
 .error {
   color: #ff6b6b;
   font-size: 13px;
   margin-top: 4px;
+}
+
+.status-text {
+  font-size: 13px;
+  color: #bbb;
+  margin-top: 4px;
+}
+
+.muted {
+  font-size: 13px;
+  color: #999;
+}
+
+@media (max-width: 900px) {
+  .admin-main {
+    grid-template-columns: 1fr;
+  }
+
+  .users-card {
+    grid-column: 1 / -1;
+  }
+
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-info {
+    align-items: flex-start;
+  }
 }
 </style>

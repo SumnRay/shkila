@@ -4,10 +4,12 @@ from .models import Lesson, LessonBalance, Payment
 
 User = get_user_model()
 
+
 class ManagerClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("id", "email", "phone", "student_full_name", "parent_full_name", "role")
+
 
 class ManagerLessonSerializer(serializers.ModelSerializer):
     student_email = serializers.EmailField(source="student.email", read_only=True)
@@ -16,16 +18,29 @@ class ManagerLessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
         fields = (
-            "id", "student", "student_email",
-            "parent_full_name", "teacher", "teacher_email",
-            "link", "scheduled_at", "status", "comment",
-            "debited_from_balance", "created_at"
+            "id",
+            "student",
+            "student_email",
+            "parent_full_name",
+            "teacher",
+            "teacher_email",
+            "link",
+            "scheduled_at",
+            "status",
+            "comment",
+            "debited_from_balance",
+            "created_at",
         )
 
+
 class ManagerLessonUpdateSerializer(serializers.ModelSerializer):
+    """
+    Менеджер может менять время, ссылку, статус, комментарий.
+    """
     class Meta:
         model = Lesson
-        fields = ("scheduled_at", "link", "status", "comment", "teacher")
+        fields = ("scheduled_at", "status", "link", "comment")
+
 
 class ManagerBalanceSerializer(serializers.ModelSerializer):
     student_email = serializers.EmailField(source="student.email", read_only=True)
@@ -33,6 +48,7 @@ class ManagerBalanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = LessonBalance
         fields = ("student", "student_email", "lessons_available", "updated_at")
+
 
 class ManagerPaymentSerializer(serializers.ModelSerializer):
     student_email = serializers.EmailField(source="student.email", read_only=True)
