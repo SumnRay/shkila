@@ -4,16 +4,53 @@ from .models import Payment, Lesson, LessonBalance, AuditLog
 
 User = get_user_model()
 
+
 class AdminUserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("id", "email", "phone", "student_full_name", "parent_full_name", "role", "is_staff", "is_superuser")
+        fields = (
+            "id",
+            "email",
+            "phone",
+            "student_full_name",
+            "parent_full_name",
+            "role",
+            "is_staff",
+            "is_superuser",
+        )
+
+
+class AdminUserDetailSerializer(serializers.ModelSerializer):
+    """
+    Детальный просмотр/редактирование пользователя в админке.
+    Роль здесь только для отображения — менять её лучше отдельным эндпоинтом.
+    """
+
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "email",
+            "phone",
+            "student_full_name",
+            "parent_full_name",
+            "role",
+            "is_staff",
+            "is_superuser",
+        )
+        read_only_fields = ("id", "role", "is_staff", "is_superuser")
 
 
 class AdminSetRoleSerializer(serializers.Serializer):
-    role = serializers.ChoiceField(choices=[
-        ("ADMIN","ADMIN"), ("MANAGER","MANAGER"), ("TEACHER","TEACHER"), ("STUDENT","STUDENT"), ("APPLICANT","APPLICANT"),
-    ])
+    role = serializers.ChoiceField(
+        choices=[
+            ("ADMIN", "ADMIN"),
+            ("MANAGER", "MANAGER"),
+            ("TEACHER", "TEACHER"),
+            ("STUDENT", "STUDENT"),
+            ("APPLICANT", "APPLICANT"),
+        ]
+    )
 
 
 class PaymentSerializer(serializers.ModelSerializer):
@@ -21,7 +58,15 @@ class PaymentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Payment
-        fields = ("id", "student", "student_email", "amount", "package_name", "paid_at", "confirmed")
+        fields = (
+            "id",
+            "student",
+            "student_email",
+            "amount",
+            "package_name",
+            "paid_at",
+            "confirmed",
+        )
 
 
 class LessonBalanceSerializer(serializers.ModelSerializer):
@@ -39,9 +84,18 @@ class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
         fields = (
-            "id", "student", "student_email", "parent_full_name",
-            "teacher", "teacher_email", "link",
-            "scheduled_at", "status", "comment", "debited_from_balance", "created_at"
+            "id",
+            "student",
+            "student_email",
+            "parent_full_name",
+            "teacher",
+            "teacher_email",
+            "link",
+            "scheduled_at",
+            "status",
+            "comment",
+            "debited_from_balance",
+            "created_at",
         )
 
 
