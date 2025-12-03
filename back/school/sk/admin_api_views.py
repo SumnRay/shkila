@@ -89,10 +89,41 @@ class AdminSetRoleAPI(APIView):
         ser.is_valid(raise_exception=True)
         new_role = ser.validated_data["role"]
 
+        from django.conf import settings
+from accounts.permissions import is_root_admin
+
+...
+
+class AdminSetRoleAPI(APIView):
+    permission_classes = [IsAuthenticated, IsAdminRole]
+
+    def patch(self, request, pk):
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response({"detail": "user not found"}, status=404)
+
+        # защищаем root admin — ему нельзя менять роль
+        if is_root_admin(user):
+            return Response({"detail": "cannot change role of ROOT ADMIN"}, status=400)
+
+        ser = AdminSetRoleSerializer(data=request.data)
+        ser.is_valid(raise_exception=True)
+        new_role = ser.validated_data["role"]
+
         user.role = new_role
+        user.is_staff = new_role == "ADMIN"
         if new_role == "ADMIN":
-            user.is_staff = True
+            user.is_superuser = False  # суперюзер только у root-admin
         user.save()
+
+        AuditLog.objects.create(
+            actor=request.user,
+            action="SET_ROLE",
+            meta={"user_id": user.id, "email": user.email, "new_role": new_role},
+        )
+        return Response(AdminUserListSerializer(user).data)
+
 
         AuditLog.objects.create(
             actor=request.user,

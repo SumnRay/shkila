@@ -159,10 +159,9 @@ LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'accounts:login'   
 LOGOUT_REDIRECT_URL = 'accounts:login'
 
-ADMIN_SEED_EMAILS = [
-    'kazak_jenya@mail.ru',
-    'admin2@example.com',
-]
+
+ROOT_ADMIN_EMAIL = "kazak_jenya@mail.ru"
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
