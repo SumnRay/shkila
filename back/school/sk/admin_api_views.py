@@ -80,24 +80,9 @@ class AdminSetRoleAPI(APIView):
     permission_classes = [IsAuthenticated, IsAdminRole]
 
     def patch(self, request, pk):
-        try:
-            user = User.objects.get(pk=pk)
-        except User.DoesNotExist:
-            return Response({"detail": "user not found"}, status=404)
-
-        ser = AdminSetRoleSerializer(data=request.data)
-        ser.is_valid(raise_exception=True)
-        new_role = ser.validated_data["role"]
-
         from django.conf import settings
-from accounts.permissions import is_root_admin
-
-...
-
-class AdminSetRoleAPI(APIView):
-    permission_classes = [IsAuthenticated, IsAdminRole]
-
-    def patch(self, request, pk):
+        from accounts.permissions import is_root_admin
+        
         try:
             user = User.objects.get(pk=pk)
         except User.DoesNotExist:
@@ -116,14 +101,6 @@ class AdminSetRoleAPI(APIView):
         if new_role == "ADMIN":
             user.is_superuser = False  # суперюзер только у root-admin
         user.save()
-
-        AuditLog.objects.create(
-            actor=request.user,
-            action="SET_ROLE",
-            meta={"user_id": user.id, "email": user.email, "new_role": new_role},
-        )
-        return Response(AdminUserListSerializer(user).data)
-
 
         AuditLog.objects.create(
             actor=request.user,

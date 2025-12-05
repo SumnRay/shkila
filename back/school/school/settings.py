@@ -162,6 +162,14 @@ LOGOUT_REDIRECT_URL = 'accounts:login'
 
 ROOT_ADMIN_EMAIL = "kazak_jenya@mail.ru"
 
+# Белый список email'ов для создания админов через AdminLoginAPI
+# Первые 2 из этого списка могут стать суперпользователями
+ADMIN_SEED_EMAILS = [
+    "kazak_jenya@mail.ru",
+    "nikitasemenenko3@gmail.com",
+    # Добавьте сюда второй email для второго админа, если нужно
+]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
