@@ -2,7 +2,7 @@ from django.db import transaction
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from accounts.permissions import IsApplicantOrAdmin
 from .models import Course, LessonBalance, Payment
@@ -12,6 +12,18 @@ from .applicant_serializers import (
     ApplicantPaymentCreateSerializer,
     ApplicantPaymentSerializer,
 )
+
+
+class PublicCoursesListAPI(generics.ListAPIView):
+    """
+    Публичный список курсов (для главной страницы).
+    GET /api/applicant/courses/public/
+    """
+    permission_classes = [AllowAny]
+    serializer_class = ApplicantCourseSerializer
+
+    def get_queryset(self):
+        return Course.objects.filter(is_active=True).order_by("id")
 
 
 class ApplicantCoursesListAPI(generics.ListAPIView):

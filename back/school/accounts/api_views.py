@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .serializers import (
-    RegisterSerializer, LoginSerializer, AdminLoginSerializer, MeSerializer
+    RegisterSerializer, LoginSerializer, AdminLoginSerializer, MeSerializer, UpdateProfileSerializer
 )
 
 User = get_user_model()
@@ -98,6 +98,13 @@ class MeAPI(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        return Response(MeSerializer(request.user).data)
+    
+    def patch(self, request):
+        """Обновление профиля текущего пользователя"""
+        serializer = UpdateProfileSerializer(request.user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(MeSerializer(request.user).data)
 
 

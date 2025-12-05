@@ -4,13 +4,20 @@ import { useAuthStore } from '../stores/auth'
 
 import LoginView from '../pages/auth/LoginView.vue'
 import RegisterView from '../pages/auth/RegisterView.vue'
-import HomeView from '../pages/common/HomeView.vue'
-
+import LandingPage from '../pages/common/LandingPage.vue'
+import EditProfileView from '../pages/common/EditProfileView.vue'
+import ApplicantDashboardView from '../pages/applicant/ApplicantDashboardView.vue'
 import AdminDashboardView from '../pages/admin/AdminDashboardView.vue'
 import AdminScheduleView from '../pages/admin/AdminScheduleView.vue'
 import AdminLogsView from '../pages/admin/AdminLogsView.vue'
 
 const routes = [
+  {
+    path: '/',
+    name: 'home',
+    component: LandingPage,
+    meta: { guestOnly: false },
+  },
   {
     path: '/login',
     name: 'login',
@@ -24,13 +31,17 @@ const routes = [
     meta: { guestOnly: true },
   },
   {
-    path: '/',
-    name: 'home',
-    component: HomeView,
-    meta: { requiresAuth: true },
+    path: '/applicant',
+    name: 'applicant-dashboard',
+    component: ApplicantDashboardView,
+    meta: { requiresAuth: true, roles: ['applicant'] },
   },
-
-  // ===== АДМИНКА =====
+  {
+    path: '/edit-profile',
+    name: 'edit-profile',
+    component: EditProfileView,
+    meta: { requiresAuth: true, roles: ['applicant'] },
+  },
   {
     path: '/admin',
     name: 'admin-dashboard',
@@ -49,32 +60,6 @@ const routes = [
     component: AdminLogsView,
     meta: { requiresAuth: true, roles: ['admin'] },
   },
-
-  // заглушки для других ролей
-  {
-    path: '/student',
-    name: 'student-dashboard',
-    component: HomeView,
-    meta: { requiresAuth: true, roles: ['student'] },
-  },
-  {
-    path: '/teacher',
-    name: 'teacher-dashboard',
-    component: HomeView,
-    meta: { requiresAuth: true, roles: ['teacher'] },
-  },
-  {
-    path: '/manager',
-    name: 'manager-dashboard',
-    component: HomeView,
-    meta: { requiresAuth: true, roles: ['manager'] },
-  },
-  {
-    path: '/applicant',
-    name: 'applicant-dashboard',
-    component: HomeView,
-    meta: { requiresAuth: true, roles: ['applicant'] },
-  },
 ]
 
 const router = createRouter({
@@ -87,10 +72,7 @@ router.beforeEach((to, from, next) => {
 
   // страница только для гостей (login/register)
   if (to.meta.guestOnly && auth.isAuthenticated) {
-    const target = auth.getRedirectRouteByRole
-      ? auth.getRedirectRouteByRole()
-      : { name: 'home' }
-    return next(target)
+    return next({ name: 'home' })
   }
 
   // требуется авторизация
@@ -103,10 +85,7 @@ router.beforeEach((to, from, next) => {
     const role = auth.normalizedRole
     const allowed = to.meta.roles.map((r) => r.toLowerCase())
     if (!allowed.includes((role || '').toLowerCase())) {
-      const target = auth.getRedirectRouteByRole
-        ? auth.getRedirectRouteByRole()
-        : { name: 'home' }
-      return next(target)
+      return next({ name: 'home' })
     }
   }
 

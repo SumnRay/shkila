@@ -134,12 +134,6 @@ export const useAuthStore = defineStore('auth', {
       switch (this.normalizedRole) {
         case 'admin':
           return { name: 'admin-dashboard' }
-        case 'manager':
-          return { name: 'manager-dashboard' }
-        case 'teacher':
-          return { name: 'teacher-dashboard' }
-        case 'student':
-          return { name: 'student-dashboard' }
         case 'applicant':
           return { name: 'applicant-dashboard' }
         default:

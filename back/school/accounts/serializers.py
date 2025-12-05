@@ -46,7 +46,23 @@ class AdminLoginSerializer(serializers.Serializer):
 
 
 class MeSerializer(serializers.ModelSerializer):
+    role_display = serializers.CharField(source='get_role_display', read_only=True)
+    
     class Meta:
         model = User
         fields = ("id", "email", "phone", "student_full_name",
-                  "parent_full_name", "role", "is_staff", "is_superuser")
+                  "parent_full_name", "role", "role_display", "is_staff", "is_superuser")
+
+
+class UpdateProfileSerializer(serializers.ModelSerializer):
+    """Сериализатор для обновления профиля пользователя"""
+    class Meta:
+        model = User
+        fields = ("email", "phone", "student_full_name", "parent_full_name")
+    
+    def validate_email(self, value):
+        # Проверяем, что email уникален (кроме текущего пользователя)
+        user = self.instance
+        if User.objects.filter(email=value.lower()).exclude(pk=user.pk).exists():
+            raise serializers.ValidationError("Пользователь с таким email уже существует")
+        return value.lower()
