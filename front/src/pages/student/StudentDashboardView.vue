@@ -13,6 +13,13 @@
             <div class="stat-value">{{ dashboardData?.balance || 0 }}</div>
           </div>
         </div>
+        <router-link :to="{ name: 'payment-calculator' }" class="stat-card payment-card">
+          <div class="stat-icon">💳</div>
+          <div class="stat-content">
+            <div class="stat-label">Оплатить занятия</div>
+            <div class="stat-value">→</div>
+          </div>
+        </router-link>
       </div>
 
       <!-- Основной контент в две колонки -->
@@ -301,6 +308,22 @@ onMounted(async () => {
 .balance-card .stat-value {
   color: #ffffff;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.stat-card.payment-card {
+  background: rgba(76, 175, 80, 0.9);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  color: #ffffff;
+  border: 1px solid rgba(76, 175, 80, 0.6);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.stat-card.payment-card:hover {
+  background: rgba(76, 175, 80, 1);
+  border-color: rgba(76, 175, 80, 0.8);
+  transform: translateY(-4px);
 }
 
 /* Основная сетка */

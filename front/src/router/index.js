@@ -17,6 +17,7 @@ import ManagerBalanceView from '../pages/manager/ManagerBalanceView.vue'
 import TeacherDashboardView from '../pages/teacher/TeacherDashboardView.vue'
 import TeacherScheduleView from '../pages/teacher/TeacherScheduleView.vue'
 import StudentDashboardView from '../pages/student/StudentDashboardView.vue'
+import PaymentCalculatorView from '../pages/common/PaymentCalculatorView.vue'
 
 const routes = [
   {
@@ -108,6 +109,12 @@ const routes = [
     name: 'student-dashboard',
     component: StudentDashboardView,
     meta: { requiresAuth: true, roles: ['student'] },
+  },
+  {
+    path: '/payment',
+    name: 'payment-calculator',
+    component: PaymentCalculatorView,
+    meta: { requiresAuth: true, roles: ['student', 'applicant'] },
   },
 ]
 
