@@ -132,10 +132,64 @@
                 <span class="lessons-count">{{ course.default_lessons || 0 }}</span>
               </div>
             </div>
-            <button class="course-btn">НАЧАТЬ</button>
+            <button class="course-btn" @click="openCourseDetails(course)">ПОДРОБНЕЕ</button>
           </div>
         </div>
       </main>
+    </div>
+
+    <!-- Модальное окно с деталями курса -->
+    <div v-if="selectedCourse" class="modal-backdrop" @click="closeCourseDetails">
+      <div class="course-modal" @click.stop>
+        <div class="course-modal-header">
+          <h2>{{ selectedCourse.title }}</h2>
+          <button class="close-btn" @click="closeCourseDetails">×</button>
+        </div>
+        <div class="course-modal-content">
+          <p v-if="selectedCourse.description" class="course-modal-description">
+            {{ selectedCourse.description }}
+          </p>
+          <div class="course-modal-meta">
+            <span>Модулей: {{ selectedCourse.modules_count || 0 }}</span>
+            <span v-if="selectedCourse.default_lessons">
+              Занятий: {{ selectedCourse.default_lessons }}
+            </span>
+          </div>
+
+          <div v-if="selectedCourse.modules && selectedCourse.modules.length" class="modules-section">
+            <h3>Модули курса</h3>
+            <div class="modules-list">
+              <div
+                v-for="module in selectedCourse.modules"
+                :key="module.id"
+                class="module-card"
+              >
+                <div class="module-header">
+                  <h4>{{ module.title }}</h4>
+                  <span class="module-order">Модуль {{ module.order }}</span>
+                </div>
+                <p v-if="module.description" class="module-description">
+                  {{ module.description }}
+                </p>
+                <div v-if="module.topics && module.topics.length" class="topics-list">
+                  <h5>Темы занятий ({{ module.topics_count || module.topics.length }}):</h5>
+                  <ul class="topics-ul">
+                    <li v-for="topic in module.topics" :key="topic.id" class="topic-item">
+                      <span class="topic-order">{{ topic.order }}.</span>
+                      <div>
+                        <strong>{{ topic.title }}</strong>
+                        <p v-if="topic.description" class="topic-description">{{ topic.description }}</p>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+                <p v-else class="no-topics">Тем пока нет</p>
+              </div>
+            </div>
+          </div>
+          <p v-else class="no-modules">Модулей пока нет</p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -149,6 +203,7 @@ import apiClient from '../../api/http'
 const auth = useAuthStore()
 const router = useRouter()
 const courses = ref([])
+const selectedCourse = ref(null)
 const loading = ref(false)
 
 const fetchCourses = async () => {
@@ -170,6 +225,14 @@ const fetchCourses = async () => {
 const handleLogout = () => {
   auth.logout()
   router.push({ name: 'home' })
+}
+
+const openCourseDetails = (course) => {
+  selectedCourse.value = course
+}
+
+const closeCourseDetails = () => {
+  selectedCourse.value = null
 }
 
 onMounted(() => {
@@ -593,5 +656,182 @@ onMounted(() => {
   .page-title {
     font-size: 1.75rem;
   }
+}
+
+/* Модальное окно с деталями курса */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.course-modal {
+  background: #fff;
+  border-radius: 12px;
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.course-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.course-modal-header h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #333;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 32px;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.close-btn:hover {
+  background: #f0f0f0;
+}
+
+.course-modal-content {
+  padding: 24px;
+}
+
+.course-modal-description {
+  color: #666;
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.course-modal-meta {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 14px;
+  color: #666;
+}
+
+.modules-section h3 {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  color: #333;
+}
+
+.modules-list {
+  display: grid;
+  gap: 16px;
+}
+
+.module-card {
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.module-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.module-header h4 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.module-order {
+  background: #42b983;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.module-description {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.topics-list {
+  margin-top: 16px;
+}
+
+.topics-list h5 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: #666;
+  font-weight: 600;
+}
+
+.topics-ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.topic-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.topic-order {
+  color: #42b983;
+  font-weight: 600;
+  min-width: 24px;
+}
+
+.topic-item strong {
+  display: block;
+  color: #333;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.topic-description {
+  color: #666;
+  font-size: 12px;
+  margin: 0;
+}
+
+.no-topics,
+.no-modules {
+  color: #999;
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
 }
 </style>

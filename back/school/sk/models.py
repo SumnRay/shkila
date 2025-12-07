@@ -159,8 +159,72 @@ class Course(models.Model):
     default_lessons = models.PositiveIntegerField(default=4)
     default_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['id']
+
     def __str__(self):
         return self.title
+
+    @property
+    def modules_count(self):
+        """Количество модулей в курсе"""
+        return self.modules.count()
+
+
+class Module(models.Model):
+    """
+    Модуль курса. Курс разбит на модули.
+    """
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name="modules"
+    )
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    order = models.PositiveIntegerField(default=0, help_text="Порядок отображения модулей")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order', 'id']
+        unique_together = [['course', 'order']]
+
+    def __str__(self):
+        return f"{self.course.title} - {self.title}"
+
+    @property
+    def topics_count(self):
+        """Количество тем в модуле"""
+        return self.topics.count()
+
+
+class LessonTopic(models.Model):
+    """
+    Тема занятия в модуле. Каждый модуль содержит список тем занятий.
+    """
+    module = models.ForeignKey(
+        Module,
+        on_delete=models.CASCADE,
+        related_name="topics"
+    )
+    title = models.CharField(max_length=200, help_text="Название темы занятия")
+    description = models.TextField(blank=True, help_text="Описание темы")
+    order = models.PositiveIntegerField(default=0, help_text="Порядок отображения тем в модуле")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order', 'id']
+        unique_together = [['module', 'order']]
+
+    def __str__(self):
+        return f"{self.module.title} - {self.title}"
 
 
 class StudentProfile(models.Model):

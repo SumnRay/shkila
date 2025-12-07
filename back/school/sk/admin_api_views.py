@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 
 from accounts.permissions import IsAdminRole
-from .models import Payment, Lesson, LessonBalance, AuditLog
+from .models import Payment, Lesson, LessonBalance, AuditLog, Course, Module, LessonTopic
 from .admin_serializers import (
     AdminUserListSerializer,
     AdminUserDetailSerializer,
@@ -18,6 +18,12 @@ from .admin_serializers import (
     AdminLessonUpdateSerializer,
     LessonBalanceSerializer,
     AuditLogSerializer,
+    CourseSerializer,
+    CourseCreateUpdateSerializer,
+    ModuleSerializer,
+    ModuleCreateUpdateSerializer,
+    LessonTopicSerializer,
+    LessonTopicCreateUpdateSerializer,
 )
 
 User = get_user_model()
@@ -337,3 +343,149 @@ class AdminAuditLogListAPI(generics.ListAPIView):
     search_fields = ["action", "actor__email"]
     ordering_fields = ["created_at", "id"]
     ordering = ["-created_at"]
+
+
+# ======= COURSES =======
+
+
+class AdminCourseListCreateAPI(generics.ListCreateAPIView):
+    """
+    GET: список всех курсов
+    POST: создать новый курс
+    """
+    permission_classes = [IsAuthenticated, IsAdminRole]
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return CourseCreateUpdateSerializer
+        return CourseSerializer
+
+    def get_queryset(self):
+        return Course.objects.prefetch_related('modules__topics').all().order_by('id')
+
+
+class AdminCourseDetailAPI(generics.RetrieveUpdateDestroyAPIView):
+    """
+    GET: детали курса с модулями и темами
+    PATCH: обновить курс
+    DELETE: удалить курс
+    """
+    permission_classes = [IsAuthenticated, IsAdminRole]
+    queryset = Course.objects.prefetch_related('modules__topics').all()
+
+    def get_serializer_class(self):
+        if self.request.method in ['PATCH', 'PUT']:
+            return CourseCreateUpdateSerializer
+        return CourseSerializer
+
+
+# ======= MODULES =======
+
+
+class AdminModuleListCreateAPI(generics.ListCreateAPIView):
+    """
+    GET: список модулей курса
+    POST: создать новый модуль в курсе
+    """
+    permission_classes = [IsAuthenticated, IsAdminRole]
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return ModuleCreateUpdateSerializer
+        return ModuleSerializer
+
+    def get_queryset(self):
+        course_id = self.request.query_params.get('course_id')
+        if course_id:
+            return Module.objects.filter(course_id=course_id).prefetch_related('topics').order_by('order', 'id')
+        return Module.objects.prefetch_related('topics').all().order_by('order', 'id')
+
+    def perform_create(self, serializer):
+        course_id = self.request.data.get('course_id') or self.request.query_params.get('course_id')
+        if not course_id:
+            return Response({"detail": "course_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            course = Course.objects.get(id=course_id)
+        except Course.DoesNotExist:
+            return Response({"detail": "Course not found"}, status=status.HTTP_404_NOT_FOUND)
+        module = serializer.save(course=course)
+        AuditLog.objects.create(
+            actor=self.request.user,
+            action="CREATE_MODULE",
+            meta={
+                "module_id": module.id,
+                "course_id": course.id,
+                "module_title": module.title,
+            },
+        )
+
+
+class AdminModuleDetailAPI(generics.RetrieveUpdateDestroyAPIView):
+    """
+    GET: детали модуля с темами
+    PATCH: обновить модуль
+    DELETE: удалить модуль
+    """
+    permission_classes = [IsAuthenticated, IsAdminRole]
+    queryset = Module.objects.prefetch_related('topics').all()
+
+    def get_serializer_class(self):
+        if self.request.method in ['PATCH', 'PUT']:
+            return ModuleCreateUpdateSerializer
+        return ModuleSerializer
+
+
+# ======= LESSON TOPICS =======
+
+
+class AdminLessonTopicListCreateAPI(generics.ListCreateAPIView):
+    """
+    GET: список тем модуля
+    POST: создать новую тему в модуле
+    """
+    permission_classes = [IsAuthenticated, IsAdminRole]
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return LessonTopicCreateUpdateSerializer
+        return LessonTopicSerializer
+
+    def get_queryset(self):
+        module_id = self.request.query_params.get('module_id')
+        if module_id:
+            return LessonTopic.objects.filter(module_id=module_id).order_by('order', 'id')
+        return LessonTopic.objects.all().order_by('order', 'id')
+
+    def perform_create(self, serializer):
+        module_id = self.request.data.get('module_id') or self.request.query_params.get('module_id')
+        if not module_id:
+            return Response({"detail": "module_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            module = Module.objects.get(id=module_id)
+        except Module.DoesNotExist:
+            return Response({"detail": "Module not found"}, status=status.HTTP_404_NOT_FOUND)
+        topic = serializer.save(module=module)
+        AuditLog.objects.create(
+            actor=self.request.user,
+            action="CREATE_LESSON_TOPIC",
+            meta={
+                "topic_id": topic.id,
+                "module_id": module.id,
+                "topic_title": topic.title,
+            },
+        )
+
+
+class AdminLessonTopicDetailAPI(generics.RetrieveUpdateDestroyAPIView):
+    """
+    GET: детали темы
+    PATCH: обновить тему
+    DELETE: удалить тему
+    """
+    permission_classes = [IsAuthenticated, IsAdminRole]
+    queryset = LessonTopic.objects.all()
+
+    def get_serializer_class(self):
+        if self.request.method in ['PATCH', 'PUT']:
+            return LessonTopicCreateUpdateSerializer
+        return LessonTopicSerializer

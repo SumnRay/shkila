@@ -58,6 +58,13 @@
               удаление.
             </div>
           </div>
+
+          <div class="quick-link" @click="goToCourses">
+            <div class="ql-title">Управление курсами</div>
+            <div class="ql-desc">
+              Создание и редактирование курсов, модулей и тем занятий.
+            </div>
+          </div>
         </div>
       </section>
 
@@ -334,6 +341,10 @@ const goToSchedule = () => {
 
 const goToLogs = () => {
   router.push({ name: 'admin-logs' })
+}
+
+const goToCourses = () => {
+  router.push({ name: 'admin-courses' })
 }
 
 onMounted(() => {
