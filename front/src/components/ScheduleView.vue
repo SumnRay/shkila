@@ -522,12 +522,17 @@ const searchStudent = async () => {
       studentError.value = 'Этот ученик не назначен вам. Обратитесь к менеджеру.'
     }
   } catch (err) {
-    console.error('search student error:', err)
-    const errorDetail = err?.response?.data?.detail
-    if (errorDetail === 'this student is not assigned to you') {
-      studentError.value = 'Этот ученик не назначен вам. Обратитесь к менеджеру.'
+    // Не логируем 404 как ошибку - это нормально, когда пользователь не найден
+    if (err?.response?.status === 404) {
+      studentError.value = 'Ученик не найден'
     } else {
-      studentError.value = errorDetail || 'Ученик не найден'
+      console.error('search student error:', err)
+      const errorDetail = err?.response?.data?.detail
+      if (errorDetail === 'this student is not assigned to you') {
+        studentError.value = 'Этот ученик не назначен вам. Обратитесь к менеджеру.'
+      } else {
+        studentError.value = errorDetail || 'Ошибка поиска ученика'
+      }
     }
   } finally {
     searchingStudent.value = false
@@ -545,8 +550,13 @@ const searchTeacher = async () => {
     const result = await props.onSearchUser(formTeacherEmail.value, 'teacher')
     foundTeacher.value = result
   } catch (err) {
-    console.error('search teacher error:', err)
-    teacherError.value = err?.response?.data?.detail || 'Учитель не найден'
+    // Не логируем 404 как ошибку - это нормально, когда пользователь не найден
+    if (err?.response?.status === 404) {
+      teacherError.value = 'Учитель не найден'
+    } else {
+      console.error('search teacher error:', err)
+      teacherError.value = err?.response?.data?.detail || 'Ошибка поиска учителя'
+    }
   } finally {
     searchingTeacher.value = false
   }
@@ -658,12 +668,23 @@ const handleCreate = async () => {
 
   // Проверяем, что найдены необходимые пользователи
   if (!foundStudent.value) {
-    createError.value = 'Сначала найдите ученика по email'
+    createError.value = 'Сначала найдите ученика по email и нажмите кнопку "Найти"'
     return
   }
 
   if (isManager.value && !foundTeacher.value) {
-    createError.value = 'Сначала найдите учителя по email'
+    createError.value = 'Сначала найдите учителя по email и нажмите кнопку "Найти"'
+    return
+  }
+
+  // Проверяем, что email'ы не пустые
+  if (!formStudentEmail.value?.trim()) {
+    createError.value = 'Введите email ученика'
+    return
+  }
+
+  if (isManager.value && !formTeacherEmail.value?.trim()) {
+    createError.value = 'Введите email учителя'
     return
   }
 
@@ -692,14 +713,12 @@ const handleCreate = async () => {
     scheduled_at: isoString,
   }
 
-  // Добавляем comment только если он не пустой
+  // Добавляем comment только если он не пустой (не отправляем пустую строку)
   if (formComment.value?.trim()) {
     payload.comment = formComment.value.trim()
-  } else {
-    payload.comment = ''
   }
 
-  // Добавляем link только если он не пустой
+  // Добавляем link только если он не пустой (не отправляем пустую строку)
   if (formLink.value?.trim()) {
     payload.link = formLink.value.trim()
   }
@@ -726,23 +745,43 @@ const handleCreate = async () => {
   } catch (err) {
     console.error('create lesson error:', err)
     console.error('Error response data:', err?.response?.data)
+    console.error('Payload that was sent:', payload)
     const errorData = err?.response?.data
     if (errorData) {
+      // Приоритет обработки ошибок: сначала специфичные поля, потом общие
       if (errorData.student_email) {
-        createError.value = `Ошибка с учеником: ${Array.isArray(errorData.student_email) ? errorData.student_email[0] : errorData.student_email}`
+        const errorMsg = Array.isArray(errorData.student_email) ? errorData.student_email[0] : errorData.student_email
+        createError.value = `Ошибка с учеником: ${errorMsg}`
       } else if (errorData.teacher_email) {
-        createError.value = `Ошибка с учителем: ${Array.isArray(errorData.teacher_email) ? errorData.teacher_email[0] : errorData.teacher_email}`
+        const errorMsg = Array.isArray(errorData.teacher_email) ? errorData.teacher_email[0] : errorData.teacher_email
+        createError.value = `Ошибка с учителем: ${errorMsg}`
       } else if (errorData.student) {
-        createError.value = `Ошибка с учеником: ${Array.isArray(errorData.student) ? errorData.student[0] : errorData.student}`
+        const errorMsg = Array.isArray(errorData.student) ? errorData.student[0] : errorData.student
+        // Если ошибка "Either student or student_email is required", показываем более понятное сообщение
+        if (errorMsg.includes('student_email is required') || errorMsg.includes('Either student')) {
+          createError.value = 'Укажите email ученика и нажмите "Найти"'
+        } else {
+          createError.value = `Ошибка с учеником: ${errorMsg}`
+        }
       } else if (errorData.teacher) {
-        createError.value = `Ошибка с учителем: ${Array.isArray(errorData.teacher) ? errorData.teacher[0] : errorData.teacher}`
+        const errorMsg = Array.isArray(errorData.teacher) ? errorData.teacher[0] : errorData.teacher
+        // Если ошибка "Either teacher or teacher_email is required", показываем более понятное сообщение
+        if (errorMsg.includes('teacher_email is required') || errorMsg.includes('Either teacher')) {
+          createError.value = 'Укажите email учителя и нажмите "Найти"'
+        } else {
+          createError.value = `Ошибка с учителем: ${errorMsg}`
+        }
+      } else if (errorData.scheduled_at) {
+        const errorMsg = Array.isArray(errorData.scheduled_at) ? errorData.scheduled_at[0] : errorData.scheduled_at
+        createError.value = `Ошибка с датой/временем: ${errorMsg}`
       } else if (errorData.detail) {
         createError.value = errorData.detail
       } else {
         // Показываем первую ошибку из объекта
         const firstErrorKey = Object.keys(errorData)[0]
         const firstError = errorData[firstErrorKey]
-        createError.value = `${firstErrorKey}: ${Array.isArray(firstError) ? firstError[0] : firstError}`
+        const errorMsg = Array.isArray(firstError) ? firstError[0] : firstError
+        createError.value = `${firstErrorKey}: ${errorMsg}`
       }
     } else {
       createError.value = 'Ошибка создания урока. Проверьте подключение к серверу.'

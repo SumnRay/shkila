@@ -103,6 +103,8 @@ class AdminLessonCreateSerializer(serializers.ModelSerializer):
     Создание урока админом.
     Может указать student_email и teacher_email вместо ID.
     """
+    student = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
+    teacher = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False, allow_null=True)
     student_email = serializers.EmailField(write_only=True, required=False)
     teacher_email = serializers.EmailField(write_only=True, required=False)
     link = serializers.CharField(required=False, allow_blank=True, max_length=300)

@@ -117,7 +117,10 @@ const handleSearchUser = async (email, type) => {
     const { data } = await adminSearchUserByEmail(email)
     return data
   } catch (err) {
-    console.error('search user error:', err)
+    // Не логируем 404 как ошибку - это нормально, когда пользователь не найден
+    if (err?.response?.status !== 404) {
+      console.error('search user error:', err)
+    }
     throw err
   }
 }

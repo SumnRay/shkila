@@ -157,7 +157,10 @@ const fetchCourses = async () => {
     const { data } = await apiClient.get('/api/applicant/courses/public/')
     courses.value = data
   } catch (err) {
-    console.error('Ошибка загрузки курсов:', err)
+    // Не логируем 401 как ошибку - это нормально для публичной страницы
+    if (err?.response?.status !== 401) {
+      console.error('Ошибка загрузки курсов:', err)
+    }
     courses.value = []
   } finally {
     loading.value = false

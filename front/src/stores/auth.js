@@ -116,8 +116,22 @@ export const useAuthStore = defineStore('auth', {
         const { data } = await getMeApi()
         this.user = data
       } catch (err) {
-        console.error('fetchMe error:', err)
-        this.logout()
+        // Не логируем пользователя при 401, если токен был обновлен автоматически
+        // Interceptor в http.js уже обработает обновление токена
+        if (err?.response?.status === 401) {
+          // Если после обновления токена все еще 401, значит токен невалидный
+          // Проверяем, есть ли еще access токен (возможно он был обновлен)
+          const currentAccess = localStorage.getItem('access')
+          if (!currentAccess || currentAccess === this.access) {
+            // Токен не был обновлен, значит он невалидный - выходим
+            console.error('fetchMe error: Invalid token')
+            this.logout()
+          }
+          // Если токен был обновлен, не делаем ничего - следующий запрос должен пройти
+        } else {
+          console.error('fetchMe error:', err)
+          // Для других ошибок не выходим автоматически
+        }
       }
     },
 
