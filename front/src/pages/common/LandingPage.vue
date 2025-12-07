@@ -26,6 +26,13 @@
               Панель менеджера
             </router-link>
             <router-link 
+              v-if="auth.normalizedRole === 'teacher'"
+              :to="{ name: 'teacher-dashboard' }" 
+              class="dropdown-item"
+            >
+              Панель учителя
+            </router-link>
+            <router-link 
               v-if="auth.normalizedRole === 'applicant'"
               :to="{ name: 'applicant-dashboard' }" 
               class="dropdown-item"
@@ -81,8 +88,8 @@
           <p class="page-description">
             На этой странице представлены все курсы доступные на нашей платформе в данный момент.
           </p>
-          <!-- Кнопка для админов и менеджеров -->
-          <div v-if="auth.isAuthenticated && (auth.normalizedRole === 'admin' || auth.normalizedRole === 'manager')" class="admin-button-container">
+          <!-- Кнопка для админов, менеджеров и учителей -->
+          <div v-if="auth.isAuthenticated && (auth.normalizedRole === 'admin' || auth.normalizedRole === 'manager' || auth.normalizedRole === 'teacher')" class="admin-button-container">
             <router-link 
               v-if="auth.normalizedRole === 'admin'"
               :to="{ name: 'admin-dashboard' }" 
@@ -96,6 +103,13 @@
               class="admin-panel-btn"
             >
               ⚙️ Перейти в панель менеджера
+            </router-link>
+            <router-link 
+              v-if="auth.normalizedRole === 'teacher'"
+              :to="{ name: 'teacher-dashboard' }" 
+              class="admin-panel-btn"
+            >
+              ⚙️ Перейти в панель учителя
             </router-link>
           </div>
         </div>

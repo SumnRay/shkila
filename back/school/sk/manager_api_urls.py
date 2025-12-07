@@ -1,6 +1,7 @@
 from django.urls import path
 from .manager_api_views import (
     ManagerClientsListAPI,
+    ManagerUserByEmailAPI,
     ManagerLessonsListCreateAPI, ManagerLessonUpdateAPI, ManagerLessonCancelAPI, ManagerLessonDebitAPI,
     ManagerPaymentsListCreateAPI, ManagerPaymentConfirmAPI, ManagerStudentBalanceAPI, ManagerStudentBalanceUpdateAPI,
 )
@@ -8,6 +9,9 @@ from .manager_api_views import (
 urlpatterns = [
     # Клиенты
     path('clients/', ManagerClientsListAPI.as_view()),
+    
+    # Поиск пользователя по email (должен быть перед lessons, чтобы не конфликтовал)
+    path('users/by-email/', ManagerUserByEmailAPI.as_view()),  # GET поиск по email
 
     # Расписание / Уроки
     path('lessons/', ManagerLessonsListCreateAPI.as_view()),          # GET/POST

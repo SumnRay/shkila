@@ -1,22 +1,32 @@
-<!-- src/pages/admin/AdminScheduleView.vue -->
+<!-- src/pages/teacher/TeacherScheduleView.vue -->
 <template>
-  <div class="admin-page">
-    <header class="admin-header">
-      <h1>Календарь уроков</h1>
+  <div class="teacher-schedule-page">
+    <header class="teacher-header">
+      <div class="title-block">
+        <h1>Расписание занятий</h1>
+        <p class="subtitle">
+          Проставляйте расписание занятий для ваших учеников.
+        </p>
+      </div>
 
-      <div class="admin-info" v-if="auth.user">
-        <span>{{ auth.user.email }}</span>
-        <span class="role-badge">ADMIN</span>
+      <div class="teacher-info" v-if="auth.user">
+        <div class="teacher-user">
+          <span class="teacher-email">{{ auth.user.email }}</span>
+          <span class="role-badge">TEACHER</span>
+        </div>
 
-        <router-link class="btn" :to="{ name: 'admin-dashboard' }">
-          Панель
-        </router-link>
-
-        <button class="btn" @click="handleLogout">Выйти</button>
+        <div class="teacher-actions">
+          <button class="btn secondary" @click="goToDashboard">
+            Панель учителя
+          </button>
+          <button class="btn" @click="handleLogout">
+            Выйти
+          </button>
+        </div>
       </div>
     </header>
 
-    <main class="admin-main">
+    <main class="teacher-main">
       <ScheduleView
         :lessons="lessons"
         :lessons-loading="lessonsLoading"
@@ -24,7 +34,7 @@
         :on-create-lesson="handleCreateLesson"
         :on-update-lesson="handleUpdateLesson"
         :on-search-user="handleSearchUser"
-        user-role="manager"
+        user-role="teacher"
         :current-user-email="auth.user?.email || ''"
         @lesson-selected="selectLesson"
         @week-changed="handleWeekChanged"
@@ -33,14 +43,12 @@
   </div>
 </template>
 
-
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import ScheduleView from '../../components/ScheduleView.vue'
-import { adminGetLessons, adminCreateLesson, adminUpdateLesson } from '../../api/lessons'
-import { adminSearchUserByEmail } from '../../api/admin'
+import { teacherGetLessons, teacherCreateLesson, teacherUpdateLesson, teacherSearchStudentByEmail } from '../../api/teacher'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -75,7 +83,7 @@ const loadLessons = async (params = {}) => {
   lessonsError.value = null
 
   try {
-    const { data } = await adminGetLessons(params)
+    const { data } = await teacherGetLessons(params)
     lessons.value = Array.isArray(data) ? data : data.results || []
   } catch (err) {
     console.error('load lessons error:', err)
@@ -87,7 +95,7 @@ const loadLessons = async (params = {}) => {
 
 const handleCreateLesson = async (payload) => {
   try {
-    await adminCreateLesson(payload)
+    await teacherCreateLesson(payload)
     await loadLessons()
   } catch (err) {
     console.error('create lesson error:', err)
@@ -97,7 +105,7 @@ const handleCreateLesson = async (payload) => {
 
 const handleUpdateLesson = async (lessonId, payload) => {
   try {
-    await adminUpdateLesson(lessonId, payload)
+    await teacherUpdateLesson(lessonId, payload)
     await loadLessons()
   } catch (err) {
     console.error('update lesson error:', err)
@@ -107,10 +115,10 @@ const handleUpdateLesson = async (lessonId, payload) => {
 
 const handleSearchUser = async (email, type) => {
   try {
-    const { data } = await adminSearchUserByEmail(email)
+    const { data } = await teacherSearchStudentByEmail(email)
     return data
   } catch (err) {
-    console.error('search user error:', err)
+    console.error('search student error:', err)
     throw err
   }
 }
@@ -126,6 +134,10 @@ const handleWeekChanged = (params) => {
 const handleLogout = () => {
   auth.logout()
   router.push({ name: 'login' })
+}
+
+const goToDashboard = () => {
+  router.push({ name: 'teacher-dashboard' })
 }
 
 onMounted(() => {
@@ -146,52 +158,89 @@ onMounted(() => {
 })
 </script>
 
-
 <style scoped>
-.admin-page {
+.teacher-schedule-page {
   min-height: 100vh;
   background: #0a0a0a;
   color: #f5f5f5;
   padding: 24px;
 }
 
-.admin-header {
+.teacher-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
-.admin-info {
+.title-block h1 {
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #aaa;
+}
+
+.teacher-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.teacher-user {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+}
+
+.teacher-email {
+  font-size: 14px;
+}
+
+.role-badge {
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid #444;
+  font-size: 11px;
+  text-transform: uppercase;
+  background: #ff9800;
+}
+
+.teacher-actions {
+  display: flex;
+  gap: 8px;
 }
 
 .btn {
   padding: 6px 12px;
-  color: white;
-  background: #1e88e5;
+  border-radius: 8px;
   border: none;
-  border-radius: 6px;
   cursor: pointer;
-  text-decoration: none;
+  background: #1e88e5;
+  color: #fff;
   font-size: 13px;
 }
 
-.btn:hover {
-  background: #1565c0;
-}
-
-.role-badge {
-  padding: 4px 8px;
-  border-radius: 8px;
+.btn.secondary {
   background: #333;
-  font-size: 11px;
-  text-transform: uppercase;
+  color: #f5f5f5;
 }
 
-.admin-main {
+.btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.teacher-main {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 16px;

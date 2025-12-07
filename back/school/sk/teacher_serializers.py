@@ -42,6 +42,40 @@ class TeacherLessonUpdateSerializer(serializers.ModelSerializer):
         fields = ("status", "comment", "link")
 
 
+class TeacherLessonCreateSerializer(serializers.ModelSerializer):
+    """
+    Создание урока учителем.
+    Учитель может указать student_email вместо ID.
+    Учитель автоматически назначается как teacher.
+    """
+    student_email = serializers.EmailField(write_only=True, required=False)
+    link = serializers.CharField(required=False, allow_blank=True, max_length=300)
+    comment = serializers.CharField(required=False, allow_blank=True)
+
+    class Meta:
+        model = Lesson
+        fields = ("student", "student_email", "scheduled_at", "link", "comment")
+
+    def validate(self, attrs):
+        # Если передан email, находим пользователя по email
+        if attrs.get('student_email'):
+            student_email = attrs.pop('student_email', '').strip()
+            if student_email:
+                try:
+                    student = User.objects.get(email__iexact=student_email)
+                    attrs['student'] = student
+                except User.DoesNotExist:
+                    raise serializers.ValidationError({"student_email": "Student with this email not found"})
+                except User.MultipleObjectsReturned:
+                    raise serializers.ValidationError({"student_email": "Multiple students with this email found"})
+        
+        # Проверяем, что хотя бы один способ указания ученика есть
+        if not attrs.get('student'):
+            raise serializers.ValidationError({"student": "Either student or student_email is required"})
+        
+        return attrs
+
+
 class TeacherStudentSerializer(serializers.ModelSerializer):
     """
     Список учеников учителя (для журнала).

@@ -9,6 +9,7 @@ from .models import Lesson, AuditLog
 from .teacher_serializers import (
     TeacherLessonSerializer,
     TeacherLessonUpdateSerializer,
+    TeacherLessonCreateSerializer,
     TeacherStudentSerializer,
 )
 
@@ -18,9 +19,10 @@ User = get_user_model()
 # ======= УРОКИ / РАСПИСАНИЕ =======
 
 
-class TeacherLessonsListAPI(generics.ListAPIView):
+class TeacherLessonsListCreateAPI(generics.ListCreateAPIView):
     """
-    Список всех уроков учителя (и будущие, и прошедшие).
+    GET: Список всех уроков учителя (и будущие, и прошедшие).
+    POST: Создать урок для своего ученика.
 
     Фильтры:
       - status=PLANNED|DONE|CANCELLED
@@ -30,7 +32,6 @@ class TeacherLessonsListAPI(generics.ListAPIView):
       - ?ordering=scheduled_at или -scheduled_at
     """
     permission_classes = [IsTeacherOrAdmin]
-    serializer_class = TeacherLessonSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["status", "student"]
     search_fields = [
@@ -41,6 +42,11 @@ class TeacherLessonsListAPI(generics.ListAPIView):
     ordering_fields = ["scheduled_at", "created_at", "id"]
     ordering = ["-scheduled_at"]
 
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return TeacherLessonCreateSerializer
+        return TeacherLessonSerializer
+
     def get_queryset(self):
         user = self.request.user
         qs = Lesson.objects.select_related("student", "teacher").all()
@@ -48,6 +54,38 @@ class TeacherLessonsListAPI(generics.ListAPIView):
         if not (user.is_superuser or getattr(user, "role", None) == "ADMIN"):
             qs = qs.filter(teacher=user)
         return qs
+
+    def perform_create(self, serializer):
+        teacher = self.request.user
+        student = serializer.validated_data.get('student')
+        
+        # Проверяем, что учитель может создавать уроки только для своих учеников
+        if not (teacher.is_superuser or getattr(teacher, "role", None) == "ADMIN"):
+            # Проверяем, есть ли хотя бы один урок с этим учеником
+            has_existing_lesson = Lesson.objects.filter(
+                student=student,
+                teacher=teacher
+            ).exists()
+            if not has_existing_lesson:
+                from rest_framework.exceptions import PermissionDenied
+                raise PermissionDenied("You can only create lessons for your assigned students")
+        
+        # Автоматически назначаем текущего пользователя как учителя
+        lesson = serializer.save(teacher=teacher)
+        # Автоматически заполняем parent_full_name из профиля ученика, если не указано
+        if not lesson.parent_full_name and lesson.student:
+            lesson.parent_full_name = lesson.student.parent_full_name or ''
+            lesson.save(update_fields=['parent_full_name'])
+        AuditLog.objects.create(
+            actor=teacher,
+            action="TEACHER_CREATE_LESSON",
+            meta={
+                "lesson_id": lesson.id,
+                "student": lesson.student_id,
+                "student_email": lesson.student.email,
+                "scheduled_at": lesson.scheduled_at.isoformat(),
+            },
+        )
 
 
 class TeacherLessonDetailAPI(generics.RetrieveAPIView):
@@ -144,3 +182,46 @@ class TeacherStudentLessonsAPI(generics.ListAPIView):
         if not (user.is_superuser or getattr(user, "role", None) == "ADMIN"):
             qs = qs.filter(teacher=user)
         return qs
+
+
+class TeacherStudentByEmailAPI(APIView):
+    """
+    Поиск ученика по email для создания урока.
+    Проверяет, что ученик назначен данному учителю.
+    GET /api/teacher/students/by-email/?email=student@example.com
+    """
+    permission_classes = [IsTeacherOrAdmin]
+
+    def get(self, request):
+        email = request.query_params.get('email', '').strip().lower()
+        if not email:
+            return Response({"detail": "email parameter required"}, status=400)
+        
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            return Response({"detail": "user not found"}, status=404)
+        except User.MultipleObjectsReturned:
+            return Response({"detail": "multiple users found"}, status=400)
+        
+        # Проверяем, что это ученик учителя (есть хотя бы один урок с этим учителем)
+        teacher = request.user
+        if not (teacher.is_superuser or getattr(teacher, "role", None) == "ADMIN"):
+            has_lesson = Lesson.objects.filter(
+                student=user,
+                teacher=teacher
+            ).exists()
+            if not has_lesson:
+                return Response({
+                    "detail": "this student is not assigned to you",
+                    "is_my_student": False
+                }, status=403)
+        
+        return Response({
+            "id": user.id,
+            "email": user.email,
+            "student_full_name": user.student_full_name,
+            "parent_full_name": user.parent_full_name,
+            "role": user.role,
+            "is_my_student": True,
+        })

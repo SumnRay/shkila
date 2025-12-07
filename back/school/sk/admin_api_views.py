@@ -14,6 +14,8 @@ from .admin_serializers import (
     AdminSetRoleSerializer,
     PaymentSerializer,
     LessonSerializer,
+    AdminLessonCreateSerializer,
+    AdminLessonUpdateSerializer,
     LessonBalanceSerializer,
     AuditLogSerializer,
 )
@@ -36,6 +38,33 @@ class AdminUserListAPI(generics.ListAPIView):
     filterset_fields = ["role", "is_superuser"]
     search_fields = ["email", "student_full_name", "parent_full_name"]
     ordering_fields = ["id", "email", "date_joined"]
+
+
+class AdminUserByEmailAPI(APIView):
+    """
+    Поиск пользователя по email для создания урока.
+    GET /api/admin/users/by-email/?email=user@example.com
+    """
+    permission_classes = [IsAuthenticated, IsAdminRole]
+
+    def get(self, request):
+        email = request.query_params.get('email', '').strip().lower()
+        if not email:
+            return Response({"detail": "email parameter required"}, status=400)
+        
+        try:
+            user = User.objects.get(email__iexact=email)
+            return Response({
+                "id": user.id,
+                "email": user.email,
+                "student_full_name": user.student_full_name,
+                "parent_full_name": user.parent_full_name,
+                "role": user.role,
+            })
+        except User.DoesNotExist:
+            return Response({"detail": "user not found"}, status=404)
+        except User.MultipleObjectsReturned:
+            return Response({"detail": "multiple users found"}, status=400)
 
 
 class AdminUserDetailAPI(generics.RetrieveUpdateDestroyAPIView):
@@ -191,26 +220,63 @@ class AdminLessonListAPI(generics.ListCreateAPIView):
     """
     GET: список занятий (фильтры: status, student, teacher)
     POST: создать занятие (назначить)
+    Может использовать student_email и teacher_email вместо ID.
     """
     permission_classes = [IsAuthenticated, IsAdminRole]
-    serializer_class = LessonSerializer
-    queryset = Lesson.objects.select_related("student", "teacher").all().order_by(
-        "-created_at"
-    )
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ["status", "student", "teacher"]
     ordering_fields = ["scheduled_at", "created_at", "id"]
 
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return AdminLessonCreateSerializer
+        return LessonSerializer
+
+    def get_queryset(self):
+        return Lesson.objects.select_related("student", "teacher").all().order_by(
+            "-created_at"
+        )
+
     def perform_create(self, serializer):
         lesson = serializer.save()
+        # Автоматически заполняем parent_full_name из профиля ученика, если не указано
+        if not lesson.parent_full_name and lesson.student:
+            lesson.parent_full_name = lesson.student.parent_full_name or ''
+            lesson.save(update_fields=['parent_full_name'])
         AuditLog.objects.create(
             actor=self.request.user,
             action="CREATE_LESSON",
             meta={
                 "lesson_id": lesson.id,
                 "student": lesson.student_id,
+                "student_email": lesson.student.email,
                 "teacher": lesson.teacher_id,
+                "teacher_email": lesson.teacher.email if lesson.teacher else None,
                 "scheduled_at": lesson.scheduled_at.isoformat(),
+            },
+        )
+
+
+class AdminLessonUpdateAPI(generics.UpdateAPIView):
+    """
+    Частичное обновление урока админом:
+    PATCH /api/admin/lessons/{id}/
+    """
+    permission_classes = [IsAuthenticated, IsAdminRole]
+    serializer_class = AdminLessonUpdateSerializer
+    queryset = Lesson.objects.select_related("student", "teacher").all()
+    http_method_names = ["patch", "options", "head"]
+
+    def perform_update(self, serializer):
+        lesson = serializer.save()
+        AuditLog.objects.create(
+            actor=self.request.user,
+            action="UPDATE_LESSON",
+            meta={
+                "lesson_id": lesson.id,
+                "student": lesson.student_id,
+                "teacher": lesson.teacher_id,
+                "status": lesson.status,
             },
         )
 

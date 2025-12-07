@@ -1,19 +1,21 @@
 from django.urls import path
 from .teacher_api_views import (
-    TeacherLessonsListAPI,
+    TeacherLessonsListCreateAPI,
     TeacherLessonDetailAPI,
     TeacherLessonUpdateAPI,
     TeacherStudentsListAPI,
     TeacherStudentLessonsAPI,
+    TeacherStudentByEmailAPI,
 )
 
 urlpatterns = [
     # Расписание / уроки
-    path('lessons/', TeacherLessonsListAPI.as_view()),             # GET
+    path('lessons/', TeacherLessonsListCreateAPI.as_view()),             # GET/POST
     path('lessons/<int:pk>/', TeacherLessonDetailAPI.as_view()),   # GET
     path('lessons/<int:pk>/update/', TeacherLessonUpdateAPI.as_view()),  # PATCH
 
     # Журнал учеников
     path('students/', TeacherStudentsListAPI.as_view()),                     # GET список учеников
+    path('students/by-email/', TeacherStudentByEmailAPI.as_view()),          # GET поиск ученика по email
     path('students/<int:student_id>/lessons/', TeacherStudentLessonsAPI.as_view()),  # GET журнал по ученику
 ]

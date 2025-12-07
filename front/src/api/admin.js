@@ -8,6 +8,11 @@ export function adminGetUsers(params = {}) {
   return apiClient.get('/api/admin/users/', { params })
 }
 
+// Поиск пользователя по email
+export function adminSearchUserByEmail(email) {
+  return apiClient.get('/api/admin/users/by-email/', { params: { email } })
+}
+
 // обновление данных пользователя (email, phone, ФИО и т.п.)
 export function adminUpdateUser(id, payload) {
   return apiClient.patch(`/api/admin/users/${id}/`, payload)

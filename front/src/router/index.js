@@ -13,6 +13,8 @@ import AdminLogsView from '../pages/admin/AdminLogsView.vue'
 import ManagerDashboardView from '../pages/manager/ManagerDashboardView.vue'
 import ManagerScheduleView from '../pages/manager/ManagerScheduleView.vue'
 import ManagerBalanceView from '../pages/manager/ManagerBalanceView.vue'
+import TeacherDashboardView from '../pages/teacher/TeacherDashboardView.vue'
+import TeacherScheduleView from '../pages/teacher/TeacherScheduleView.vue'
 import StudentDashboardView from '../pages/student/StudentDashboardView.vue'
 
 const routes = [
@@ -81,6 +83,18 @@ const routes = [
     name: 'manager-balance',
     component: ManagerBalanceView,
     meta: { requiresAuth: true, roles: ['manager'] },
+  },
+  {
+    path: '/teacher',
+    name: 'teacher-dashboard',
+    component: TeacherDashboardView,
+    meta: { requiresAuth: true, roles: ['teacher'] },
+  },
+  {
+    path: '/teacher/schedule',
+    name: 'teacher-schedule',
+    component: TeacherScheduleView,
+    meta: { requiresAuth: true, roles: ['teacher'] },
   },
   {
     path: '/student',

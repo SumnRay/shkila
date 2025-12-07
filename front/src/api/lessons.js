@@ -10,12 +10,17 @@ export function adminGetLessons(params = {}) {
 // Создать новый урок
 // payload:
 // {
-//   student: number,          // ID ученика
-//   teacher: number,          // ID преподавателя
+//   student_email: string,    // Email ученика (или student: number)
+//   teacher_email: string,    // Email учителя (или teacher: number)
 //   scheduled_at: string,     // 'YYYY-MM-DDTHH:MM:SS'
 //   link?: string | null,
 //   comment?: string
 // }
 export function adminCreateLesson(payload) {
   return apiClient.post('/api/admin/lessons/', payload)
+}
+
+// Обновить урок
+export function adminUpdateLesson(id, payload) {
+  return apiClient.patch(`/api/admin/lessons/${id}/`, payload)
 }

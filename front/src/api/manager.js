@@ -65,3 +65,8 @@ export function managerUpdateStudentBalance(studentId, payload) {
   return apiClient.patch(`/api/manager/students/${studentId}/balance/update/`, payload)
 }
 
+// Поиск пользователя по email
+export function managerSearchUserByEmail(email) {
+  return apiClient.get('/api/manager/users/by-email/', { params: { email } })
+}
+

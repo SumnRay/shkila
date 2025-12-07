@@ -10,6 +10,7 @@ from .models import Lesson, LessonBalance, Payment, AuditLog
 from .manager_serializers import (
     ManagerClientSerializer,
     ManagerLessonSerializer,
+    ManagerLessonCreateSerializer,
     ManagerLessonUpdateSerializer,
     ManagerBalanceSerializer,
     ManagerPaymentSerializer,
@@ -34,6 +35,33 @@ class ManagerClientsListAPI(generics.ListAPIView):
     ordering_fields = ["id", "email", "date_joined"]
 
 
+class ManagerUserByEmailAPI(APIView):
+    """
+    Поиск пользователя по email для создания урока.
+    GET /api/manager/users/by-email/?email=user@example.com
+    """
+    permission_classes = [IsManagerOrAdmin]
+
+    def get(self, request):
+        email = request.query_params.get('email', '').strip().lower()
+        if not email:
+            return Response({"detail": "email parameter required"}, status=400)
+        
+        try:
+            user = User.objects.get(email__iexact=email)
+            return Response({
+                "id": user.id,
+                "email": user.email,
+                "student_full_name": user.student_full_name,
+                "parent_full_name": user.parent_full_name,
+                "role": user.role,
+            })
+        except User.DoesNotExist:
+            return Response({"detail": "user not found"}, status=404)
+        except User.MultipleObjectsReturned:
+            return Response({"detail": "multiple users found"}, status=400)
+
+
 # ======= УРОКИ / РАСПИСАНИЕ =======
 
 
@@ -41,17 +69,28 @@ class ManagerLessonsListCreateAPI(generics.ListCreateAPIView):
     """
     GET: список уроков (фильтры: status, student, teacher)
     POST: создать урок (назначить занятие)
+    Может использовать student_email и teacher_email вместо ID.
     """
     permission_classes = [IsManagerOrAdmin]
-    serializer_class = ManagerLessonSerializer
-    queryset = Lesson.objects.select_related("student", "teacher").all().order_by(
-        "-created_at"
-    )
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ["status", "student", "teacher"]
     ordering_fields = ["scheduled_at", "created_at", "id"]
 
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return ManagerLessonCreateSerializer
+        return ManagerLessonSerializer
+
+    def get_queryset(self):
+        return Lesson.objects.select_related("student", "teacher").all().order_by(
+            "-created_at"
+        )
+
     def perform_create(self, serializer):
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"Creating lesson with data: {serializer.validated_data}")
+        
         lesson = serializer.save()
         # Автоматически заполняем parent_full_name из профиля ученика, если не указано
         if not lesson.parent_full_name and lesson.student:
@@ -63,7 +102,9 @@ class ManagerLessonsListCreateAPI(generics.ListCreateAPIView):
             meta={
                 "lesson_id": lesson.id,
                 "student": lesson.student_id,
+                "student_email": lesson.student.email,
                 "teacher": lesson.teacher_id,
+                "teacher_email": lesson.teacher.email if lesson.teacher else None,
                 "scheduled_at": lesson.scheduled_at.isoformat(),
             },
         )

@@ -98,6 +98,64 @@ class LessonSerializer(serializers.ModelSerializer):
         )
 
 
+class AdminLessonCreateSerializer(serializers.ModelSerializer):
+    """
+    Создание урока админом.
+    Может указать student_email и teacher_email вместо ID.
+    """
+    student_email = serializers.EmailField(write_only=True, required=False)
+    teacher_email = serializers.EmailField(write_only=True, required=False)
+    link = serializers.CharField(required=False, allow_blank=True, max_length=300)
+    comment = serializers.CharField(required=False, allow_blank=True)
+
+    class Meta:
+        model = Lesson
+        fields = ("student", "student_email", "teacher", "teacher_email", "scheduled_at", "link", "comment")
+
+    def validate(self, attrs):
+        # Если передан email, находим пользователя по email
+        if attrs.get('student_email'):
+            student_email = attrs.pop('student_email', '').strip()
+            if student_email:
+                try:
+                    student = User.objects.get(email__iexact=student_email)
+                    attrs['student'] = student
+                except User.DoesNotExist:
+                    raise serializers.ValidationError({"student_email": "Student with this email not found"})
+                except User.MultipleObjectsReturned:
+                    raise serializers.ValidationError({"student_email": "Multiple students with this email found"})
+        
+        if attrs.get('teacher_email'):
+            teacher_email = attrs.pop('teacher_email', '').strip()
+            if teacher_email:
+                try:
+                    teacher = User.objects.get(email__iexact=teacher_email)
+                    attrs['teacher'] = teacher
+                except User.DoesNotExist:
+                    raise serializers.ValidationError({"teacher_email": "Teacher with this email not found"})
+                except User.MultipleObjectsReturned:
+                    raise serializers.ValidationError({"teacher_email": "Multiple teachers with this email found"})
+        
+        # Проверяем, что хотя бы один способ указания пользователя есть
+        if not attrs.get('student'):
+            raise serializers.ValidationError({"student": "Either student or student_email is required"})
+        
+        if not attrs.get('teacher'):
+            raise serializers.ValidationError({"teacher": "Either teacher or teacher_email is required"})
+        
+        return attrs
+
+
+class AdminLessonUpdateSerializer(serializers.ModelSerializer):
+    """
+    Обновление урока админом.
+    Может менять время, ссылку, статус, комментарий.
+    """
+    class Meta:
+        model = Lesson
+        fields = ("scheduled_at", "status", "link", "comment")
+
+
 class AuditLogSerializer(serializers.ModelSerializer):
     actor_email = serializers.EmailField(source="actor.email", read_only=True)
 

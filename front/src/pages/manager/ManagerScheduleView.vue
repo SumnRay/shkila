@@ -17,11 +17,15 @@
     </header>
 
     <main class="manager-main">
-      <ScheduleCalendar
+      <ScheduleView
         :lessons="lessons"
         :lessons-loading="lessonsLoading"
         :lessons-error="lessonsError"
         :on-create-lesson="handleCreateLesson"
+        :on-update-lesson="handleUpdateLesson"
+        :on-search-user="handleSearchUser"
+        user-role="manager"
+        :current-user-email="auth.user?.email || ''"
         @lesson-selected="selectLesson"
         @week-changed="handleWeekChanged"
       />
@@ -33,8 +37,8 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
-import ScheduleCalendar from '../../components/ScheduleCalendar.vue'
-import { managerGetLessons, managerCreateLesson } from '../../api/manager'
+import ScheduleView from '../../components/ScheduleView.vue'
+import { managerGetLessons, managerCreateLesson, managerUpdateLesson, managerSearchUserByEmail } from '../../api/manager'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -60,11 +64,41 @@ const loadLessons = async (params = {}) => {
 
 const handleCreateLesson = async (payload) => {
   try {
-    const { data } = await managerCreateLesson(payload)
-    lessons.value.push(data)
+    console.log('Creating lesson with payload:', payload)
+    const response = await managerCreateLesson(payload)
+    console.log('Lesson created successfully:', response)
     await loadLessons()
   } catch (err) {
     console.error('create lesson error:', err)
+    console.error('Error response:', err?.response?.data)
+    throw err
+  }
+}
+
+const handleUpdateLesson = async (lessonId, payload) => {
+  try {
+    await managerUpdateLesson(lessonId, payload)
+    await loadLessons()
+  } catch (err) {
+    console.error('update lesson error:', err)
+    throw err
+  }
+}
+
+const handleSearchUser = async (email, type) => {
+  try {
+    console.log('Searching user by email:', email)
+    const { data } = await managerSearchUserByEmail(email)
+    console.log('User found:', data)
+    return data
+  } catch (err) {
+    console.error('search user error:', err)
+    console.error('Error response:', err?.response?.data)
+    console.error('Error status:', err?.response?.status)
+    // Если 401, возможно нужно перелогиниться
+    if (err?.response?.status === 401) {
+      console.warn('Unauthorized - token may have expired')
+    }
     throw err
   }
 }
