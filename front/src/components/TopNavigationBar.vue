@@ -94,15 +94,6 @@
                 </div>
                 <div class="dropdown-divider"></div>
                 <router-link 
-                  v-if="canEditProfile" 
-                  :to="{ name: 'edit-profile' }" 
-                  class="dropdown-item" 
-                  @click="closeUserMenu"
-                >
-                  <span class="item-icon">👤</span>
-                  <span>Профиль</span>
-                </router-link>
-                <router-link 
                   v-if="isTeacher" 
                   :to="{ name: 'teacher-dashboard' }" 
                   class="dropdown-item" 
@@ -127,7 +118,7 @@
                   @click="closeUserMenu"
                 >
                   <span class="item-icon">📊</span>
-                  <span>Моя панель</span>
+                  <span>Личный кабинет</span>
                 </router-link>
                 <router-link 
                   v-if="isApplicant" 
@@ -136,7 +127,7 @@
                   @click="closeUserMenu"
                 >
                   <span class="item-icon">📊</span>
-                  <span>Моя панель</span>
+                  <span>Личный кабинет</span>
                 </router-link>
                 <div class="dropdown-divider"></div>
                 <button class="dropdown-item logout-item" @click="handleLogout">

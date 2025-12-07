@@ -55,6 +55,9 @@
           </router-link>
         </div>
       </div>
+
+      <!-- История занятий -->
+      <LessonHistory />
     </div>
   </div>
 </template>
@@ -64,6 +67,7 @@ import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import TopNavigationBar from '../../components/TopNavigationBar.vue'
+import LessonHistory from '../../components/LessonHistory.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -459,5 +463,130 @@ onMounted(async () => {
     justify-content: center;
     padding: 14px 24px;
   }
+}
+
+/* Стили для компонента истории занятий в градиентном фоне */
+:deep(.lesson-history-card.card) {
+  background: rgba(255, 255, 255, 0.25) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2) !important;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+:deep(.lesson-history-card .card-header) {
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+:deep(.lesson-history-card .card-header h2) {
+  color: #ffffff !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
+  font-weight: 800 !important;
+}
+
+:deep(.lesson-history-card .btn-refresh) {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #667eea !important;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2) !important;
+}
+
+:deep(.lesson-history-card .btn-refresh:hover:not(:disabled)) {
+  background: rgba(255, 255, 255, 1) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3) !important;
+}
+
+:deep(.lesson-history-card .lesson-item) {
+  background: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-left: 4px solid rgba(255, 255, 255, 0.5) !important;
+  border-radius: 16px !important;
+}
+
+:deep(.lesson-history-card .lesson-item:hover) {
+  background: rgba(255, 255, 255, 0.25) !important;
+  transform: translateX(8px) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+:deep(.lesson-history-card .lesson-date) {
+  color: #ffffff !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+:deep(.lesson-history-card .lesson-teacher) {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+:deep(.lesson-history-card .info-value) {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+:deep(.lesson-history-card .status-done) {
+  background: rgba(56, 142, 60, 0.3) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(56, 142, 60, 0.5) !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+:deep(.lesson-history-card .link-btn) {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #667eea !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2) !important;
+}
+
+:deep(.lesson-history-card .link-btn:hover) {
+  background: rgba(255, 255, 255, 1) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3) !important;
+}
+
+:deep(.lesson-history-card .loading),
+:deep(.lesson-history-card .empty),
+:deep(.lesson-history-card .error) {
+  color: rgba(255, 255, 255, 0.9) !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+:deep(.lesson-history-card .error) {
+  color: #ff6b6b !important;
+  text-shadow: 0 2px 8px rgba(255, 107, 107, 0.3) !important;
+}
+
+/* Стили для модального окна в градиентном фоне */
+:deep(.modal-overlay) {
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+:deep(.modal-content) {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+}
+
+:deep(.modal-header) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+:deep(.modal-header h3) {
+  color: #333 !important;
+}
+
+:deep(.modal-footer) {
+  border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
 </style>

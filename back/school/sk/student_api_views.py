@@ -7,7 +7,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from django.contrib.auth import get_user_model
 
-from accounts.permissions import IsStudentOrAdmin
+from accounts.permissions import IsStudentOrAdmin, IsStudentOrApplicantOrAdmin
 from .models import Course, Lesson, LessonBalance, Payment, StudentProfile
 from .student_serializers import (
     StudentDashboardSerializer,
@@ -68,10 +68,10 @@ class StudentCoursesListAPI(generics.ListAPIView):
 
 class StudentLessonsListAPI(generics.ListAPIView):
     """
-    Список уроков ученика.
+    Список уроков ученика/абитуриента.
     GET /api/student/lessons/?status=PLANNED|DONE|CANCELLED&ordering=scheduled_at
     """
-    permission_classes = [IsAuthenticated, IsStudentOrAdmin]
+    permission_classes = [IsAuthenticated, IsStudentOrApplicantOrAdmin]
     serializer_class = StudentLessonSerializer
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ["status"]

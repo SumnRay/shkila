@@ -33,6 +33,7 @@ class StudentCourseSerializer(serializers.ModelSerializer):
 
 class StudentLessonSerializer(serializers.ModelSerializer):
     teacher_email = serializers.EmailField(source="teacher.email", read_only=True)
+    feedback = serializers.SerializerMethodField()
 
     class Meta:
         model = Lesson
@@ -43,9 +44,14 @@ class StudentLessonSerializer(serializers.ModelSerializer):
             "scheduled_at",
             "status",
             "comment",
+            "feedback",
             "debited_from_balance",
             "created_at",
         )
+    
+    def get_feedback(self, obj):
+        """Безопасное получение обратной связи"""
+        return getattr(obj, 'feedback', '')
 
 
 class StudentBalanceSerializer(serializers.ModelSerializer):

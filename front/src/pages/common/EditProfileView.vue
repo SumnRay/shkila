@@ -54,7 +54,7 @@
             <button type="submit" class="btn-save" :disabled="loading">
               {{ loading ? 'Сохранение...' : 'Сохранить' }}
             </button>
-            <router-link :to="{ name: 'applicant-dashboard' }" class="btn-cancel">
+            <router-link :to="cancelRoute" class="btn-cancel">
               Отмена
             </router-link>
           </div>
@@ -73,7 +73,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { useRouter } from 'vue-router'
 import TopNavigationBar from '../../components/TopNavigationBar.vue'
@@ -81,6 +81,16 @@ import apiClient from '../../api/http'
 
 const auth = useAuthStore()
 const router = useRouter()
+
+const cancelRoute = computed(() => {
+  const role = auth.normalizedRole
+  if (role === 'student') {
+    return { name: 'student-dashboard' }
+  } else if (role === 'applicant') {
+    return { name: 'applicant-dashboard' }
+  }
+  return { name: 'home' }
+})
 
 const formData = ref({
   email: '',
@@ -121,9 +131,16 @@ const handleSubmit = async () => {
     
     success.value = true
     
-    // Через 2 секунды перенаправляем на главную
+    // Через 2 секунды перенаправляем в личный кабинет
     setTimeout(() => {
-      router.push({ name: 'applicant-dashboard' })
+      const role = auth.normalizedRole
+      if (role === 'student') {
+        router.push({ name: 'student-dashboard' })
+      } else if (role === 'applicant') {
+        router.push({ name: 'applicant-dashboard' })
+      } else {
+        router.push({ name: 'home' })
+      }
     }, 2000)
   } catch (err) {
     console.error('Ошибка обновления профиля:', err)
@@ -164,58 +181,72 @@ onMounted(() => {
 <style scoped>
 .edit-profile {
   min-height: 100vh;
-  background: #f5f5f5;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+  position: relative;
 }
 
-.profile-header {
-  background: #fff;
-  border-bottom: 1px solid #e0e0e0;
-  padding: 20px 0;
-  margin-bottom: 32px;
+.edit-profile::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  pointer-events: none;
 }
 
-.header-content {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.header-content h1 {
-  font-size: 1.75rem;
-  margin: 0;
-  color: #333;
-}
-
-.btn-back {
-  padding: 10px 20px;
-  background: transparent;
-  color: #42b983;
-  border: 1px solid #42b983;
-  border-radius: 6px;
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.btn-back:hover {
-  background: #42b983;
-  color: #fff;
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .profile-content {
   max-width: 800px;
   margin: 0 auto;
-  padding: 0 24px 48px;
+  padding: 32px 24px 48px;
+  position: relative;
+  z-index: 1;
+}
+
+.page-header {
+  margin-bottom: 32px;
+}
+
+.page-header h1 {
+  font-size: 2rem;
+  margin: 0;
+  color: #ffffff;
+  font-weight: 800;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .card {
-  background: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
+  background: rgba(76, 68, 118, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(102, 126, 234, 0.4);
+  border-radius: 16px;
   padding: 32px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  background: rgba(76, 68, 118, 0.95);
+  border-color: rgba(102, 126, 234, 0.6);
 }
 
 .form-group {
@@ -225,31 +256,34 @@ onMounted(() => {
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: #666;
-  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
   font-size: 0.95rem;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .form-group input {
   width: 100%;
-  padding: 12px 16px;
-  border-radius: 8px;
-  border: 1px solid #e0e0e0;
-  background: #fff;
-  color: #333;
+  padding: 14px 18px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
   font-size: 1rem;
   transition: all 0.3s ease;
   box-sizing: border-box;
 }
 
-.form-group input:focus {
-  outline: none;
-  border-color: #42b983;
-  box-shadow: 0 0 0 3px rgba(66, 185, 131, 0.1);
+.form-group input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
 }
 
-.form-group input::placeholder {
-  color: #999;
+.form-group input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
 }
 
 .form-actions {
@@ -260,74 +294,84 @@ onMounted(() => {
 
 .btn-save {
   padding: 12px 24px;
-  background: #42b983;
-  color: #fff;
-  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 1rem;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .btn-save:hover:not(:disabled) {
-  background: #35a372;
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(66, 185, 131, 0.3);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 .btn-save:disabled {
-  opacity: 0.7;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 .btn-cancel {
   padding: 12px 24px;
   background: transparent;
-  color: #666;
-  border: 1px solid #e0e0e0;
+  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600;
   transition: all 0.3s ease;
   display: inline-block;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 .btn-cancel:hover {
-  border-color: #ff6b6b;
-  color: #ff6b6b;
+  border-color: rgba(255, 107, 107, 0.6);
+  color: #ffb3b3;
+  background: rgba(255, 107, 107, 0.1);
 }
 
 .error-message {
   margin-top: 16px;
-  padding: 12px;
-  background: rgba(255, 107, 107, 0.1);
-  border: 1px solid #ff6b6b;
+  padding: 12px 16px;
+  background: rgba(255, 107, 107, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 107, 107, 0.5);
   border-radius: 8px;
-  color: #ff6b6b;
+  color: #ffb3b3;
   font-size: 0.9rem;
+  text-shadow: 0 1px 4px rgba(255, 107, 107, 0.3);
 }
 
 .success-message {
   margin-top: 16px;
-  padding: 12px;
-  background: rgba(66, 185, 131, 0.1);
-  border: 1px solid #42b983;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 8px;
-  color: #42b983;
+  color: #ffffff;
   font-size: 0.9rem;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 @media (max-width: 768px) {
-  .header-content {
-    flex-direction: column;
-    gap: 16px;
-    align-items: flex-start;
+  .profile-content {
+    padding: 24px 16px 32px;
   }
 
-  .btn-back {
-    width: 100%;
-    text-align: center;
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .card {
+    padding: 24px;
   }
 
   .form-actions {
