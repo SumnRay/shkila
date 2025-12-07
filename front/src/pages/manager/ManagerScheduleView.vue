@@ -1,14 +1,14 @@
-<!-- src/pages/admin/AdminScheduleView.vue -->
+<!-- src/pages/manager/ManagerScheduleView.vue -->
 <template>
-  <div class="admin-page">
-    <header class="admin-header">
+  <div class="manager-page">
+    <header class="manager-header">
       <h1>Календарь уроков</h1>
 
-      <div class="admin-info" v-if="auth.user">
+      <div class="manager-info" v-if="auth.user">
         <span>{{ auth.user.email }}</span>
-        <span class="role-badge">ADMIN</span>
+        <span class="role-badge">MANAGER</span>
 
-        <router-link class="btn" :to="{ name: 'admin-dashboard' }">
+        <router-link class="btn" :to="{ name: 'manager-dashboard' }">
           Панель
         </router-link>
 
@@ -16,7 +16,7 @@
       </div>
     </header>
 
-    <main class="admin-main">
+    <main class="manager-main">
       <ScheduleCalendar
         :lessons="lessons"
         :lessons-loading="lessonsLoading"
@@ -29,13 +29,12 @@
   </div>
 </template>
 
-
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import ScheduleCalendar from '../../components/ScheduleCalendar.vue'
-import { adminGetLessons, adminCreateLesson } from '../../api/lessons'
+import { managerGetLessons, managerCreateLesson } from '../../api/manager'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -44,33 +43,12 @@ const lessons = ref([])
 const lessonsLoading = ref(false)
 const lessonsError = ref(null)
 
-function toISO(date) {
-  const y = date.getFullYear()
-  const m = String(date.getMonth() + 1).padStart(2, '0')
-  const d = String(date.getDate()).padStart(2, '0')
-  return `${y}-${m}-${d}`
-}
-
-function addDays(date, n) {
-  const d = new Date(date)
-  d.setDate(d.getDate() + n)
-  return d
-}
-
-function startOfWeek(date) {
-  const d = new Date(date)
-  const day = d.getDay() || 7
-  d.setHours(0, 0, 0, 0)
-  d.setDate(d.getDate() - (day - 1))
-  return d
-}
-
 const loadLessons = async (params = {}) => {
   lessonsLoading.value = true
   lessonsError.value = null
 
   try {
-    const { data } = await adminGetLessons(params)
+    const { data } = await managerGetLessons(params)
     lessons.value = Array.isArray(data) ? data : data.results || []
   } catch (err) {
     console.error('load lessons error:', err)
@@ -82,7 +60,7 @@ const loadLessons = async (params = {}) => {
 
 const handleCreateLesson = async (payload) => {
   try {
-    const { data } = await adminCreateLesson(payload)
+    const { data } = await managerCreateLesson(payload)
     lessons.value.push(data)
     await loadLessons()
   } catch (err) {
@@ -112,8 +90,20 @@ onMounted(() => {
   
   // Загружаем уроки на текущую неделю
   const today = new Date()
-  const weekStart = startOfWeek(today)
-  const weekEnd = addDays(weekStart, 6)
+  const weekStart = new Date(today)
+  const day = weekStart.getDay() || 7
+  weekStart.setHours(0, 0, 0, 0)
+  weekStart.setDate(weekStart.getDate() - (day - 1))
+  
+  const weekEnd = new Date(weekStart)
+  weekEnd.setDate(weekEnd.getDate() + 6)
+  
+  const toISO = (date) => {
+    const y = date.getFullYear()
+    const m = String(date.getMonth() + 1).padStart(2, '0')
+    const d = String(date.getDate()).padStart(2, '0')
+    return `${y}-${m}-${d}`
+  }
   
   loadLessons({
     date_from: toISO(weekStart),
@@ -122,26 +112,33 @@ onMounted(() => {
 })
 </script>
 
-
 <style scoped>
-.admin-page {
+.manager-page {
   min-height: 100vh;
   background: #0a0a0a;
   color: #f5f5f5;
   padding: 24px;
 }
 
-.admin-header {
+.manager-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
 }
 
-.admin-info {
+.manager-info {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.role-badge {
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: #2e7d32;
+  font-size: 11px;
+  text-transform: uppercase;
 }
 
 .btn {
@@ -159,15 +156,7 @@ onMounted(() => {
   background: #1565c0;
 }
 
-.role-badge {
-  padding: 4px 8px;
-  border-radius: 8px;
-  background: #333;
-  font-size: 11px;
-  text-transform: uppercase;
-}
-
-.admin-main {
+.manager-main {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 16px;

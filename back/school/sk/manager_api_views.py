@@ -53,6 +53,10 @@ class ManagerLessonsListCreateAPI(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         lesson = serializer.save()
+        # Автоматически заполняем parent_full_name из профиля ученика, если не указано
+        if not lesson.parent_full_name and lesson.student:
+            lesson.parent_full_name = lesson.student.parent_full_name or ''
+            lesson.save(update_fields=['parent_full_name'])
         AuditLog.objects.create(
             actor=self.request.user,
             action="MANAGER_CREATE_LESSON",
@@ -237,3 +241,55 @@ class ManagerStudentBalanceAPI(generics.RetrieveAPIView):
         student_id = self.kwargs["student_id"]
         bal, _ = LessonBalance.objects.get_or_create(student_id=student_id)
         return bal
+
+
+class ManagerStudentBalanceUpdateAPI(APIView):
+    """
+    Изменить баланс ученика напрямую.
+    PATCH /api/manager/students/{id}/balance/
+    body: {"lessons_available": 10} или {"delta": 5} для изменения на +5
+    """
+    permission_classes = [IsManagerOrAdmin]
+
+    def patch(self, request, student_id):
+        try:
+            student = User.objects.get(pk=student_id)
+        except User.DoesNotExist:
+            return Response({"detail": "student not found"}, status=404)
+
+        lessons_available = request.data.get("lessons_available")
+        delta = request.data.get("delta")
+
+        if lessons_available is None and delta is None:
+            return Response({"detail": "lessons_available or delta required"}, status=400)
+
+        with transaction.atomic():
+            lb, _ = LessonBalance.objects.select_for_update().get_or_create(
+                student=student
+            )
+            
+            old_balance = lb.lessons_available
+            
+            if lessons_available is not None:
+                lb.lessons_available = int(lessons_available)
+            elif delta is not None:
+                lb.lessons_available += int(delta)
+                if lb.lessons_available < 0:
+                    lb.lessons_available = 0
+            
+            lb.save()
+
+            AuditLog.objects.create(
+                actor=request.user,
+                action="MANAGER_UPDATE_BALANCE",
+                meta={
+                    "student_id": student.id,
+                    "student_email": student.email,
+                    "old_balance": old_balance,
+                    "new_balance": lb.lessons_available,
+                    "delta": delta,
+                    "lessons_available": lessons_available,
+                },
+            )
+
+        return Response(ManagerBalanceSerializer(lb).data)

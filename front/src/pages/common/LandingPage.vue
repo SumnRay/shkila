@@ -19,6 +19,13 @@
               Админ панель
             </router-link>
             <router-link 
+              v-if="auth.normalizedRole === 'manager'"
+              :to="{ name: 'manager-dashboard' }" 
+              class="dropdown-item"
+            >
+              Панель менеджера
+            </router-link>
+            <router-link 
               v-if="auth.normalizedRole === 'applicant'"
               :to="{ name: 'applicant-dashboard' }" 
               class="dropdown-item"
@@ -67,10 +74,21 @@
           <p class="page-description">
             На этой странице представлены все курсы доступные на нашей платформе в данный момент.
           </p>
-          <!-- Кнопка для админов -->
-          <div v-if="auth.isAuthenticated && auth.normalizedRole === 'admin'" class="admin-button-container">
-            <router-link :to="{ name: 'admin-dashboard' }" class="admin-panel-btn">
+          <!-- Кнопка для админов и менеджеров -->
+          <div v-if="auth.isAuthenticated && (auth.normalizedRole === 'admin' || auth.normalizedRole === 'manager')" class="admin-button-container">
+            <router-link 
+              v-if="auth.normalizedRole === 'admin'"
+              :to="{ name: 'admin-dashboard' }" 
+              class="admin-panel-btn"
+            >
               ⚙️ Перейти в админ панель
+            </router-link>
+            <router-link 
+              v-if="auth.normalizedRole === 'manager'"
+              :to="{ name: 'manager-dashboard' }" 
+              class="admin-panel-btn"
+            >
+              ⚙️ Перейти в панель менеджера
             </router-link>
           </div>
         </div>

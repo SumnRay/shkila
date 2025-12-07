@@ -2,7 +2,7 @@ from django.urls import path
 from .manager_api_views import (
     ManagerClientsListAPI,
     ManagerLessonsListCreateAPI, ManagerLessonUpdateAPI, ManagerLessonCancelAPI, ManagerLessonDebitAPI,
-    ManagerPaymentsListCreateAPI, ManagerPaymentConfirmAPI, ManagerStudentBalanceAPI,
+    ManagerPaymentsListCreateAPI, ManagerPaymentConfirmAPI, ManagerStudentBalanceAPI, ManagerStudentBalanceUpdateAPI,
 )
 
 urlpatterns = [
@@ -19,4 +19,5 @@ urlpatterns = [
     path('payments/', ManagerPaymentsListCreateAPI.as_view()),        # GET/POST
     path('payments/<int:pk>/confirm/', ManagerPaymentConfirmAPI.as_view()),  # POST
     path('students/<int:student_id>/balance/', ManagerStudentBalanceAPI.as_view()),  # GET
+    path('students/<int:student_id>/balance/update/', ManagerStudentBalanceUpdateAPI.as_view()),  # PATCH
 ]

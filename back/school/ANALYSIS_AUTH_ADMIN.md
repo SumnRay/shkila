@@ -240,3 +240,7 @@ curl -X POST http://localhost:8000/api/auth/admin-login/ \
 - Аудит-логи записывают все действия админов
 - Django admin панель доступна по адресу `/django-admin/` (требует `is_staff=True`)
 
+
+
+
+

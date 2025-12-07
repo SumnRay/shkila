@@ -408,3 +408,7 @@ User.objects.filter(email="email@example.com", role="ADMIN").exists()
 User.objects.filter(role="ADMIN").values('email', 'is_superuser', 'is_staff')
 ```
 
+
+
+
+

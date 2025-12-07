@@ -10,6 +10,9 @@ import ApplicantDashboardView from '../pages/applicant/ApplicantDashboardView.vu
 import AdminDashboardView from '../pages/admin/AdminDashboardView.vue'
 import AdminScheduleView from '../pages/admin/AdminScheduleView.vue'
 import AdminLogsView from '../pages/admin/AdminLogsView.vue'
+import ManagerDashboardView from '../pages/manager/ManagerDashboardView.vue'
+import ManagerScheduleView from '../pages/manager/ManagerScheduleView.vue'
+import ManagerBalanceView from '../pages/manager/ManagerBalanceView.vue'
 
 const routes = [
   {
@@ -59,6 +62,24 @@ const routes = [
     name: 'admin-logs',
     component: AdminLogsView,
     meta: { requiresAuth: true, roles: ['admin'] },
+  },
+  {
+    path: '/manager',
+    name: 'manager-dashboard',
+    component: ManagerDashboardView,
+    meta: { requiresAuth: true, roles: ['manager'] },
+  },
+  {
+    path: '/manager/schedule',
+    name: 'manager-schedule',
+    component: ManagerScheduleView,
+    meta: { requiresAuth: true, roles: ['manager'] },
+  },
+  {
+    path: '/manager/balance/:studentId?',
+    name: 'manager-balance',
+    component: ManagerBalanceView,
+    meta: { requiresAuth: true, roles: ['manager'] },
   },
 ]
 
