@@ -155,30 +155,37 @@ class TeacherLessonUpdateAPI(generics.UpdateAPIView):
         if not (user.is_superuser or getattr(user, "role", None) == "ADMIN"):
             qs = qs.filter(teacher=user)
         return qs
+    
+    def get_serializer_class(self):
+        # Для ответа используем полный сериализатор с балансом
+        if self.request.method in ['PATCH', 'PUT']:
+            return TeacherLessonUpdateSerializer
+        return TeacherLessonSerializer
+    
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        
+        # Возвращаем полные данные обновленного урока
+        if getattr(instance, '_prefetched_objects_cache', None):
+            instance._prefetched_objects_cache = {}
+        
+        # Обновляем объект из БД
+        instance.refresh_from_db()
+        
+        # Используем полный сериализатор для ответа
+        response_serializer = TeacherLessonSerializer(instance)
+        return Response(response_serializer.data)
 
     def perform_update(self, serializer):
         old_status = self.get_object().status
         old_debited = self.get_object().debited_from_balance
         
-        try:
-            lesson = serializer.save()
-        except Exception as e:
-            # Если ошибка связана с отсутствием полей в БД, пытаемся сохранить без них
-            error_str = str(e).lower()
-            if any(keyword in error_str for keyword in ['cancellation_reason', 'feedback', 'column', 'unknown column', 'no such column']):
-                # Удаляем проблемные поля из validated_data и пробуем снова
-                validated_data = serializer.validated_data.copy()
-                validated_data.pop('cancellation_reason', None)
-                validated_data.pop('feedback', None)
-                serializer.validated_data = validated_data
-                # Сохраняем только существующие поля
-                lesson = serializer.save()
-            else:
-                # Если это другая ошибка, логируем и пробрасываем дальше
-                import logging
-                logger = logging.getLogger(__name__)
-                logger.error(f"Error updating lesson: {e}")
-                raise
+        # Сохраняем урок (миграции применены, все поля должны быть в БД)
+        lesson = serializer.save()
         
         new_status = lesson.status
         status_changed = new_status != old_status
@@ -249,6 +256,9 @@ class TeacherLessonUpdateAPI(generics.UpdateAPIView):
                 "has_feedback": bool(getattr(lesson, 'feedback', '')) if lesson.status == Lesson.STATUS_DONE else None,
             },
         )
+        
+        # Обновляем объект из БД, чтобы получить актуальные данные
+        lesson.refresh_from_db()
 
 
 # ======= ЖУРНАЛ УЧЕНИКОВ =======

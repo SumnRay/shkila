@@ -78,8 +78,15 @@ const handleCreateLesson = async (payload) => {
 
 const handleUpdateLesson = async (lessonId, payload) => {
   try {
-    await managerUpdateLesson(lessonId, payload)
+    const response = await managerUpdateLesson(lessonId, payload)
     await loadLessons()
+    // Возвращаем обновленный урок из ответа или находим его в списке
+    if (response?.data) {
+      return response.data
+    }
+    // Если ответ не содержит данных, находим обновленный урок в списке
+    const updatedLesson = lessons.value.find(l => l.id === lessonId)
+    return updatedLesson || null
   } catch (err) {
     console.error('update lesson error:', err)
     throw err

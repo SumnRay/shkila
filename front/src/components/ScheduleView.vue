@@ -81,10 +81,19 @@
       <p v-if="activeLesson.parent_full_name"><strong>Родитель:</strong> {{ activeLesson.parent_full_name }}</p>
       <p><strong>Преподаватель:</strong> {{ activeLesson.teacher_email }}</p>
       <p>
+        <strong>Баланс занятий:</strong> 
+        <span :class="{'balance-zero': activeLesson.student_balance === 0, 'balance-positive': activeLesson.student_balance > 0}">
+          {{ activeLesson.student_balance || 0 }}
+        </span>
+      </p>
+      <p>
         <strong>Статус:</strong> 
         <span :class="['status-badge', `status-badge--${activeLesson.status?.toLowerCase() || 'planned'}`]">
           {{ activeLesson.status }}
         </span>
+      </p>
+      <p v-if="activeLesson.is_trial" class="trial-badge">
+        <strong>Пробное занятие</strong>
       </p>
       <p><strong>Время:</strong> {{ formatDateTime(activeLesson.scheduled_at) }}</p>
       <p>
@@ -816,8 +825,9 @@ const handleUpdate = async () => {
       comment: editForm.value.comment || '',
     }
 
-    // Всегда передаем поля, если они есть в форме (даже если пустые)
-    // Это позволяет обновлять их значения
+    // Всегда передаем cancellation_reason и feedback, если они есть в форме
+    // Это позволяет обновлять их значения независимо от статуса
+    // Важно: передаем даже пустые строки, чтобы можно было очистить поля
     if ('cancellation_reason' in editForm.value) {
       payload.cancellation_reason = editForm.value.cancellation_reason || ''
     }
@@ -848,9 +858,21 @@ const handleUpdate = async () => {
     }
 
     console.log('Updating lesson with payload:', payload)
-    await props.onUpdateLesson(activeLesson.value.id, payload)
+    const updatedLesson = await props.onUpdateLesson(activeLesson.value.id, payload)
+    
+    // Обновляем activeLesson с новыми данными
+    if (updatedLesson) {
+      activeLesson.value = updatedLesson
+    } else {
+      // Если обновленный урок не возвращен, обновляем из списка уроков
+      const lessonId = activeLesson.value.id
+      const refreshedLesson = props.lessons.find(l => l.id === lessonId)
+      if (refreshedLesson) {
+        activeLesson.value = refreshedLesson
+      }
+    }
+    
     showEditModal.value = false
-    activeLesson.value = null
   } catch (err) {
     console.error('update lesson error:', err)
     console.error('error response:', err?.response?.data)
@@ -1427,6 +1449,28 @@ defineExpose({
 
 .lesson-info-card a:hover {
   text-decoration: underline;
+}
+
+.balance-zero {
+  color: #ea4335;
+  font-weight: 600;
+}
+
+.balance-positive {
+  color: #34a853;
+  font-weight: 500;
+}
+
+.trial-badge {
+  background: rgba(251, 188, 4, 0.15);
+  padding: 6px 10px;
+  border-radius: 4px;
+  border-left: 3px solid #fbbc04;
+  margin: 8px 0;
+}
+
+.trial-badge strong {
+  color: #fbbc04;
 }
 
 .status-badge {

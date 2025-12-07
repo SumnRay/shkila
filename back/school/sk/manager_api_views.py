@@ -179,6 +179,31 @@ class ManagerLessonUpdateAPI(generics.UpdateAPIView):
     serializer_class = ManagerLessonUpdateSerializer
     queryset = Lesson.objects.select_related("student", "teacher").all()
     http_method_names = ["patch", "options", "head"]
+    
+    def get_serializer_class(self):
+        # Для ответа используем полный сериализатор с балансом
+        if self.request.method in ['PATCH', 'PUT']:
+            return ManagerLessonUpdateSerializer
+        return ManagerLessonSerializer
+    
+    def update(self, request, *args, **kwargs):
+        from rest_framework.response import Response
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        
+        # Возвращаем полные данные обновленного урока
+        if getattr(instance, '_prefetched_objects_cache', None):
+            instance._prefetched_objects_cache = {}
+        
+        # Обновляем объект из БД
+        instance.refresh_from_db()
+        
+        # Используем полный сериализатор для ответа
+        response_serializer = ManagerLessonSerializer(instance)
+        return Response(response_serializer.data)
 
     def perform_update(self, serializer):
         old_lesson = self.get_object()
@@ -255,6 +280,9 @@ class ManagerLessonUpdateAPI(generics.UpdateAPIView):
                 "cancellation_reason": getattr(lesson, 'cancellation_reason', None) if lesson.status == Lesson.STATUS_CANCELLED else None,
             },
         )
+        
+        # Обновляем объект из БД, чтобы получить актуальные данные
+        lesson.refresh_from_db()
 
 
 class ManagerLessonCancelAPI(APIView):

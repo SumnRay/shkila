@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Lesson
+from .models import Lesson, LessonBalance
 
 User = get_user_model()
 
@@ -17,6 +17,7 @@ class TeacherLessonSerializer(serializers.ModelSerializer):
     # Используем SerializerMethodField для полей, которые могут отсутствовать в БД
     cancellation_reason = serializers.SerializerMethodField()
     feedback = serializers.SerializerMethodField()
+    student_balance = serializers.SerializerMethodField()
 
     class Meta:
         model = Lesson
@@ -33,6 +34,7 @@ class TeacherLessonSerializer(serializers.ModelSerializer):
             "feedback",
             "debited_from_balance",
             "is_trial",
+            "student_balance",
             "created_at",
         )
     
@@ -43,6 +45,14 @@ class TeacherLessonSerializer(serializers.ModelSerializer):
     def get_feedback(self, obj):
         """Безопасное получение обратной связи"""
         return getattr(obj, 'feedback', '')
+    
+    def get_student_balance(self, obj):
+        """Получение баланса ученика"""
+        try:
+            balance = LessonBalance.objects.get(student=obj.student)
+            return balance.lessons_available
+        except LessonBalance.DoesNotExist:
+            return 0
 
 
 class TeacherLessonUpdateSerializer(serializers.ModelSerializer):
@@ -74,35 +84,41 @@ class TeacherLessonUpdateSerializer(serializers.ModelSerializer):
         # Проверяем, меняется ли статус
         status_changed = new_status is not None and new_status != old_status
         
-        # Если статус не меняется, не требуем заполнения полей
-        if not status_changed:
-            return attrs
-        
         # Получаем причину отмены (новую или существующую) - безопасно через getattr
         cancellation_reason = attrs.get('cancellation_reason')
-        if cancellation_reason is None or cancellation_reason == '':
+        if cancellation_reason is None:
             if self.instance:
                 cancellation_reason = getattr(self.instance, 'cancellation_reason', '') or ''
             else:
                 cancellation_reason = ''
+        # Если передана пустая строка, сохраняем её (позволяет очистить поле)
+        elif cancellation_reason == '':
+            cancellation_reason = ''
+        # Обновляем attrs с актуальным значением
+        attrs['cancellation_reason'] = cancellation_reason
         
         # Получаем обратную связь (новую или существующую) - безопасно через getattr
         feedback = attrs.get('feedback')
-        if feedback is None or feedback == '':
+        if feedback is None:
             if self.instance:
                 feedback = getattr(self.instance, 'feedback', '') or ''
             else:
                 feedback = ''
+        # Если передана пустая строка, сохраняем её (позволяет очистить поле)
+        elif feedback == '':
+            feedback = ''
+        # Обновляем attrs с актуальным значением
+        attrs['feedback'] = feedback
         
         # Если статус меняется на CANCELLED, нужна причина отмены
-        if final_status == Lesson.STATUS_CANCELLED:
+        if status_changed and final_status == Lesson.STATUS_CANCELLED:
             if not cancellation_reason or not cancellation_reason.strip():
                 raise serializers.ValidationError({
                     "cancellation_reason": "Причина отмены обязательна при отмене занятия"
                 })
         
         # Если статус меняется на DONE, нужна обратная связь
-        if final_status == Lesson.STATUS_DONE:
+        if status_changed and final_status == Lesson.STATUS_DONE:
             if not feedback or not feedback.strip():
                 raise serializers.ValidationError({
                     "feedback": "Обратная связь обязательна при завершении занятия"
@@ -152,6 +168,16 @@ class TeacherLessonCreateSerializer(serializers.ModelSerializer):
         if not attrs.get('student'):
             logger.error("Student is required but not provided")
             raise serializers.ValidationError({"student": "Either student or student_email is required"})
+        
+        # Валидация баланса: учитель не может создавать уроки для учеников с нулевым балансом
+        # (пробные занятия может создавать только менеджер)
+        student = attrs.get('student')
+        if student:
+            lb, _ = LessonBalance.objects.get_or_create(student=student)
+            if lb.lessons_available <= 0:
+                raise serializers.ValidationError({
+                    "student": "Нельзя создать урок для ученика с нулевым балансом. Обратитесь к менеджеру для пополнения баланса или создания пробного занятия."
+                })
         
         logger.info(f"Validation successful. Final attrs: student={attrs.get('student')}")
         return attrs
