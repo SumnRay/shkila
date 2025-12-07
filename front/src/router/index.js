@@ -116,7 +116,7 @@ const router = createRouter({
   routes,
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const auth = useAuthStore()
 
   // страница только для гостей (login/register)
@@ -127,6 +127,17 @@ router.beforeEach((to, from, next) => {
   // требуется авторизация
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     return next({ name: 'login', query: { redirect: to.fullPath } })
+  }
+
+  // Если требуется авторизация и есть токен, но пользователь еще не загружен
+  // дожидаемся загрузки пользователя перед проверкой роли
+  if (to.meta.requiresAuth && auth.isAuthenticated && !auth.user) {
+    try {
+      await auth.fetchMe()
+    } catch (err) {
+      // Если не удалось загрузить пользователя, редиректим на логин
+      return next({ name: 'login', query: { redirect: to.fullPath } })
+    }
   }
 
   // ограничение по ролям
