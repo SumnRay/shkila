@@ -13,6 +13,7 @@ import AdminLogsView from '../pages/admin/AdminLogsView.vue'
 import ManagerDashboardView from '../pages/manager/ManagerDashboardView.vue'
 import ManagerScheduleView from '../pages/manager/ManagerScheduleView.vue'
 import ManagerBalanceView from '../pages/manager/ManagerBalanceView.vue'
+import StudentDashboardView from '../pages/student/StudentDashboardView.vue'
 
 const routes = [
   {
@@ -43,7 +44,7 @@ const routes = [
     path: '/edit-profile',
     name: 'edit-profile',
     component: EditProfileView,
-    meta: { requiresAuth: true, roles: ['applicant'] },
+    meta: { requiresAuth: true, roles: ['applicant', 'student'] },
   },
   {
     path: '/admin',
@@ -80,6 +81,12 @@ const routes = [
     name: 'manager-balance',
     component: ManagerBalanceView,
     meta: { requiresAuth: true, roles: ['manager'] },
+  },
+  {
+    path: '/student',
+    name: 'student-dashboard',
+    component: StudentDashboardView,
+    meta: { requiresAuth: true, roles: ['student'] },
   },
 ]
 

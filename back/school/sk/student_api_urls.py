@@ -1,19 +1,20 @@
 from django.urls import path
-from .teacher_api_views import (
-    TeacherLessonsListAPI,
-    TeacherLessonDetailAPI,
-    TeacherLessonUpdateAPI,
-    TeacherStudentsListAPI,
-    TeacherStudentLessonsAPI,
+from .student_api_views import (
+    StudentDashboardAPI,
+    StudentCoursesListAPI,
+    StudentLessonsListAPI,
+    StudentBalanceAPI,
+    StudentPaymentsListAPI,
+    StudentCreatePaymentAPI,
+    StudentSeasonSummaryAPI,
 )
 
 urlpatterns = [
-    # Расписание / уроки
-    path("lessons/", TeacherLessonsListAPI.as_view()),                   # GET список уроков
-    path("lessons/<int:pk>/", TeacherLessonDetailAPI.as_view()),         # GET один урок
-    path("lessons/<int:pk>/update/", TeacherLessonUpdateAPI.as_view()),  # PATCH обновление
-
-    # Журнал учеников
-    path("students/", TeacherStudentsListAPI.as_view()),                             # GET список учеников
-    path("students/<int:student_id>/lessons/", TeacherStudentLessonsAPI.as_view()),  # GET журнал по ученику
+    path("dashboard/", StudentDashboardAPI.as_view()),                    # GET ЛК ученика
+    path("courses/", StudentCoursesListAPI.as_view()),                    # GET список курсов
+    path("lessons/", StudentLessonsListAPI.as_view()),                    # GET список уроков
+    path("balance/", StudentBalanceAPI.as_view()),                       # GET баланс
+    path("payments/", StudentPaymentsListAPI.as_view()),                  # GET история платежей
+    path("payments/create/", StudentCreatePaymentAPI.as_view()),          # POST создать платеж
+    path("season/summary/", StudentSeasonSummaryAPI.as_view()),          # GET краткая инфа о сезоне
 ]

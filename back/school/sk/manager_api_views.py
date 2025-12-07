@@ -212,6 +212,14 @@ class ManagerPaymentConfirmAPI(APIView):
             lb.lessons_available += lessons_to_add
             lb.save()
 
+            # Автоматически меняем роль с APPLICANT на STUDENT при первом начислении баланса
+            role_changed = False
+            old_role = payment.student.role
+            if payment.student.role == User.Roles.APPLICANT:
+                payment.student.role = User.Roles.STUDENT
+                payment.student.save(update_fields=['role'])
+                role_changed = True
+
             payment.confirmed = True
             payment.save()
 
@@ -222,6 +230,9 @@ class ManagerPaymentConfirmAPI(APIView):
                     "payment_id": payment.id,
                     "student": payment.student_id,
                     "lessons_added": lessons_to_add,
+                    "old_role": old_role,
+                    "new_role": payment.student.role,
+                    "role_changed": role_changed,
                 },
             )
 
@@ -269,6 +280,7 @@ class ManagerStudentBalanceUpdateAPI(APIView):
             )
             
             old_balance = lb.lessons_available
+            old_role = student.role
             
             if lessons_available is not None:
                 lb.lessons_available = int(lessons_available)
@@ -279,6 +291,13 @@ class ManagerStudentBalanceUpdateAPI(APIView):
             
             lb.save()
 
+            # Автоматически меняем роль с APPLICANT на STUDENT при начислении баланса
+            role_changed = False
+            if student.role == User.Roles.APPLICANT and lb.lessons_available > 0:
+                student.role = User.Roles.STUDENT
+                student.save(update_fields=['role'])
+                role_changed = True
+
             AuditLog.objects.create(
                 actor=request.user,
                 action="MANAGER_UPDATE_BALANCE",
@@ -287,6 +306,9 @@ class ManagerStudentBalanceUpdateAPI(APIView):
                     "student_email": student.email,
                     "old_balance": old_balance,
                     "new_balance": lb.lessons_available,
+                    "old_role": old_role,
+                    "new_role": student.role,
+                    "role_changed": role_changed,
                     "delta": delta,
                     "lessons_available": lessons_available,
                 },

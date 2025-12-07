@@ -64,3 +64,4 @@ export function managerGetStudentBalance(studentId) {
 export function managerUpdateStudentBalance(studentId, payload) {
   return apiClient.patch(`/api/manager/students/${studentId}/balance/update/`, payload)
 }
+

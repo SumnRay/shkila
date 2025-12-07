@@ -32,6 +32,13 @@
             >
               Личный кабинет
             </router-link>
+            <router-link 
+              v-if="auth.normalizedRole === 'student'"
+              :to="{ name: 'student-dashboard' }" 
+              class="dropdown-item"
+            >
+              Личный кабинет
+            </router-link>
             <button @click="handleLogout" class="dropdown-item">Выйти</button>
           </div>
         </div>
