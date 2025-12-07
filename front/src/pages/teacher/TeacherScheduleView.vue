@@ -173,28 +173,34 @@ onMounted(() => {
 <style scoped>
 .teacher-schedule-page {
   min-height: 100vh;
-  background: #0a0a0a;
-  color: #f5f5f5;
-  padding: 24px;
+  background: #202124;
+  color: #e8eaed;
+  padding: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .teacher-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
 .title-block h1 {
-  font-size: 26px;
-  font-weight: 600;
+  font-size: 22px;
+  font-weight: 400;
+  color: #e8eaed;
+  margin: 0;
 }
 
 .subtitle {
   margin-top: 4px;
-  font-size: 14px;
-  color: #aaa;
+  font-size: 13px;
+  color: #9aa0a6;
 }
 
 .teacher-info {
@@ -215,12 +221,14 @@ onMounted(() => {
 }
 
 .role-badge {
-  padding: 3px 8px;
-  border-radius: 999px;
-  border: 1px solid #444;
+  padding: 4px 12px;
+  border-radius: 16px;
+  border: none;
   font-size: 11px;
   text-transform: uppercase;
-  background: #ff9800;
+  background: #8ab4f8;
+  color: #202124;
+  font-weight: 500;
 }
 
 .teacher-actions {
@@ -229,22 +237,26 @@ onMounted(() => {
 }
 
 .btn {
-  padding: 6px 12px;
-  border-radius: 8px;
-  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: 1px solid #5f6368;
   cursor: pointer;
-  background: #1e88e5;
-  color: #fff;
-  font-size: 13px;
+  background: transparent;
+  color: #e8eaed;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s, border-color 0.2s;
 }
 
 .btn.secondary {
-  background: #333;
-  color: #f5f5f5;
+  background: transparent;
+  color: #e8eaed;
+  border-color: #5f6368;
 }
 
 .btn:hover:not(:disabled) {
-  opacity: 0.9;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #8ab4f8;
 }
 
 .btn:disabled {
@@ -253,8 +265,7 @@ onMounted(() => {
 }
 
 .teacher-main {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 16px;
+  width: 100%;
+  max-width: 100%;
 }
 </style>

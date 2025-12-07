@@ -42,24 +42,29 @@
               v-for="day in weekDays"
               :key="day.iso + '-' + hour"
               class="calendar-cell slot"
-              @click="openCreate(day.iso, hour)"
             >
-              <div
-                v-for="lesson in lessonsBySlot[day.iso + '-' + hour] || []"
-                :key="lesson.id"
-                class="lesson-card"
-                @click.stop="selectLesson(lesson)"
-              >
-                <div class="lesson-title">
-                  {{ lesson.student_email || ('Уч. ID ' + lesson.student) }}
-                </div>
-                <div class="lesson-sub">
-                  Препод: {{ lesson.teacher_email || ('ID ' + lesson.teacher) }}
-                </div>
-                <div class="lesson-status">
-                  {{ lesson.status }}
+              <!-- Контейнер для всех карточек уроков (80% ширины) -->
+              <div class="slot-lessons-container">
+                <div
+                  v-for="lesson in lessonsBySlot[day.iso + '-' + hour] || []"
+                  :key="lesson.id"
+                  :class="['lesson-card', `lesson-card--${lesson.status?.toLowerCase() || 'planned'}`]"
+                  @click.stop="selectLesson(lesson)"
+                >
+                  <div class="lesson-time">
+                    {{ formatLessonTime(lesson.scheduled_at) }}
+                  </div>
+                  <div class="lesson-student">
+                    {{ lesson.student_email || ('Уч. ID ' + lesson.student) }}
+                  </div>
                 </div>
               </div>
+              <!-- Пустое место для добавления еще одного урока (20% ширины, справа) -->
+              <div 
+                class="slot-empty-area" 
+                @click.stop="openCreate(day.iso, hour)"
+                :title="'Добавить урок на ' + formatHour(hour) + ' ' + day.display"
+              ></div>
             </div>
           </div>
         </div>
@@ -75,7 +80,12 @@
       <p><strong>Ученик:</strong> {{ activeLesson.student_email }}</p>
       <p v-if="activeLesson.parent_full_name"><strong>Родитель:</strong> {{ activeLesson.parent_full_name }}</p>
       <p><strong>Преподаватель:</strong> {{ activeLesson.teacher_email }}</p>
-      <p><strong>Статус:</strong> {{ activeLesson.status }}</p>
+      <p>
+        <strong>Статус:</strong> 
+        <span :class="['status-badge', `status-badge--${activeLesson.status?.toLowerCase() || 'planned'}`]">
+          {{ activeLesson.status }}
+        </span>
+      </p>
       <p><strong>Время:</strong> {{ formatDateTime(activeLesson.scheduled_at) }}</p>
       <p>
         <strong>Ссылка:</strong>
@@ -223,43 +233,45 @@
             </select>
           </label>
 
-          <label v-if="canEditTime" class="field">
-            <span>Дата</span>
-            <input v-model="editForm.date" type="date" />
-          </label>
+          <div v-if="canEditTime" class="field-row">
+            <label class="field field--half">
+              <span>Дата</span>
+              <input v-model="editForm.date" type="date" />
+            </label>
 
-          <label v-if="canEditTime" class="field">
-            <span>Время</span>
-            <input v-model="editForm.time" type="time" />
-          </label>
+            <label class="field field--half">
+              <span>Время</span>
+              <input v-model="editForm.time" type="time" />
+            </label>
+          </div>
 
           <label class="field">
             <span>Ссылка</span>
-            <input v-model="editForm.link" type="text" />
+            <input v-model="editForm.link" type="text" placeholder="https://..." />
           </label>
 
           <label class="field">
             <span>Комментарий</span>
-            <textarea v-model="editForm.comment" rows="3"></textarea>
+            <textarea v-model="editForm.comment" rows="3" placeholder="Комментарий к уроку"></textarea>
           </label>
 
           <!-- Поле причины отмены (показывается только при статусе CANCELLED) -->
-          <label v-if="editForm.status === 'CANCELLED'" class="field">
-            <span>Причина отмены <span style="color: #f44336;">*</span></span>
+          <label v-if="editForm.status === 'CANCELLED'" class="field field--required">
+            <span>Причина отмены <span class="required-mark">*</span></span>
             <textarea 
               v-model="editForm.cancellation_reason" 
-              rows="3" 
+              rows="4" 
               placeholder="Укажите причину отмены занятия"
               required
             ></textarea>
           </label>
 
           <!-- Поле обратной связи (показывается только при статусе DONE) -->
-          <label v-if="editForm.status === 'DONE'" class="field">
-            <span>Обратная связь по уроку <span style="color: #f44336;">*</span></span>
+          <label v-if="editForm.status === 'DONE'" class="field field--required">
+            <span>Обратная связь по уроку <span class="required-mark">*</span></span>
             <textarea 
               v-model="editForm.feedback" 
-              rows="4" 
+              rows="5" 
               placeholder="Опишите, что было на уроке, какие темы разобрали, что нужно повторить и т.д."
               required
             ></textarea>
@@ -407,6 +419,17 @@ const lessonsBySlot = computed(() => {
 })
 
 const formatHour = (h) => `${String(h).padStart(2, '0')}:00`
+
+const formatLessonTime = (scheduledAt) => {
+  if (!scheduledAt) return ''
+  const dt = new Date(scheduledAt)
+  const startHour = dt.getHours()
+  const startMin = dt.getMinutes()
+  const endHour = (startHour + 1) % 24
+  const startStr = `${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`
+  const endStr = `${String(endHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`
+  return `${startStr} - ${endStr}`
+}
 
 const formatDateTime = (val) => {
   const d = new Date(val)
@@ -896,19 +919,30 @@ defineExpose({
 <style scoped>
 .schedule-view {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 16px;
+  grid-template-columns: 1fr 160px;
+  gap: 6px;
+  width: 100%;
+  max-width: 100%;
 }
 
 .admin-card {
-  background: #111;
-  padding: 16px;
-  border-radius: 12px;
-  border: 1px solid #333;
+  background: #202124;
+  padding: 10px;
+  border-radius: 0;
+  border: none;
+}
+
+.calendar-card {
+  min-width: 0;
+  overflow: hidden;
+  width: 100%;
 }
 
 .controls-card {
   grid-column: 1 / -1;
+  background: #202124;
+  border-bottom: 1px solid #3c4043;
+  padding: 16px 24px;
 }
 
 .calendar-card {
@@ -917,20 +951,26 @@ defineExpose({
 
 .lesson-info-card {
   grid-column: 2 / 3;
+  max-width: 160px;
+  min-width: 0;
 }
 
 .controls-row button {
   margin-right: 8px;
-  padding: 6px 10px;
-  background: #1e88e5;
-  border: none;
-  border-radius: 6px;
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid #5f6368;
+  border-radius: 4px;
   cursor: pointer;
-  color: white;
+  color: #e8eaed;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s, border-color 0.2s;
 }
 
 .controls-row button:hover {
-  background: #1565c0;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #8ab4f8;
 }
 
 .week-label {
@@ -939,90 +979,219 @@ defineExpose({
 }
 
 .hint {
-  color: #888;
-  font-size: 0.9rem;
+  color: #9aa0a6;
+  font-size: 12px;
   margin-top: 8px;
 }
 
 .calendar {
-  border: 1px solid #333;
-  border-radius: 8px;
+  border: none;
+  border-radius: 0;
   overflow: hidden;
-  font-size: 14px;
+  font-size: 13px;
+  width: 100%;
+  min-width: 0;
+  background: #1a1a1a;
 }
 
 .calendar-header-row,
 .calendar-row {
   display: grid;
-  grid-template-columns: 70px repeat(7, 1fr);
+  grid-template-columns: 45px repeat(7, 1fr);
+  width: 100%;
 }
 
 .time-col {
   background: #101010;
   text-align: right;
-  padding-right: 8px;
+  padding-right: 4px;
+  padding-left: 2px;
   color: #aaa;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .day-col {
-  background: #151515;
+  background: transparent;
   text-align: center;
-  border-right: 1px solid #222;
-  padding: 8px;
+  border-right: 1px solid #3c4043;
+  padding: 8px 4px;
+  min-width: 0;
+  border-bottom: 1px solid #3c4043;
 }
 
 .day-name {
-  font-weight: 600;
-  color: #fff;
+  font-weight: 500;
+  color: #9aa0a6;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .day-date {
-  font-size: 0.85rem;
-  color: #aaa;
+  font-size: 22px;
+  color: #e8eaed;
   margin-top: 4px;
+  font-weight: 400;
+  line-height: 1.2;
 }
 
 .calendar-body {
-  max-height: 600px;
+  max-height: calc(100vh - 300px);
   overflow-y: auto;
-}
-
-.slot {
-  cursor: pointer;
-  position: relative;
-  min-height: 40px;
-  border-right: 1px solid #222;
-  border-bottom: 1px solid #222;
-  padding: 2px;
-}
-
-.slot:hover {
   background: #1a1a1a;
 }
 
+.calendar-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.calendar-body::-webkit-scrollbar-track {
+  background: #202124;
+}
+
+.calendar-body::-webkit-scrollbar-thumb {
+  background: #5f6368;
+  border-radius: 4px;
+}
+
+.calendar-body::-webkit-scrollbar-thumb:hover {
+  background: #80868b;
+}
+
+.calendar-row {
+  height: 80px;
+}
+
+.slot {
+  position: relative;
+  height: 80px;
+  border-right: 1px solid #3c4043;
+  border-bottom: 1px solid #3c4043;
+  padding: 1px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 1px;
+  overflow: hidden;
+  box-sizing: border-box;
+  background: transparent;
+}
+
+.slot-lessons-container {
+  flex: 0 0 80%;
+  max-width: 80%;
+  display: flex;
+  flex-direction: row;
+  gap: 3px;
+  overflow: hidden;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.slot:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.slot-empty-area {
+  flex: 0 0 20%;
+  min-width: 30px;
+  height: calc(100% - 2px);
+  cursor: pointer;
+  transition: all 0.15s;
+  border-radius: 2px;
+  align-self: stretch;
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed rgba(154, 160, 166, 0.3);
+  background: transparent;
+}
+
+.slot-empty-area:hover {
+  background-color: rgba(138, 180, 248, 0.1);
+  border-color: rgba(138, 180, 248, 0.5);
+}
+
+.slot-empty-area::before {
+  content: '+';
+  font-size: 18px;
+  color: rgba(154, 160, 166, 0.6);
+  font-weight: 300;
+  line-height: 1;
+}
+
+.slot-empty-area:hover::before {
+  color: #8ab4f8;
+}
+
 .lesson-card {
-  background: #1e88e5;
-  color: white;
-  border-radius: 6px;
+  color: #202124;
+  border-radius: 3px;
   padding: 4px 6px;
-  margin: 2px 0;
+  margin: 0;
   font-size: 12px;
+  cursor: pointer;
+  transition: box-shadow 0.15s, transform 0.15s;
+  flex: 0 0 auto;
+  min-width: 100px;
+  max-width: 180px;
+  height: auto;
+  min-height: 20px;
+  max-height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  border-left: 3px solid transparent;
 }
 
-.lesson-title {
-  font-weight: bold;
+.lesson-card:hover {
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  transform: translateY(-1px);
+  z-index: 10;
+  position: relative;
 }
 
-.lesson-sub {
+/* Запланировано - синий */
+.lesson-card--planned {
+  background: #4a90e2;
+}
+
+/* Проведено - зеленый (не яркий) */
+.lesson-card--done {
+  background: #66bb6a;
+}
+
+/* Отменено - светло-красный (не яркий) */
+.lesson-card--cancelled {
+  background: #e57373;
+}
+
+.lesson-time {
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+  color: #202124;
+}
+
+.lesson-student {
   font-size: 11px;
   opacity: 0.9;
-  margin-top: 2px;
-}
-
-.lesson-status {
-  font-size: 11px;
-  margin-top: 2px;
-  opacity: 0.8;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #5f6368;
 }
 
 .lesson-actions {
@@ -1066,11 +1235,11 @@ defineExpose({
 }
 
 .modal {
-  width: 450px;
+  width: 500px;
   background: #111;
   border: 1px solid #333;
   border-radius: 12px;
-  padding: 20px;
+  padding: 24px;
   color: #f5f5f5;
   max-height: 90vh;
   overflow-y: auto;
@@ -1078,19 +1247,22 @@ defineExpose({
 
 .modal h2 {
   margin-top: 0;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  font-size: 20px;
+  font-weight: 600;
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .field span {
-  margin-bottom: 4px;
-  color: #aaa;
+  margin-bottom: 6px;
+  color: #ccc;
   font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .email-input-wrapper {
@@ -1137,11 +1309,39 @@ defineExpose({
 .field input,
 .field select,
 .field textarea {
-  background: #000;
+  background: #1a1a1a;
   border: 1px solid #444;
   color: white;
-  padding: 8px;
+  padding: 10px 12px;
   border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+.field-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.field--half {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.field--required span {
+  color: #fff;
+}
+
+.required-mark {
+  color: #ff6b6b;
+  margin-left: 2px;
 }
 
 .field input:focus,
@@ -1149,6 +1349,7 @@ defineExpose({
 .field textarea:focus {
   outline: none;
   border-color: #1e88e5;
+  box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.1);
 }
 
 .field input:disabled {
@@ -1158,8 +1359,10 @@ defineExpose({
 
 .modal-actions {
   display: flex;
-  gap: 8px;
-  margin-top: 16px;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #333;
 }
 
 .modal-actions button {
@@ -1224,5 +1427,32 @@ defineExpose({
 
 .lesson-info-card a:hover {
   text-decoration: underline;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-left: 8px;
+}
+
+/* Запланировано - синий */
+.status-badge--planned {
+  background: #4a90e2;
+  color: white;
+}
+
+/* Проведено - зеленый (не яркий) */
+.status-badge--done {
+  background: #66bb6a;
+  color: white;
+}
+
+/* Отменено - светло-красный (не яркий) */
+.status-badge--cancelled {
+  background: #e57373;
+  color: white;
 }
 </style>

@@ -160,16 +160,30 @@ onMounted(() => {
 <style scoped>
 .manager-page {
   min-height: 100vh;
-  background: #0a0a0a;
-  color: #f5f5f5;
-  padding: 24px;
+  background: #202124;
+  color: #e8eaed;
+  padding: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .manager-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 0;
+  padding: 16px 24px;
+  background: #202124;
+  border-bottom: 1px solid #3c4043;
+}
+
+.manager-header h1 {
+  font-size: 22px;
+  font-weight: 400;
+  color: #e8eaed;
+  margin: 0;
 }
 
 .manager-info {
@@ -179,32 +193,37 @@ onMounted(() => {
 }
 
 .role-badge {
-  padding: 4px 8px;
-  border-radius: 8px;
-  background: #2e7d32;
+  padding: 4px 12px;
+  border-radius: 16px;
+  border: none;
+  background: #81c995;
+  color: #202124;
   font-size: 11px;
   text-transform: uppercase;
+  font-weight: 500;
 }
 
 .btn {
-  padding: 6px 12px;
-  color: white;
-  background: #1e88e5;
-  border: none;
-  border-radius: 6px;
+  padding: 8px 16px;
+  color: #e8eaed;
+  background: transparent;
+  border: 1px solid #5f6368;
+  border-radius: 4px;
   cursor: pointer;
   text-decoration: none;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s, border-color 0.2s;
 }
 
 .btn:hover {
-  background: #1565c0;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #8ab4f8;
 }
 
 .manager-main {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 16px;
+  width: 100%;
+  max-width: 100%;
 }
 </style>
 
