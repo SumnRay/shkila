@@ -13,6 +13,10 @@ class TeacherLessonSerializer(serializers.ModelSerializer):
     student_name = serializers.CharField(source="student.student_full_name", read_only=True)
     parent_full_name = serializers.CharField(read_only=True)
     teacher_email = serializers.EmailField(source="teacher.email", read_only=True)
+    
+    # Используем SerializerMethodField для полей, которые могут отсутствовать в БД
+    cancellation_reason = serializers.SerializerMethodField()
+    feedback = serializers.SerializerMethodField()
 
     class Meta:
         model = Lesson
@@ -25,21 +29,85 @@ class TeacherLessonSerializer(serializers.ModelSerializer):
             "scheduled_at",
             "status",
             "comment",
+            "cancellation_reason",
+            "feedback",
             "debited_from_balance",
             "created_at",
         )
+    
+    def get_cancellation_reason(self, obj):
+        """Безопасное получение причины отмены"""
+        return getattr(obj, 'cancellation_reason', '')
+    
+    def get_feedback(self, obj):
+        """Безопасное получение обратной связи"""
+        return getattr(obj, 'feedback', '')
 
 
 class TeacherLessonUpdateSerializer(serializers.ModelSerializer):
     """
     Что учитель может менять в карточке урока:
     - статус (PLANNED/DONE/CANCELLED)
-    - комментарий/отметку
+    - комментарий/отметку (синхронизируется для всех уроков с этим учеником)
+    - причину отмены (обязательна при статусе CANCELLED)
+    - обратную связь (обязательна при статусе DONE)
     - при необходимости ссылку (если по договорённости)
     """
     class Meta:
         model = Lesson
-        fields = ("status", "comment", "link")
+        fields = ("status", "comment", "link", "cancellation_reason", "feedback")
+
+    def save(self, **kwargs):
+        # Миграция применена, поля должны быть в БД
+        # Просто сохраняем как обычно
+        return super().save(**kwargs)
+
+    def validate(self, attrs):
+        # Получаем текущий статус (новый или существующий)
+        new_status = attrs.get('status')
+        old_status = self.instance.status if self.instance else None
+        
+        # Определяем финальный статус
+        final_status = new_status if new_status is not None else old_status
+        
+        # Проверяем, меняется ли статус
+        status_changed = new_status is not None and new_status != old_status
+        
+        # Если статус не меняется, не требуем заполнения полей
+        if not status_changed:
+            return attrs
+        
+        # Получаем причину отмены (новую или существующую) - безопасно через getattr
+        cancellation_reason = attrs.get('cancellation_reason')
+        if cancellation_reason is None or cancellation_reason == '':
+            if self.instance:
+                cancellation_reason = getattr(self.instance, 'cancellation_reason', '') or ''
+            else:
+                cancellation_reason = ''
+        
+        # Получаем обратную связь (новую или существующую) - безопасно через getattr
+        feedback = attrs.get('feedback')
+        if feedback is None or feedback == '':
+            if self.instance:
+                feedback = getattr(self.instance, 'feedback', '') or ''
+            else:
+                feedback = ''
+        
+        # Если статус меняется на CANCELLED, нужна причина отмены
+        if final_status == Lesson.STATUS_CANCELLED:
+            if not cancellation_reason or not cancellation_reason.strip():
+                raise serializers.ValidationError({
+                    "cancellation_reason": "Причина отмены обязательна при отмене занятия"
+                })
+        
+        # Если статус меняется на DONE, нужна обратная связь
+        if final_status == Lesson.STATUS_DONE:
+            if not feedback or not feedback.strip():
+                raise serializers.ValidationError({
+                    "feedback": "Обратная связь обязательна при завершении занятия"
+                })
+        
+        return attrs
 
 
 class TeacherLessonCreateSerializer(serializers.ModelSerializer):

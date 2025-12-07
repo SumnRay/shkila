@@ -14,6 +14,10 @@ class ManagerClientSerializer(serializers.ModelSerializer):
 class ManagerLessonSerializer(serializers.ModelSerializer):
     student_email = serializers.EmailField(source="student.email", read_only=True)
     teacher_email = serializers.EmailField(source="teacher.email", read_only=True)
+    
+    # Используем SerializerMethodField для полей, которые могут отсутствовать в БД
+    cancellation_reason = serializers.SerializerMethodField()
+    feedback = serializers.SerializerMethodField()
 
     class Meta:
         model = Lesson
@@ -28,9 +32,19 @@ class ManagerLessonSerializer(serializers.ModelSerializer):
             "scheduled_at",
             "status",
             "comment",
+            "cancellation_reason",
+            "feedback",
             "debited_from_balance",
             "created_at",
         )
+    
+    def get_cancellation_reason(self, obj):
+        """Безопасное получение причины отмены"""
+        return getattr(obj, 'cancellation_reason', '')
+    
+    def get_feedback(self, obj):
+        """Безопасное получение обратной связи"""
+        return getattr(obj, 'feedback', '')
 
 
 class ManagerLessonCreateSerializer(serializers.ModelSerializer):
@@ -102,10 +116,52 @@ class ManagerLessonCreateSerializer(serializers.ModelSerializer):
 class ManagerLessonUpdateSerializer(serializers.ModelSerializer):
     """
     Менеджер может менять время, ссылку, статус, комментарий.
+    При отмене занятия (статус CANCELLED) обязательна причина отмены.
     """
     class Meta:
         model = Lesson
-        fields = ("scheduled_at", "status", "link", "comment")
+        fields = ("scheduled_at", "status", "link", "comment", "cancellation_reason")
+
+    def save(self, **kwargs):
+        # Проверяем наличие полей в БД через проверку атрибутов модели
+        validated_data = self.validated_data.copy()
+        
+        # Удаляем поля, которых может не быть в БД (если миграция не применена)
+        try:
+            # Проверяем, есть ли поле в модели
+            if 'cancellation_reason' in validated_data:
+                field = self.Meta.model._meta.get_field('cancellation_reason')
+        except Exception:
+            # Если поля нет, удаляем из validated_data
+            validated_data.pop('cancellation_reason', None)
+        
+        # Обновляем validated_data
+        self.validated_data = validated_data
+        
+        return super().save(**kwargs)
+
+    def validate(self, attrs):
+        # Получаем текущий статус (новый или существующий)
+        status = attrs.get('status')
+        if status is None and self.instance:
+            status = self.instance.status
+        
+        # Получаем причину отмены (новую или существующую) - безопасно через getattr
+        cancellation_reason = attrs.get('cancellation_reason')
+        if cancellation_reason is None:
+            if self.instance:
+                cancellation_reason = getattr(self.instance, 'cancellation_reason', '') or ''
+            else:
+                cancellation_reason = ''
+        
+        # Если статус меняется на CANCELLED, нужна причина отмены
+        if status == Lesson.STATUS_CANCELLED:
+            if not cancellation_reason or not cancellation_reason.strip():
+                raise serializers.ValidationError({
+                    "cancellation_reason": "Причина отмены обязательна при отмене занятия"
+                })
+        
+        return attrs
 
 
 class ManagerBalanceSerializer(serializers.ModelSerializer):

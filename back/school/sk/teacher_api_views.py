@@ -48,11 +48,43 @@ class TeacherLessonsListCreateAPI(generics.ListCreateAPIView):
         return TeacherLessonSerializer
 
     def get_queryset(self):
+        from django.utils.dateparse import parse_date
+        from django.utils import timezone
+        
         user = self.request.user
         qs = Lesson.objects.select_related("student", "teacher").all()
         # если не админ и не суперюзер — показываем только свои уроки
         if not (user.is_superuser or getattr(user, "role", None) == "ADMIN"):
             qs = qs.filter(teacher=user)
+        
+        # Фильтрация по датам
+        date_from = self.request.query_params.get('date_from')
+        date_to = self.request.query_params.get('date_to')
+        
+        if date_from:
+            try:
+                date_from_parsed = parse_date(date_from)
+                if date_from_parsed:
+                    # Начало дня
+                    date_from_dt = timezone.make_aware(
+                        timezone.datetime.combine(date_from_parsed, timezone.datetime.min.time())
+                    )
+                    qs = qs.filter(scheduled_at__gte=date_from_dt)
+            except (ValueError, TypeError):
+                pass
+        
+        if date_to:
+            try:
+                date_to_parsed = parse_date(date_to)
+                if date_to_parsed:
+                    # Конец дня
+                    date_to_dt = timezone.make_aware(
+                        timezone.datetime.combine(date_to_parsed, timezone.datetime.max.time())
+                    )
+                    qs = qs.filter(scheduled_at__lte=date_to_dt)
+            except (ValueError, TypeError):
+                pass
+        
         return qs
 
     def perform_create(self, serializer):
@@ -124,7 +156,35 @@ class TeacherLessonUpdateAPI(generics.UpdateAPIView):
         return qs
 
     def perform_update(self, serializer):
-        lesson = serializer.save()
+        try:
+            lesson = serializer.save()
+        except Exception as e:
+            # Если ошибка связана с отсутствием полей в БД, пытаемся сохранить без них
+            error_str = str(e).lower()
+            if any(keyword in error_str for keyword in ['cancellation_reason', 'feedback', 'column', 'unknown column', 'no such column']):
+                # Удаляем проблемные поля из validated_data и пробуем снова
+                validated_data = serializer.validated_data.copy()
+                validated_data.pop('cancellation_reason', None)
+                validated_data.pop('feedback', None)
+                serializer.validated_data = validated_data
+                # Сохраняем только существующие поля
+                lesson = serializer.save()
+            else:
+                # Если это другая ошибка, логируем и пробрасываем дальше
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Error updating lesson: {e}")
+                raise
+        
+        # Синхронизация комментария: если комментарий изменился, обновляем его во всех уроках с этим учеником
+        # (комментарий общий для всех уроков с учеником, независимо от учителя)
+        if 'comment' in serializer.validated_data:
+            new_comment = serializer.validated_data['comment']
+            # Обновляем комментарий во всех уроках с этим учеником
+            Lesson.objects.filter(
+                student=lesson.student
+            ).exclude(id=lesson.id).update(comment=new_comment)
+        
         AuditLog.objects.create(
             actor=self.request.user,
             action="TEACHER_UPDATE_LESSON",
@@ -132,6 +192,8 @@ class TeacherLessonUpdateAPI(generics.UpdateAPIView):
                 "lesson_id": lesson.id,
                 "student": lesson.student_id,
                 "status": lesson.status,
+                "cancellation_reason": getattr(lesson, 'cancellation_reason', None) if lesson.status == Lesson.STATUS_CANCELLED else None,
+                "has_feedback": bool(getattr(lesson, 'feedback', '')) if lesson.status == Lesson.STATUS_DONE else None,
             },
         )
 

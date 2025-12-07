@@ -99,6 +99,14 @@ class Lesson(models.Model):
     )
 
     comment = models.TextField(blank=True)
+    cancellation_reason = models.TextField(
+        blank=True,
+        help_text="Причина отмены занятия (заполняется при статусе CANCELLED)",
+    )
+    feedback = models.TextField(
+        blank=True,
+        help_text="Обратная связь по занятию (заполняется при статусе DONE)",
+    )
     debited_from_balance = models.BooleanField(
         default=False,
         help_text="True, если занятие уже списано с баланса",

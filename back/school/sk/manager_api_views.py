@@ -180,6 +180,15 @@ class ManagerLessonUpdateAPI(generics.UpdateAPIView):
 
     def perform_update(self, serializer):
         lesson = serializer.save()
+        
+        # Синхронизация комментария: если комментарий изменился, обновляем его во всех уроках с этим учеником
+        if 'comment' in serializer.validated_data:
+            new_comment = serializer.validated_data['comment']
+            # Обновляем комментарий во всех уроках с этим учеником (независимо от учителя)
+            Lesson.objects.filter(
+                student=lesson.student
+            ).exclude(id=lesson.id).update(comment=new_comment)
+        
         AuditLog.objects.create(
             actor=self.request.user,
             action="MANAGER_UPDATE_LESSON",
@@ -188,6 +197,7 @@ class ManagerLessonUpdateAPI(generics.UpdateAPIView):
                 "student": lesson.student_id,
                 "teacher": lesson.teacher_id,
                 "status": lesson.status,
+                "cancellation_reason": getattr(lesson, 'cancellation_reason', None) if lesson.status == Lesson.STATUS_CANCELLED else None,
             },
         )
 
@@ -196,6 +206,7 @@ class ManagerLessonCancelAPI(APIView):
     """
     Отмена урока менеджером:
     POST /api/manager/lessons/{id}/cancel/
+    body: {"cancellation_reason": "Причина отмены"}
     """
     permission_classes = [IsManagerOrAdmin]
 
@@ -208,13 +219,27 @@ class ManagerLessonCancelAPI(APIView):
         if lesson.status == Lesson.STATUS_CANCELLED:
             return Response({"detail": "already cancelled"}, status=400)
 
+        cancellation_reason = request.data.get('cancellation_reason', '').strip()
+        if not cancellation_reason:
+            return Response({
+                "detail": "cancellation_reason is required",
+                "cancellation_reason": ["Причина отмены обязательна"]
+            }, status=400)
+
         lesson.status = Lesson.STATUS_CANCELLED
+        # Безопасно устанавливаем причину отмены (если поле существует)
+        if hasattr(lesson, 'cancellation_reason'):
+            lesson.cancellation_reason = cancellation_reason
         lesson.save()
 
         AuditLog.objects.create(
             actor=request.user,
             action="MANAGER_CANCEL_LESSON",
-            meta={"lesson_id": lesson.id, "student": lesson.student_id},
+            meta={
+                "lesson_id": lesson.id,
+                "student": lesson.student_id,
+                "cancellation_reason": cancellation_reason,
+            },
         )
 
         return Response({"detail": "ok"})

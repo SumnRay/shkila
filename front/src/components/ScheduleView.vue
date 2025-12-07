@@ -243,6 +243,28 @@
             <textarea v-model="editForm.comment" rows="3"></textarea>
           </label>
 
+          <!-- Поле причины отмены (показывается только при статусе CANCELLED) -->
+          <label v-if="editForm.status === 'CANCELLED'" class="field">
+            <span>Причина отмены <span style="color: #f44336;">*</span></span>
+            <textarea 
+              v-model="editForm.cancellation_reason" 
+              rows="3" 
+              placeholder="Укажите причину отмены занятия"
+              required
+            ></textarea>
+          </label>
+
+          <!-- Поле обратной связи (показывается только при статусе DONE) -->
+          <label v-if="editForm.status === 'DONE'" class="field">
+            <span>Обратная связь по уроку <span style="color: #f44336;">*</span></span>
+            <textarea 
+              v-model="editForm.feedback" 
+              rows="4" 
+              placeholder="Опишите, что было на уроке, какие темы разобрали, что нужно повторить и т.д."
+              required
+            ></textarea>
+          </label>
+
           <div class="modal-actions">
             <button type="submit" :disabled="updateLoading">
               {{ updateLoading ? 'Сохраняем...' : 'Сохранить' }}
@@ -714,7 +736,9 @@ const editForm = ref({
   date: '',
   time: '',
   link: '',
-  comment: ''
+  comment: '',
+  cancellation_reason: '',
+  feedback: ''
 })
 
 const updateLoading = ref(false)
@@ -732,6 +756,8 @@ const openEditLesson = () => {
     time: `${String(scheduledDate.getHours()).padStart(2, '0')}:${String(scheduledDate.getMinutes()).padStart(2, '0')}`,
     link: lesson.link || '',
     comment: lesson.comment || '',
+    cancellation_reason: lesson.cancellation_reason || '',
+    feedback: lesson.feedback || '',
   }
   updateError.value = null
   showEditModal.value = true
@@ -747,11 +773,34 @@ const handleUpdate = async () => {
   updateLoading.value = true
   updateError.value = null
 
+  // Валидация на фронтенде
+  if (editForm.value.status === 'CANCELLED' && !editForm.value.cancellation_reason?.trim()) {
+    updateError.value = 'Причина отмены обязательна при отмене занятия'
+    updateLoading.value = false
+    return
+  }
+
+  if (editForm.value.status === 'DONE' && !editForm.value.feedback?.trim()) {
+    updateError.value = 'Обратная связь обязательна при завершении занятия'
+    updateLoading.value = false
+    return
+  }
+
   try {
     const payload = {
       status: editForm.value.status,
       link: editForm.value.link || null,
       comment: editForm.value.comment || '',
+    }
+
+    // Всегда передаем поля, если они есть в форме (даже если пустые)
+    // Это позволяет обновлять их значения
+    if ('cancellation_reason' in editForm.value) {
+      payload.cancellation_reason = editForm.value.cancellation_reason || ''
+    }
+    
+    if ('feedback' in editForm.value) {
+      payload.feedback = editForm.value.feedback || ''
     }
 
     if (canEditTime.value && editForm.value.date && editForm.value.time) {
@@ -775,12 +824,39 @@ const handleUpdate = async () => {
       payload.scheduled_at = `${editForm.value.date}T${timeStr}${offsetStr}`
     }
 
+    console.log('Updating lesson with payload:', payload)
     await props.onUpdateLesson(activeLesson.value.id, payload)
     showEditModal.value = false
     activeLesson.value = null
   } catch (err) {
     console.error('update lesson error:', err)
-    updateError.value = err?.response?.data?.detail || 'Ошибка обновления урока'
+    console.error('error response:', err?.response?.data)
+    const errorData = err?.response?.data
+    if (errorData) {
+      // Обрабатываем ошибки валидации
+      if (errorData.cancellation_reason) {
+        updateError.value = Array.isArray(errorData.cancellation_reason) 
+          ? errorData.cancellation_reason[0] 
+          : errorData.cancellation_reason
+      } else if (errorData.feedback) {
+        updateError.value = Array.isArray(errorData.feedback) 
+          ? errorData.feedback[0] 
+          : errorData.feedback
+      } else if (errorData.detail) {
+        updateError.value = errorData.detail
+      } else {
+        // Показываем первую ошибку из объекта или общее сообщение
+        const errorKeys = Object.keys(errorData)
+        if (errorKeys.length > 0) {
+          const firstError = errorData[errorKeys[0]]
+          updateError.value = `${errorKeys[0]}: ${Array.isArray(firstError) ? firstError[0] : firstError}`
+        } else {
+          updateError.value = 'Ошибка обновления урока'
+        }
+      }
+    } else {
+      updateError.value = 'Ошибка обновления урока'
+    }
   } finally {
     updateLoading.value = false
   }
