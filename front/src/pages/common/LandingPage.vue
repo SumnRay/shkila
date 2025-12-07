@@ -1,8 +1,10 @@
 <!-- src/pages/common/LandingPage.vue -->
 <template>
   <div class="home-page">
-    <!-- Верхняя навигация -->
-    <header class="top-nav">
+    <TopNavigationBar />
+
+    <!-- Верхняя навигация (старая, удаляется) -->
+    <header class="top-nav" style="display: none;">
       <nav class="nav-right">
         <!-- Кнопка Администрирование для работников школы -->
         <div 
@@ -192,6 +194,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { useRouter } from 'vue-router'
+import TopNavigationBar from '../../components/TopNavigationBar.vue'
 import apiClient from '../../api/http'
 
 const auth = useAuthStore()
@@ -199,44 +202,7 @@ const router = useRouter()
 const courses = ref([])
 const selectedCourse = ref(null)
 const loading = ref(false)
-const showAdminMenu = ref(false)
-const showUserMenu = ref(false)
-
-// Проверка, является ли пользователь работником школы
-const isStaffRole = computed(() => {
-  const role = auth.normalizedRole
-  return role === 'admin' || role === 'manager' || role === 'teacher'
-})
-
-// Переключение меню администрирования
-const toggleAdminMenu = (e) => {
-  e.stopPropagation()
-  showAdminMenu.value = !showAdminMenu.value
-}
-
-// Закрытие меню при клике вне его
-const closeAdminMenu = (e) => {
-  // Не закрываем, если клик был внутри меню
-  if (e && e.target.closest('.admin-menu')) {
-    return
-  }
-  showAdminMenu.value = false
-}
-
-// Переключение меню пользователя
-const toggleUserMenu = (e) => {
-  e.stopPropagation()
-  showUserMenu.value = !showUserMenu.value
-}
-
-// Закрытие меню пользователя при клике вне его
-const closeUserMenu = (e) => {
-  // Не закрываем, если клик был внутри меню
-  if (e && e.target.closest('.user-menu')) {
-    return
-  }
-  showUserMenu.value = false
-}
+// Навигация теперь в TopNavigationBar компоненте
 
 const fetchCourses = async () => {
   loading.value = true
@@ -253,22 +219,12 @@ const fetchCourses = async () => {
   }
 }
 
-const handleLogout = () => {
-  auth.logout()
-  router.push({ name: 'home' })
-}
-
 const openCourseDetails = (course) => {
   selectedCourse.value = course
 }
 
 const closeCourseDetails = () => {
   selectedCourse.value = null
-}
-
-const handleDocumentClick = (e) => {
-  closeAdminMenu(e)
-  closeUserMenu(e)
 }
 
 onMounted(() => {

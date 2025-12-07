@@ -1,32 +1,17 @@
 <!-- src/pages/manager/ManagerBalanceView.vue -->
 <template>
   <div class="manager-balance-page">
-    <header class="manager-header">
-      <div class="title-block">
-        <h1>Управление балансом</h1>
-        <p class="subtitle">
-          Просмотр и изменение баланса уроков у учеников.
-        </p>
-      </div>
-
-      <div class="manager-info" v-if="auth.user">
-        <div class="manager-user">
-          <span class="manager-email">{{ auth.user.email }}</span>
-          <span class="role-badge">MANAGER</span>
-        </div>
-
-        <div class="manager-actions">
-          <button class="btn secondary" @click="goToDashboard">
-            Панель менеджера
-          </button>
-          <button class="btn" @click="handleLogout">
-            Выйти
-          </button>
-        </div>
-      </div>
-    </header>
+    <TopNavigationBar />
 
     <main class="manager-main">
+      <div class="page-header">
+        <div class="title-block">
+          <h1>Управление балансом</h1>
+          <p class="subtitle">
+            Просмотр и изменение баланса уроков у учеников.
+          </p>
+        </div>
+      </div>
       <!-- ПОИСК УЧЕНИКА -->
       <section class="manager-card search-card">
         <h2>Поиск ученика</h2>
@@ -147,6 +132,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
+import TopNavigationBar from '../../components/TopNavigationBar.vue'
 import {
   managerGetClients,
   managerGetStudentBalance,
@@ -293,10 +279,6 @@ const formatDate = (dateString) => {
 }
 
 // ===== НАВИГАЦИЯ =====
-const handleLogout = () => {
-  auth.logout()
-  router.push({ name: 'login' })
-}
 
 const goToDashboard = () => {
   router.push({ name: 'manager-dashboard' })

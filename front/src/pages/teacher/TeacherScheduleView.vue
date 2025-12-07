@@ -1,32 +1,17 @@
 <!-- src/pages/teacher/TeacherScheduleView.vue -->
 <template>
   <div class="teacher-schedule-page">
-    <header class="teacher-header">
-      <div class="title-block">
-        <h1>Расписание занятий</h1>
-        <p class="subtitle">
-          Проставляйте расписание занятий для ваших учеников.
-        </p>
-      </div>
-
-      <div class="teacher-info" v-if="auth.user">
-        <div class="teacher-user">
-          <span class="teacher-email">{{ auth.user.email }}</span>
-          <span class="role-badge">TEACHER</span>
-        </div>
-
-        <div class="teacher-actions">
-          <button class="btn secondary" @click="goToDashboard">
-            Панель учителя
-          </button>
-          <button class="btn" @click="handleLogout">
-            Выйти
-          </button>
-        </div>
-      </div>
-    </header>
+    <TopNavigationBar />
 
     <main class="teacher-main">
+      <div class="page-header">
+        <div class="title-block">
+          <h1>Расписание занятий</h1>
+          <p class="subtitle">
+            Проставляйте расписание занятий для ваших учеников.
+          </p>
+        </div>
+      </div>
       <ScheduleView
         :lessons="lessons"
         :lessons-loading="lessonsLoading"
@@ -49,6 +34,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import ScheduleView from '../../components/ScheduleView.vue'
+import TopNavigationBar from '../../components/TopNavigationBar.vue'
 import { teacherGetLessons, teacherCreateLesson, teacherUpdateLesson, teacherSearchStudentByEmail, teacherGetStudentsAutocomplete } from '../../api/teacher'
 
 const auth = useAuthStore()
@@ -150,10 +136,6 @@ const handleWeekChanged = (params) => {
   loadLessons(params)
 }
 
-const handleLogout = () => {
-  auth.logout()
-  router.push({ name: 'login' })
-}
 
 const goToDashboard = () => {
   router.push({ name: 'teacher-dashboard' })

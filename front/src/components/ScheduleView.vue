@@ -411,7 +411,7 @@ const weekRangeLabel = computed(() => {
 // УРОКИ
 // =====================================
 
-const timeSlots = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+const timeSlots = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
 
 const activeLesson = ref(null)
 
@@ -980,82 +980,164 @@ defineExpose({
 <style scoped>
 .schedule-view {
   display: grid;
-  grid-template-columns: 1fr 160px;
-  gap: 6px;
+  grid-template-columns: 1fr 280px;
+  gap: 20px;
   width: 100%;
   max-width: 100%;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  min-height: 100%;
 }
 
 .admin-card {
-  background: #202124;
-  padding: 10px;
-  border-radius: 0;
-  border: none;
-}
-
-.calendar-card {
-  min-width: 0;
-  overflow: hidden;
-  width: 100%;
-}
-
-.controls-card {
-  grid-column: 1 / -1;
-  background: #202124;
-  border-bottom: 1px solid #3c4043;
-  padding: 16px 24px;
+  background: rgba(30, 35, 50, 0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
 }
 
 .calendar-card {
   grid-column: 1 / 2;
+  grid-row: 2;
+  min-width: 0;
+  overflow: visible;
+  width: 100%;
+  height: calc(100vh - 100px);
+  min-height: 600px;
+  max-height: calc(100vh - 100px);
+  display: flex;
+  flex-direction: column;
+}
+
+.controls-card {
+  grid-column: 1 / -1;
+  background: rgba(30, 30, 40, 0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 6px 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .lesson-info-card {
   grid-column: 2 / 3;
-  max-width: 160px;
+  grid-row: 2;
+  max-width: 280px;
   min-width: 0;
+  background: rgba(30, 35, 50, 0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: calc(100vh - 200px);
+  align-self: start;
+}
+
+.lesson-info-card::-webkit-scrollbar {
+  width: 6px;
+}
+
+.lesson-info-card::-webkit-scrollbar-track {
+  background: rgba(40, 45, 60, 0.5);
+  border-radius: 3px;
+}
+
+.lesson-info-card::-webkit-scrollbar-thumb {
+  background: rgba(200, 205, 233, 0.5);
+  border-radius: 3px;
+}
+
+.lesson-info-card::-webkit-scrollbar-thumb:hover {
+  background: rgba(200, 205, 233, 0.7);
+}
+
+.controls-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: nowrap;
+  align-items: center;
+  margin: 0;
 }
 
 .controls-row button {
-  margin-right: 8px;
-  padding: 8px 16px;
-  background: transparent;
-  border: 1px solid #5f6368;
-  border-radius: 4px;
+  margin-right: 0;
+  padding: 4px 10px;
+  background: rgba(102, 126, 234, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(102, 126, 234, 1);
+  border-radius: 6px;
   cursor: pointer;
-  color: #e8eaed;
-  font-size: 14px;
-  font-weight: 500;
-  transition: background-color 0.2s, border-color 0.2s;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  white-space: nowrap;
 }
 
 .controls-row button:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: #8ab4f8;
+  background: rgba(102, 126, 234, 1);
+  border-color: rgba(102, 126, 234, 1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
 .week-label {
-  margin: 12px 0;
-  color: #aaa;
+  margin: 6px 0;
+  color: #e8eaf6;
+  font-size: 0.9rem;
+  font-weight: 700;
 }
 
 .hint {
-  color: #9aa0a6;
-  font-size: 12px;
-  margin-top: 8px;
+  color: #c5cae9;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  font-weight: 500;
 }
 
 .calendar {
   border: none;
-  border-radius: 0;
+  border-radius: 16px;
   overflow: hidden;
   font-size: 13px;
   width: 100%;
   min-width: 0;
-  background: #1a1a1a;
+  background: rgba(30, 35, 50, 0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
 }
 
-.calendar-header-row,
+.calendar-header-row {
+  display: grid;
+  grid-template-columns: 45px repeat(7, 1fr);
+  width: 100%;
+  flex-shrink: 0;
+}
+
 .calendar-row {
   display: grid;
   grid-template-columns: 45px repeat(7, 1fr);
@@ -1063,82 +1145,104 @@ defineExpose({
 }
 
 .time-col {
-  background: #101010;
+  background: rgba(40, 45, 60, 0.9);
+  backdrop-filter: blur(10px);
   text-align: right;
-  padding-right: 4px;
-  padding-left: 2px;
-  color: #aaa;
-  font-size: 12px;
+  padding-right: 6px;
+  padding-left: 4px;
+  color: #e8eaf6;
+  font-size: 11px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  height: 42px;
+  font-weight: 700;
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .day-col {
-  background: transparent;
+  background: rgba(40, 45, 60, 0.9);
+  backdrop-filter: blur(10px);
   text-align: center;
-  border-right: 1px solid #3c4043;
-  padding: 8px 4px;
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 10px 4px;
   min-width: 0;
-  border-bottom: 1px solid #3c4043;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .day-name {
-  font-weight: 500;
-  color: #9aa0a6;
-  font-size: 11px;
+  font-weight: 700;
+  color: #c5cae9;
+  font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  line-height: 1.2;
+  margin-bottom: 2px;
 }
 
 .day-date {
-  font-size: 22px;
-  color: #e8eaed;
-  margin-top: 4px;
-  font-weight: 400;
+  font-size: 18px;
+  color: #e8eaf6;
+  margin-top: 0;
+  font-weight: 800;
   line-height: 1.2;
 }
 
 .calendar-body {
-  max-height: calc(100vh - 300px);
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  background: #1a1a1a;
+  overflow-x: hidden;
+  background: rgba(25, 30, 45, 0.8);
+  backdrop-filter: blur(10px);
+  position: relative;
 }
 
 .calendar-body::-webkit-scrollbar {
-  width: 8px;
+  width: 12px;
 }
 
 .calendar-body::-webkit-scrollbar-track {
-  background: #202124;
+  background: rgba(30, 35, 50, 0.6);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .calendar-body::-webkit-scrollbar-thumb {
-  background: #5f6368;
-  border-radius: 4px;
+  background: rgba(200, 205, 233, 0.5);
+  border-radius: 6px;
+  border: 2px solid rgba(30, 35, 50, 0.5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .calendar-body::-webkit-scrollbar-thumb:hover {
-  background: #80868b;
+  background: rgba(200, 205, 233, 0.7);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
+
 .calendar-row {
-  height: 80px;
+  height: 42px;
 }
 
 .slot {
   position: relative;
-  height: 80px;
-  border-right: 1px solid #3c4043;
-  border-bottom: 1px solid #3c4043;
+  height: 42px;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   padding: 1px;
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
-  gap: 1px;
+  align-items: stretch;
+  gap: 2px;
   overflow: hidden;
   box-sizing: border-box;
-  background: transparent;
+  background: rgba(35, 40, 55, 0.6);
+  z-index: 1;
 }
 
 .slot-lessons-container {
@@ -1146,143 +1250,180 @@ defineExpose({
   max-width: 80%;
   display: flex;
   flex-direction: row;
-  gap: 3px;
+  gap: 2px;
   overflow: hidden;
-  align-items: flex-start;
+  align-items: stretch;
   min-width: 0;
+  height: 100%;
+  align-content: stretch;
+  position: relative;
+  z-index: 2;
 }
 
 .slot:hover {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.15);
+  z-index: 2;
 }
 
 .slot-empty-area {
   flex: 0 0 20%;
   min-width: 30px;
-  height: calc(100% - 2px);
+  height: 100%;
   cursor: pointer;
-  transition: all 0.15s;
-  border-radius: 2px;
+  transition: all 0.3s ease;
+  border-radius: 4px;
   align-self: stretch;
-  margin-top: 0;
+  margin: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px dashed rgba(154, 160, 166, 0.3);
-  background: transparent;
+  border: 1px dashed rgba(200, 205, 233, 0.4);
+  background: rgba(40, 45, 60, 0.5);
+  backdrop-filter: blur(5px);
+  z-index: 1;
+  box-sizing: border-box;
 }
 
 .slot-empty-area:hover {
-  background-color: rgba(138, 180, 248, 0.1);
-  border-color: rgba(138, 180, 248, 0.5);
+  background-color: rgba(50, 55, 70, 0.8);
+  border-color: rgba(102, 126, 234, 0.6);
+  transform: scale(1.02);
+  z-index: 3;
+}
+
+.slot-empty-area::before {
+  content: '+';
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 400;
+  line-height: 1;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.slot-empty-area:hover::before {
+  color: rgba(255, 255, 255, 1);
 }
 
 .slot-empty-area::before {
   content: '+';
   font-size: 18px;
-  color: rgba(154, 160, 166, 0.6);
+  color: rgba(200, 205, 233, 0.5);
   font-weight: 300;
   line-height: 1;
 }
 
 .slot-empty-area:hover::before {
-  color: #8ab4f8;
+  color: rgba(102, 126, 234, 0.9);
 }
 
 .lesson-card {
-  color: #202124;
-  border-radius: 3px;
-  padding: 4px 6px;
+  color: #ffffff;
+  border-radius: 4px;
+  padding: 3px 5px;
   margin: 0;
   font-size: 12px;
   cursor: pointer;
   transition: box-shadow 0.15s, transform 0.15s;
-  flex: 0 0 auto;
-  min-width: 100px;
-  max-width: 180px;
-  height: auto;
-  min-height: 20px;
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  min-height: 100%;
   max-height: 100%;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   flex-shrink: 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
   border-left: 3px solid transparent;
+  align-self: stretch;
+  position: relative;
+  z-index: 2;
+  isolation: isolate;
+  box-sizing: border-box;
 }
 
 .lesson-card:hover {
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   transform: translateY(-1px);
-  z-index: 10;
-  position: relative;
+  z-index: 5;
 }
 
 /* Запланировано - синий */
 .lesson-card--planned {
-  background: #4a90e2;
+  background: #3b82f6;
+  border-left-color: #2563eb;
 }
 
-/* Проведено - зеленый (не яркий) */
+/* Проведено - зеленый */
 .lesson-card--done {
-  background: #66bb6a;
+  background: #22c55e;
+  border-left-color: #16a34a;
 }
 
-/* Отменено - светло-красный (не яркий) */
+/* Отменено - красный */
 .lesson-card--cancelled {
-  background: #e57373;
+  background: #ef4444;
+  border-left-color: #dc2626;
 }
 
 .lesson-time {
-  font-weight: 500;
+  font-weight: 700;
   font-size: 11px;
   line-height: 1.3;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-bottom: 2px;
-  color: #202124;
+  margin-bottom: 3px;
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 .lesson-student {
-  font-size: 11px;
-  opacity: 0.9;
-  line-height: 1.3;
+  font-size: 13px;
+  line-height: 1.4;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: #5f6368;
+  color: #ffffff;
+  font-weight: 600;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 .lesson-actions {
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid #333;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .btn {
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: none;
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   cursor: pointer;
-  background: #1e88e5;
-  color: white;
-  font-size: 13px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #667eea;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .btn.small {
-  padding: 4px 8px;
-  font-size: 12px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
 }
 
 .btn:hover:not(:disabled) {
-  background: #1565c0;
+  background: rgba(255, 255, 255, 1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
 }
 
 .modal-backdrop {
@@ -1297,11 +1438,11 @@ defineExpose({
 
 .modal {
   width: 500px;
-  background: #111;
-  border: 1px solid #333;
+  background: #1e2338;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
   padding: 24px;
-  color: #f5f5f5;
+  color: #e8eaf6;
   max-height: 90vh;
   overflow-y: auto;
 }
@@ -1311,6 +1452,7 @@ defineExpose({
   margin-bottom: 20px;
   font-size: 20px;
   font-weight: 600;
+  color: #e8eaf6;
 }
 
 .field {
@@ -1321,9 +1463,10 @@ defineExpose({
 
 .field span {
   margin-bottom: 6px;
-  color: #ccc;
+  color: #ffffff;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 600;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 .email-input-wrapper {
@@ -1337,17 +1480,22 @@ defineExpose({
 
 .btn-search {
   padding: 8px 12px;
-  background: #42b983;
-  color: white;
-  border: none;
-  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #667eea;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
   cursor: pointer;
   font-size: 0.85rem;
+  font-weight: 600;
   white-space: nowrap;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .btn-search:hover:not(:disabled) {
-  background: #35a372;
+  background: rgba(255, 255, 255, 1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
 .btn-search:disabled {
@@ -1370,13 +1518,19 @@ defineExpose({
 .field input,
 .field select,
 .field textarea {
-  background: #1a1a1a;
-  border: 1px solid #444;
-  color: white;
+  background: rgba(40, 45, 60, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e8eaf6;
   padding: 10px 12px;
-  border-radius: 6px;
+  border-radius: 10px;
   font-size: 14px;
-  transition: border-color 0.2s;
+  transition: all 0.3s ease;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: rgba(200, 205, 233, 0.6);
 }
 
 .field textarea {
@@ -1397,25 +1551,30 @@ defineExpose({
 }
 
 .field--required span {
-  color: #fff;
+  color: #e8eaf6;
 }
 
 .required-mark {
-  color: #ff6b6b;
+  color: rgba(255, 107, 107, 0.9);
   margin-left: 2px;
+  font-weight: 700;
 }
 
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
   outline: none;
-  border-color: #1e88e5;
-  box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.1);
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.field input:disabled {
+.field input:disabled,
+.field select:disabled,
+.field textarea:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  background: rgba(30, 35, 50, 0.5);
 }
 
 .modal-actions {
@@ -1423,7 +1582,7 @@ defineExpose({
   gap: 12px;
   margin-top: 24px;
   padding-top: 20px;
-  border-top: 1px solid #333;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .modal-actions button {
@@ -1450,92 +1609,137 @@ defineExpose({
 }
 
 .modal-actions button[type="button"] {
-  background: #333;
-  color: white;
+  background: rgba(50, 55, 70, 0.9);
+  color: #e8eaf6;
 }
 
 .modal-actions button[type="button"]:hover {
-  background: #444;
+  background: rgba(60, 65, 80, 0.95);
 }
 
 .error {
-  color: #ff6b6b;
-  margin-top: 8px;
-  font-size: 0.9rem;
+  color: #ffffff;
+  margin-top: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: rgba(220, 38, 38, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(220, 38, 38, 1);
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
 }
 
 .status-text {
-  font-size: 13px;
-  color: #aaa;
-  margin-top: 8px;
+  color: #c5cae9;
+  margin-top: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
 .lesson-info-card h2 {
   margin-top: 0;
-  margin-bottom: 16px;
-  color: #fff;
+  margin-bottom: 20px;
+  color: #e8eaf6;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
 }
 
 .lesson-info-card p {
-  margin: 8px 0;
-  color: #ccc;
-}
-
-.lesson-info-card a {
-  color: #1e88e5;
-  text-decoration: none;
-}
-
-.lesson-info-card a:hover {
-  text-decoration: underline;
-}
-
-.balance-zero {
-  color: #ea4335;
-  font-weight: 600;
-}
-
-.balance-positive {
-  color: #34a853;
+  margin: 12px 0;
+  color: #c5cae9;
+  font-size: 0.95rem;
+  line-height: 1.6;
   font-weight: 500;
 }
 
+.lesson-info-card strong {
+  color: #e8eaf6;
+  font-weight: 700;
+}
+
+.lesson-info-card a {
+  color: #60a5fa;
+  text-decoration: none;
+  font-weight: 600;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(96, 165, 250, 0.5);
+  transition: all 0.3s ease;
+}
+
+.lesson-info-card a:hover {
+  color: #93c5fd;
+  border-bottom-color: rgba(96, 165, 250, 0.8);
+}
+
+.balance-zero {
+  color: #ffffff;
+  font-weight: 700;
+  background: #ef4444;
+  backdrop-filter: blur(10px);
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #dc2626;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
+}
+
+.balance-positive {
+  color: #ffffff;
+  font-weight: 700;
+  background: #22c55e;
+  backdrop-filter: blur(10px);
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #16a34a;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4);
+}
+
 .trial-badge {
-  background: rgba(251, 188, 4, 0.15);
-  padding: 6px 10px;
-  border-radius: 4px;
-  border-left: 3px solid #fbbc04;
-  margin: 8px 0;
+  background: rgba(251, 191, 36, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(251, 191, 36, 1);
+  margin: 12px 0;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.4);
 }
 
 .trial-badge strong {
-  color: #fbbc04;
+  color: #1a1a1a;
+  font-weight: 800;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
 }
 
 .status-badge {
   display: inline-block;
-  padding: 4px 10px;
-  border-radius: 4px;
+  padding: 6px 12px;
+  border-radius: 10px;
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 700;
   margin-left: 8px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Запланировано - синий */
 .status-badge--planned {
-  background: #4a90e2;
-  color: white;
+  background: #3b82f6;
+  color: #ffffff;
+  border: 1px solid #2563eb;
 }
 
-/* Проведено - зеленый (не яркий) */
+/* Проведено - зеленый */
 .status-badge--done {
-  background: #66bb6a;
-  color: white;
+  background: #22c55e;
+  color: #ffffff;
+  border: 1px solid #16a34a;
 }
 
-/* Отменено - светло-красный (не яркий) */
+/* Отменено - красный */
 .status-badge--cancelled {
-  background: #e57373;
-  color: white;
+  background: #ef4444;
+  color: #ffffff;
+  border: 1px solid #dc2626;
 }
 </style>

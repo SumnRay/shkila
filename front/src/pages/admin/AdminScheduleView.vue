@@ -1,22 +1,12 @@
 <!-- src/pages/admin/AdminScheduleView.vue -->
 <template>
   <div class="admin-page">
-    <header class="admin-header">
-      <h1>Календарь уроков</h1>
-
-      <div class="admin-info" v-if="auth.user">
-        <span>{{ auth.user.email }}</span>
-        <span class="role-badge">ADMIN</span>
-
-        <router-link class="btn" :to="{ name: 'admin-dashboard' }">
-          Панель
-        </router-link>
-
-        <button class="btn" @click="handleLogout">Выйти</button>
-      </div>
-    </header>
+    <TopNavigationBar />
 
     <main class="admin-main">
+      <div class="page-header">
+        <h1>Календарь уроков</h1>
+      </div>
       <ScheduleView
         :lessons="lessons"
         :lessons-loading="lessonsLoading"
@@ -39,6 +29,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import ScheduleView from '../../components/ScheduleView.vue'
+import TopNavigationBar from '../../components/TopNavigationBar.vue'
 import { adminGetLessons, adminCreateLesson, adminUpdateLesson } from '../../api/lessons'
 import { adminSearchUserByEmail } from '../../api/admin'
 
@@ -133,11 +124,6 @@ const handleWeekChanged = (params) => {
   loadLessons(params)
 }
 
-const handleLogout = () => {
-  auth.logout()
-  router.push({ name: 'login' })
-}
-
 onMounted(() => {
   if (!auth.isAuthenticated) {
     router.push({ name: 'login' })
@@ -160,66 +146,51 @@ onMounted(() => {
 <style scoped>
 .admin-page {
   min-height: 100vh;
-  background: #202124;
-  color: #e8eaed;
+  height: 100vh;
+  width: 100vw;
+  background: #1a1d2e;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   padding: 0;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
+  position: relative;
   overflow-x: hidden;
-}
-
-.admin-header {
+  overflow-y: auto;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0;
-  padding: 16px 24px;
-  background: #202124;
-  border-bottom: 1px solid #3c4043;
+  flex-direction: column;
 }
 
-.admin-header h1 {
-  font-size: 22px;
-  font-weight: 400;
-  color: #e8eaed;
+.admin-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(118, 75, 162, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.page-header {
+  padding: 20px 24px 0;
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
   margin: 0;
-}
-
-.admin-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.btn {
-  padding: 6px 12px;
-  color: white;
-  background: #1e88e5;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  text-decoration: none;
-  font-size: 13px;
-}
-
-.btn:hover {
-  background: #1565c0;
-}
-
-.role-badge {
-  padding: 4px 12px;
-  border-radius: 16px;
-  border: none;
-  background: #fbbc04;
-  color: #202124;
-  font-size: 11px;
-  text-transform: uppercase;
-  font-weight: 500;
+  color: #e8eaf6;
+  letter-spacing: -1px;
 }
 
 .admin-main {
   width: 100%;
   max-width: 100%;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 20px 20px;
+  box-sizing: border-box;
 }
 </style>

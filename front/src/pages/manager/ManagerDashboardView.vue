@@ -1,37 +1,18 @@
 <!-- src/pages/manager/ManagerDashboardView.vue -->
 <template>
   <div class="manager-page">
-    <!-- ШАПКА -->
-    <header class="manager-header">
-      <div class="title-block">
-        <h1>Панель менеджера</h1>
-        <p class="subtitle">
-          Управление уроками и балансом учеников.
-        </p>
-      </div>
-
-      <div class="manager-info" v-if="auth.user">
-        <div class="manager-user">
-          <span class="manager-email">{{ auth.user.email }}</span>
-          <span class="role-badge">MANAGER</span>
-        </div>
-
-        <div class="manager-actions">
-          <button class="btn secondary" @click="goToSchedule">
-            Календарь уроков
-          </button>
-          <button class="btn secondary" @click="goToBalance">
-            Управление балансом
-          </button>
-          <button class="btn" @click="handleLogout">
-            Выйти
-          </button>
-        </div>
-      </div>
-    </header>
+    <TopNavigationBar />
 
     <!-- ОСНОВНОЙ КОНТЕНТ -->
     <main class="manager-main">
+      <div class="page-header">
+        <div class="title-block">
+          <h1>Панель менеджера</h1>
+          <p class="subtitle">
+            Управление уроками и балансом учеников.
+          </p>
+        </div>
+      </div>
       <!-- ВЕРХНИЕ КАРТОЧКИ (навигаторы) -->
       <section class="manager-card quick-links-card">
         <h2>Быстрые действия</h2>
@@ -135,6 +116,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
+import TopNavigationBar from '../../components/TopNavigationBar.vue'
 import { managerGetClients } from '../../api/manager'
 
 const auth = useAuthStore()
@@ -173,10 +155,6 @@ const viewBalance = (client) => {
 }
 
 // ===== НАВИГАЦИЯ / АВТОРИЗАЦИЯ =====
-const handleLogout = () => {
-  auth.logout()
-  router.push({ name: 'login' })
-}
 
 const goToSchedule = () => {
   router.push({ name: 'manager-schedule' })

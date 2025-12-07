@@ -1,17 +1,12 @@
 <!-- src/pages/student/StudentDashboardView.vue -->
 <template>
   <div class="student-dashboard">
-    <header class="dashboard-header">
-      <div class="header-content">
-        <h1>Личный кабинет</h1>
-        <div class="header-actions">
-          <router-link :to="{ name: 'home' }" class="btn-back">← На главную</router-link>
-          <button @click="handleLogout" class="btn-logout">Выйти</button>
-        </div>
-      </div>
-    </header>
+    <TopNavigationBar />
 
     <div class="dashboard-content">
+      <div class="page-header">
+        <h1>Личный кабинет</h1>
+      </div>
       <!-- Профиль и баланс -->
       <div class="profile-card card">
         <h2>Профиль</h2>
@@ -103,6 +98,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
+import TopNavigationBar from '../../components/TopNavigationBar.vue'
 import { studentGetDashboard, studentGetLessons } from '../../api/student'
 
 const auth = useAuthStore()
@@ -179,10 +175,6 @@ const getStatusText = (status) => {
   return statusMap[status] || status
 }
 
-const handleLogout = () => {
-  auth.logout()
-  router.push({ name: 'home' })
-}
 
 onMounted(async () => {
   if (!auth.isAuthenticated) {

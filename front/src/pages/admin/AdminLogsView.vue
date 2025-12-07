@@ -1,117 +1,131 @@
 <!-- src/pages/admin/AdminLogsView.vue -->
 <template>
   <div class="admin-page">
-    <header class="admin-header">
-      <h1>Система логов</h1>
-
-      <div class="admin-info" v-if="auth.user">
-        <span>{{ auth.user.email }}</span>
-        <span class="role-badge">ADMIN</span>
-        <button @click="goDashboard">В админ-панель</button>
-        <button @click="handleLogout">Выйти</button>
-      </div>
-    </header>
+    <TopNavigationBar />
 
     <main class="admin-main">
+      <div class="page-header">
+        <div class="title-block">
+          <h1 class="page-title">📋 Система логов</h1>
+          <p class="subtitle">История всех действий в системе</p>
+        </div>
+      </div>
       <section class="admin-card filters-card">
-        <h2>Фильтры</h2>
+        <div class="card-header">
+          <div class="card-icon">🔍</div>
+          <h2 class="card-title">Фильтры</h2>
+        </div>
 
         <div class="filters-row">
           <div class="filter-item">
-            <label>
+            <label class="form-label">
+              <span class="label-icon">🔎</span>
               <span>Поиск</span>
-              <input
-                v-model="search"
-                type="text"
-                placeholder="Email пользователя, тип действия..."
-              />
             </label>
+            <input
+              v-model="search"
+              type="text"
+              placeholder="Email пользователя, тип действия..."
+              class="filter-input"
+            />
           </div>
 
           <div class="filter-item">
-            <label>
+            <label class="form-label">
+              <span class="label-icon">⚡</span>
               <span>Тип действия</span>
-              <select v-model="actionFilter">
-                <option value="">Все действия</option>
-                <option
-                  v-for="act in availableActions"
-                  :key="act"
-                  :value="act"
-                >
-                  {{ act }}
-                </option>
-              </select>
             </label>
+            <select v-model="actionFilter" class="filter-select">
+              <option value="">Все действия</option>
+              <option
+                v-for="act in availableActions"
+                :key="act"
+                :value="act"
+              >
+                {{ act }}
+              </option>
+            </select>
           </div>
 
           <div class="filter-item">
-            <label>
+            <label class="form-label">
+              <span class="label-icon">📊</span>
               <span>Сортировка</span>
-              <select v-model="ordering" @change="loadLogs">
-                <option value="-created_at">Новые сверху</option>
-                <option value="created_at">Старые сверху</option>
-              </select>
             </label>
+            <select v-model="ordering" @change="loadLogs" class="filter-select">
+              <option value="-created_at">Новые сверху</option>
+              <option value="created_at">Старые сверху</option>
+            </select>
           </div>
 
           <div class="filter-item buttons">
-            <button @click="loadLogs" :disabled="loading">
-              {{ loading ? 'Обновляем...' : 'Обновить' }}
+            <button class="btn primary" @click="loadLogs" :disabled="loading">
+              {{ loading ? '⏳ Обновляем...' : '🔄 Обновить' }}
             </button>
           </div>
         </div>
 
-        <p class="hint">
-          Лог фиксирует: создание/изменение/удаление пользователей, уроков,
-          подтверждение оплат и другие важные действия. Поле
-          <strong>actor_email</strong> — это кто именно сделал действие.
-        </p>
+        <div class="hint-box">
+          <p class="hint">
+            <strong>💡 Подсказка:</strong> Лог фиксирует: создание/изменение/удаление пользователей, уроков,
+            подтверждение оплат и другие важные действия. Поле
+            <strong>actor_email</strong> — это кто именно сделал действие.
+          </p>
+        </div>
       </section>
 
       <section class="admin-card logs-card">
-        <h2>История действий</h2>
+        <div class="card-header">
+          <div class="card-icon">📜</div>
+          <h2 class="card-title">История действий</h2>
+        </div>
 
-        <p v-if="error" class="error">
-          {{ error }}
-        </p>
-        <p v-if="loading" class="status-text">
-          Загружаем логи...
-        </p>
+        <div v-if="error" class="error-message">
+          <span class="error-icon">⚠️</span>
+          <span>{{ error }}</span>
+        </div>
 
-        <table v-if="!loading && filteredLogs.length" class="logs-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Время</th>
-              <th>Пользователь</th>
-              <th>Действие</th>
-              <th>Детали (meta)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="log in filteredLogs" :key="log.id">
-              <td>{{ log.id }}</td>
-              <td>{{ formatDateTime(log.created_at) }}</td>
-              <td>
-                <div class="actor-email">
-                  {{ log.actor_email || ('ID ' + log.actor) }}
-                </div>
-              </td>
-              <td>
-                <span class="action-tag">
-                  {{ log.action }}
-                </span>
-              </td>
-              <td>
-                <pre class="meta-pre">{{ prettyMeta(log.meta) }}</pre>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div v-if="loading" class="loading-state">
+          <div class="spinner"></div>
+          <p>Загружаем логи...</p>
+        </div>
 
-        <p v-else-if="!loading && !filteredLogs.length">
-          Логи не найдены (по текущим фильтрам).
-        </p>
+        <div v-if="!loading && filteredLogs.length" class="table-container">
+          <table class="logs-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Время</th>
+                <th>Пользователь</th>
+                <th>Действие</th>
+                <th>Детали (meta)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="log in filteredLogs" :key="log.id">
+                <td>{{ log.id }}</td>
+                <td>{{ formatDateTime(log.created_at) }}</td>
+                <td>
+                  <div class="actor-email">
+                    {{ log.actor_email || ('ID ' + log.actor) }}
+                  </div>
+                </td>
+                <td>
+                  <span class="action-tag">
+                    {{ log.action }}
+                  </span>
+                </td>
+                <td>
+                  <pre class="meta-pre">{{ prettyMeta(log.meta) }}</pre>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div v-else-if="!loading && !filteredLogs.length" class="empty-state">
+          <p>Логи не найдены (по текущим фильтрам).</p>
+        </div>
       </section>
     </main>
   </div>
@@ -121,6 +135,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
+import TopNavigationBar from '../../components/TopNavigationBar.vue'
 import { adminGetAuditLogs } from '../../api/admin'
 
 const auth = useAuthStore()
@@ -198,11 +213,6 @@ const prettyMeta = (meta) => {
   }
 }
 
-const handleLogout = () => {
-  auth.logout()
-  router.push({ name: 'login' })
-}
-
 const goDashboard = () => {
   router.push({ name: 'admin-dashboard' })
 }
@@ -226,164 +236,510 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.admin-page {
-  min-height: 100vh;
-  background: #080808;
-  color: #f5f5f5;
-  padding: 24px;
+* {
   box-sizing: border-box;
 }
 
-.admin-header {
+.admin-page {
+  min-height: 100vh;
+  height: 100vh;
+  width: 100vw;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
+  flex-direction: column;
 }
 
-.admin-header h1 {
-  font-size: 24px;
-  font-weight: 600;
+.admin-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.admin-header {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.title-block {
+  flex: 1;
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 0 0 8px 0;
+  color: #ffffff;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  letter-spacing: -1px;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
 }
 
 .admin-info {
   display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.admin-user {
+  display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.admin-info button {
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
+.admin-email {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 600;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .role-badge {
-  padding: 4px 8px;
-  border-radius: 999px;
-  border: 1px solid #444;
-  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 0.75rem;
+  font-weight: 700;
   text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.5px;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn.primary {
+  background: rgba(255, 255, 255, 0.95);
+  color: #667eea;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+}
+
+.btn.secondary {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn.danger {
+  background: rgba(255, 107, 107, 0.2);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  border: 1px solid rgba(255, 107, 107, 0.4);
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.btn.secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.btn.danger:hover:not(:disabled) {
+  background: rgba(255, 107, 107, 0.3);
+  border-color: rgba(255, 107, 107, 0.6);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .admin-main {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 24px 32px;
   display: grid;
-  grid-template-columns: minmax(260px, 1fr) 3fr;
-  gap: 16px;
+  grid-template-columns: minmax(300px, 1fr) 2.5fr;
+  gap: 20px;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .admin-card {
-  border-radius: 12px;
-  border: 1px solid #333;
-  padding: 16px;
-  background: #111;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  animation: fadeInUp 0.4s ease-out;
 }
 
-.filters-card h2,
-.logs-card h2 {
-  margin-bottom: 8px;
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.card-icon {
+  font-size: 2rem;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
+}
+
+.card-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin: 0;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  letter-spacing: -0.5px;
 }
 
 .filters-row {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 8px;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
 .filter-item {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  min-width: 180px;
+  gap: 8px;
 }
 
-.filter-item input,
-.filter-item select {
-  padding: 6px 8px;
-  border-radius: 6px;
-  border: 1px solid #444;
-  background: #000;
-  color: #f5f5f5;
-  font-size: 13px;
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.filter-item.buttons {
-  justify-content: flex-end;
+.label-icon {
+  font-size: 1.1rem;
 }
 
-.filter-item.buttons button {
-  margin-top: 18px;
-  padding: 6px 12px;
-  border-radius: 8px;
-  border: none;
-  background: #1e88e5;
-  color: #fff;
+.filter-input,
+.filter-select {
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.filter-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.filter-input:focus,
+.filter-select:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+}
+
+.filter-select {
   cursor: pointer;
 }
 
+.filter-item.buttons {
+  margin-top: 8px;
+}
+
+.hint-box {
+  margin-top: 20px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 .hint {
-  font-size: 13px;
-  color: #aaa;
-  margin-top: 4px;
+  margin: 0;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.hint strong {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  gap: 16px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-state p {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  background: rgba(255, 107, 107, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 107, 107, 0.4);
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+}
+
+.error-icon {
+  font-size: 1.2rem;
+}
+
+.table-container {
+  overflow-x: auto;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 .logs-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
-  margin-top: 8px;
+  font-size: 0.9rem;
 }
 
-.logs-table th,
-.logs-table td {
-  border-bottom: 1px solid #333;
-  padding: 6px 8px;
-  text-align: left;
-  vertical-align: top;
+.logs-table thead {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .logs-table th {
-  font-weight: 600;
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.logs-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  vertical-align: top;
+}
+
+.logs-table tbody tr {
+  transition: background 0.2s;
+}
+
+.logs-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .actor-email {
   word-break: break-all;
+  font-weight: 500;
 }
 
 .action-tag {
   display: inline-block;
-  padding: 2px 6px;
-  border-radius: 999px;
-  border: 1px solid #555;
-  font-size: 11px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.75rem;
+  font-weight: 600;
   text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  letter-spacing: 0.5px;
 }
 
 .meta-pre {
   margin: 0;
-  font-size: 11px;
+  font-size: 0.75rem;
   max-height: 120px;
   overflow: auto;
-  background: #050505;
-  border-radius: 4px;
-  padding: 4px 6px;
-  border: 1px solid #222;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  font-family: 'Courier New', monospace;
+  line-height: 1.5;
 }
 
-.error {
-  color: #ff6b6b;
-  font-size: 13px;
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.status-text {
-  font-size: 13px;
-}
-
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
   .admin-main {
     grid-template-columns: 1fr;
+    padding: 0 24px 32px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px 24px;
+  }
+
+  .page-title {
+    font-size: 2rem;
+  }
+
+  .admin-info {
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .admin-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .admin-main {
+    padding: 0 16px 24px;
+  }
+
+  .admin-card {
+    padding: 24px 20px;
+  }
+
+  .table-container {
+    overflow-x: scroll;
+  }
+
+  .logs-table {
+    min-width: 800px;
   }
 }
 </style>

@@ -1,34 +1,18 @@
 <!-- src/pages/teacher/TeacherDashboardView.vue -->
 <template>
   <div class="teacher-page">
-    <!-- ШАПКА -->
-    <header class="teacher-header">
-      <div class="title-block">
-        <h1>Панель учителя</h1>
-        <p class="subtitle">
-          Управление расписанием занятий для ваших учеников.
-        </p>
-      </div>
-
-      <div class="teacher-info" v-if="auth.user">
-        <div class="teacher-user">
-          <span class="teacher-email">{{ auth.user.email }}</span>
-          <span class="role-badge">TEACHER</span>
-        </div>
-
-        <div class="teacher-actions">
-          <button class="btn secondary" @click="goToSchedule">
-            Расписание занятий
-          </button>
-          <button class="btn" @click="handleLogout">
-            Выйти
-          </button>
-        </div>
-      </div>
-    </header>
+    <TopNavigationBar />
 
     <!-- ОСНОВНОЙ КОНТЕНТ -->
     <main class="teacher-main">
+      <div class="page-header">
+        <div class="title-block">
+          <h1>Панель учителя</h1>
+          <p class="subtitle">
+            Управление расписанием занятий для ваших учеников.
+          </p>
+        </div>
+      </div>
       <!-- ВЕРХНИЕ КАРТОЧКИ (навигаторы) -->
       <section class="teacher-card quick-links-card">
         <h2>Быстрые действия</h2>
@@ -115,6 +99,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
+import TopNavigationBar from '../../components/TopNavigationBar.vue'
 import { teacherGetStudents } from '../../api/teacher'
 
 const auth = useAuthStore()
@@ -151,10 +136,6 @@ const viewStudentSchedule = (student) => {
 }
 
 // ===== НАВИГАЦИЯ / АВТОРИЗАЦИЯ =====
-const handleLogout = () => {
-  auth.logout()
-  router.push({ name: 'login' })
-}
 
 const goToSchedule = () => {
   router.push({ name: 'teacher-schedule' })

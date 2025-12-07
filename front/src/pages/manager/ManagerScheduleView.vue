@@ -1,22 +1,12 @@
 <!-- src/pages/manager/ManagerScheduleView.vue -->
 <template>
   <div class="manager-page">
-    <header class="manager-header">
-      <h1>Календарь уроков</h1>
-
-      <div class="manager-info" v-if="auth.user">
-        <span>{{ auth.user.email }}</span>
-        <span class="role-badge">MANAGER</span>
-
-        <router-link class="btn" :to="{ name: 'manager-dashboard' }">
-          Панель
-        </router-link>
-
-        <button class="btn" @click="handleLogout">Выйти</button>
-      </div>
-    </header>
+    <TopNavigationBar />
 
     <main class="manager-main">
+      <div class="page-header">
+        <h1>Календарь уроков</h1>
+      </div>
       <ScheduleView
         :lessons="lessons"
         :lessons-loading="lessonsLoading"
@@ -39,6 +29,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import ScheduleView from '../../components/ScheduleView.vue'
+import TopNavigationBar from '../../components/TopNavigationBar.vue'
 import { managerGetLessons, managerCreateLesson, managerUpdateLesson, managerSearchUserByEmail, managerGetUsersAutocomplete } from '../../api/manager'
 
 const auth = useAuthStore()
@@ -129,10 +120,6 @@ const handleWeekChanged = (params) => {
   loadLessons(params)
 }
 
-const handleLogout = () => {
-  auth.logout()
-  router.push({ name: 'login' })
-}
 
 onMounted(() => {
   if (!auth.isAuthenticated) {

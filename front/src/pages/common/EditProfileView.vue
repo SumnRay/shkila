@@ -1,14 +1,12 @@
 <!-- src/pages/common/EditProfileView.vue -->
 <template>
   <div class="edit-profile">
-    <header class="profile-header">
-      <div class="header-content">
-        <h1>Редактирование профиля</h1>
-        <router-link :to="{ name: 'applicant-dashboard' }" class="btn-back">← Назад</router-link>
-      </div>
-    </header>
+    <TopNavigationBar />
 
     <div class="profile-content">
+      <div class="page-header">
+        <h1>Редактирование профиля</h1>
+      </div>
       <div class="profile-form card">
         <form @submit.prevent="handleSubmit">
           <div class="form-group">
@@ -78,6 +76,7 @@
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { useRouter } from 'vue-router'
+import TopNavigationBar from '../../components/TopNavigationBar.vue'
 import apiClient from '../../api/http'
 
 const auth = useAuthStore()

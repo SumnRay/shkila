@@ -1,68 +1,62 @@
 <!-- src/pages/admin/AdminDashboardView.vue -->
 <template>
   <div class="admin-page">
-    <!-- ШАПКА -->
-    <header class="admin-header">
-      <div class="title-block">
-        <h1>Админ-панель</h1>
-        <p class="subtitle">
-          Управление пользователями, расписанием и журналом логов.
-        </p>
-      </div>
-
-      <div class="admin-info" v-if="auth.user">
-        <div class="admin-user">
-          <span class="admin-email">{{ auth.user.email }}</span>
-          <span class="role-badge">ADMIN</span>
-        </div>
-
-        <div class="admin-actions">
-          <button class="btn secondary" @click="goToSchedule">
-            Календарь уроков
-          </button>
-          <button class="btn secondary" @click="goToLogs">
-            Система логов
-          </button>
-          <button class="btn" @click="handleLogout">
-            Выйти
-          </button>
-        </div>
-      </div>
-    </header>
+    <TopNavigationBar />
 
     <!-- ОСНОВНОЙ КОНТЕНТ -->
     <main class="admin-main">
+      <div class="page-header">
+        <div class="title-block">
+          <h1 class="page-title">Админ-панель</h1>
+          <p class="subtitle">
+            Управление пользователями, расписанием и журналом логов.
+          </p>
+        </div>
+      </div>
       <!-- ВЕРХНИЕ КАРТОЧКИ (навигаторы) -->
       <section class="admin-card quick-links-card">
-        <h2>Быстрые действия</h2>
+        <div class="card-header">
+          <div class="card-icon">⚡</div>
+          <h2 class="card-title">Быстрые действия</h2>
+        </div>
         <div class="quick-links">
           <div class="quick-link" @click="goToSchedule">
-            <div class="ql-title">Календарь уроков</div>
-            <div class="ql-desc">
-              Смотреть расписание, создавать и переносить занятия для учеников
-              и преподавателей.
+            <div class="ql-icon">📅</div>
+            <div class="ql-content">
+              <div class="ql-title">Календарь уроков</div>
+              <div class="ql-desc">
+                Смотреть расписание, создавать и переносить занятия для учеников и преподавателей.
+              </div>
             </div>
           </div>
 
           <div class="quick-link" @click="goToLogs">
-            <div class="ql-title">Система логов</div>
-            <div class="ql-desc">
-              История действий: создание и изменение уроков, аккаунтов и ролей.
+            <div class="ql-icon">📋</div>
+            <div class="ql-content">
+              <div class="ql-title">Система логов</div>
+              <div class="ql-desc">
+                История действий: создание и изменение уроков, аккаунтов и ролей.
+              </div>
             </div>
           </div>
 
           <div class="quick-link" @click="loadUsers">
-            <div class="ql-title">Управление пользователями</div>
-            <div class="ql-desc">
-              Список всех пользователей: роли, контакты, редактирование и
-              удаление.
+            <div class="ql-icon">👥</div>
+            <div class="ql-content">
+              <div class="ql-title">Управление пользователями</div>
+              <div class="ql-desc">
+                Список всех пользователей: роли, контакты, редактирование и удаление.
+              </div>
             </div>
           </div>
 
           <div class="quick-link" @click="goToCourses">
-            <div class="ql-title">Управление курсами</div>
-            <div class="ql-desc">
-              Создание и редактирование курсов, модулей и тем занятий.
+            <div class="ql-icon">📚</div>
+            <div class="ql-content">
+              <div class="ql-title">Управление курсами</div>
+              <div class="ql-desc">
+                Создание и редактирование курсов, модулей и тем занятий.
+              </div>
             </div>
           </div>
         </div>
@@ -70,142 +64,149 @@
 
       <!-- ПОЛЬЗОВАТЕЛИ -->
       <section class="admin-card users-card">
+        <div class="card-header">
+          <div class="card-icon">👥</div>
+          <h2 class="card-title">Пользователи</h2>
+        </div>
+
         <div class="section-header">
-          <h2>Пользователи</h2>
-          <button class="btn small" @click="loadUsers" :disabled="loadingUsers">
-            {{ loadingUsers ? 'Обновляем...' : 'Обновить список' }}
-          </button>
+          <div class="filters">
+            <div class="filter-group">
+              <input
+                v-model="search"
+                type="text"
+                placeholder="Поиск по email / ФИО"
+                class="filter-input"
+              />
+            </div>
+
+            <div class="filter-group">
+              <select v-model="roleFilter" class="filter-select">
+                <option value="">Все роли</option>
+                <option value="ADMIN">ADMIN</option>
+                <option value="MANAGER">MANAGER</option>
+                <option value="TEACHER">TEACHER</option>
+                <option value="STUDENT">STUDENT</option>
+                <option value="APPLICANT">APPLICANT</option>
+              </select>
+            </div>
+
+            <button class="btn small" @click="loadUsers" :disabled="loadingUsers">
+              {{ loadingUsers ? '⏳ Обновляем...' : '🔄 Обновить' }}
+            </button>
+          </div>
         </div>
 
-        <div class="filters">
-          <input
-            v-model="search"
-            type="text"
-            placeholder="Поиск по email / ФИО"
-          />
-
-          <select v-model="roleFilter">
-            <option value="">Все роли</option>
-            <option value="ADMIN">ADMIN</option>
-            <option value="MANAGER">MANAGER</option>
-            <option value="TEACHER">TEACHER</option>
-            <option value="STUDENT">STUDENT</option>
-            <option value="APPLICANT">APPLICANT</option>
-          </select>
+        <div v-if="usersError" class="error-message">
+          <span class="error-icon">⚠️</span>
+          <span>{{ usersError }}</span>
         </div>
 
-        <p v-if="usersError" class="error">
-          {{ usersError }}
-        </p>
+        <div v-if="loadingUsers" class="loading-state">
+          <div class="spinner"></div>
+          <p>Загружаем пользователей...</p>
+        </div>
 
-        <p v-if="loadingUsers" class="status-text">
-          Загружаем пользователей...
-        </p>
+        <div v-if="!loadingUsers && users.length" class="table-container">
+          <table class="users-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Телефон</th>
+                <th>ФИО ученика</th>
+                <th>ФИО родителя</th>
+                <th>Роль</th>
+                <th>Действия</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="u in users" :key="u.id">
+                <td>{{ u.id }}</td>
+                <td>{{ u.email }}</td>
+                <td>{{ u.phone || '—' }}</td>
+                <td>{{ u.student_full_name || '—' }}</td>
+                <td>{{ u.parent_full_name || '—' }}</td>
+                <td>
+                  <select
+                    v-model="u.role"
+                    class="role-select"
+                    @change="handleChangeRole(u)"
+                  >
+                    <option value="ADMIN">ADMIN</option>
+                    <option value="MANAGER">MANAGER</option>
+                    <option value="TEACHER">TEACHER</option>
+                    <option value="STUDENT">STUDENT</option>
+                    <option value="APPLICANT">APPLICANT</option>
+                  </select>
+                </td>
+                <td class="actions">
+                  <button class="btn-icon edit" @click="openEdit(u)" title="Изменить">
+                    ✏️
+                  </button>
+                  <button class="btn-icon delete" @click="handleDelete(u)" title="Удалить">
+                    🗑️
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-        <table
-          v-if="!loadingUsers && users.length"
-          class="users-table"
-        >
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Email</th>
-              <th>Телефон</th>
-              <th>ФИО ученика</th>
-              <th>ФИО родителя</th>
-              <th>Роль</th>
-              <th>Действия</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="u in users" :key="u.id">
-              <td>{{ u.id }}</td>
-              <td>{{ u.email }}</td>
-              <td>{{ u.phone || '—' }}</td>
-              <td>{{ u.student_full_name || '—' }}</td>
-              <td>{{ u.parent_full_name || '—' }}</td>
-              <td>
-                <select
-                  v-model="u.role"
-                  class="role-select"
-                  @change="handleChangeRole(u)"
-                >
-                  <option value="ADMIN">ADMIN</option>
-                  <option value="MANAGER">MANAGER</option>
-                  <option value="TEACHER">TEACHER</option>
-                  <option value="STUDENT">STUDENT</option>
-                  <option value="APPLICANT">APPLICANT</option>
-                </select>
-              </td>
-              <td class="actions">
-                <button class="btn small secondary" @click="openEdit(u)">
-                  Изменить
-                </button>
-                <button class="btn small danger" @click="handleDelete(u)">
-                  Удалить
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        <p v-else-if="!loadingUsers && !users.length" class="status-text">
-          Пользователей пока нет.
-        </p>
+        <div v-else-if="!loadingUsers && !users.length" class="empty-state">
+          <p>Пользователей пока нет.</p>
+        </div>
 
         <!-- ПАНЕЛЬ РЕДАКТИРОВАНИЯ -->
         <div v-if="editUser" class="edit-panel">
-          <h3>Редактирование пользователя #{{ editUser.id }}</h3>
+          <div class="edit-panel-header">
+            <h3>Редактирование пользователя #{{ editUser.id }}</h3>
+            <button class="btn-icon close" @click="cancelEdit">×</button>
+          </div>
           <form @submit.prevent="handleSave">
-            <label>
-              <span>Email</span>
-              <input v-model="editForm.email" type="email" required />
-            </label>
+            <div class="form-row">
+              <label class="form-label">
+                <span class="label-text">📧 Email</span>
+                <input v-model="editForm.email" type="email" required class="form-input" />
+              </label>
+            </div>
 
-            <label>
-              <span>Телефон</span>
-              <input v-model="editForm.phone" type="text" />
-            </label>
+            <div class="form-row">
+              <label class="form-label">
+                <span class="label-text">📱 Телефон</span>
+                <input v-model="editForm.phone" type="text" class="form-input" />
+              </label>
+            </div>
 
-            <label>
-              <span>ФИО ученика</span>
-              <input v-model="editForm.student_full_name" type="text" />
-            </label>
+            <div class="form-row">
+              <label class="form-label">
+                <span class="label-text">🎓 ФИО ученика</span>
+                <input v-model="editForm.student_full_name" type="text" class="form-input" />
+              </label>
+            </div>
 
-            <label>
-              <span>ФИО родителя</span>
-              <input v-model="editForm.parent_full_name" type="text" />
-            </label>
+            <div class="form-row">
+              <label class="form-label">
+                <span class="label-text">👨‍👩‍👧 ФИО родителя</span>
+                <input v-model="editForm.parent_full_name" type="text" class="form-input" />
+              </label>
+            </div>
 
             <div class="edit-actions">
-              <button class="btn small" type="submit" :disabled="savingUser">
-                {{ savingUser ? 'Сохраняем...' : 'Сохранить' }}
+              <button class="btn primary" type="submit" :disabled="savingUser">
+                {{ savingUser ? '⏳ Сохраняем...' : '💾 Сохранить' }}
               </button>
-              <button class="btn small secondary" type="button" @click="cancelEdit">
+              <button class="btn secondary" type="button" @click="cancelEdit">
                 Отмена
               </button>
             </div>
 
-            <p v-if="editError" class="error">
-              {{ editError }}
-            </p>
+            <div v-if="editError" class="error-message">
+              <span class="error-icon">⚠️</span>
+              <span>{{ editError }}</span>
+            </div>
           </form>
         </div>
-      </section>
-
-      <!-- ЗАГЛУШКИ ПОД ДРУГИЕ РАЗДЕЛЫ (платежи, логи и т.п. можно потом оживить) -->
-      <section class="admin-card">
-        <h2>Платежи</h2>
-        <p class="muted">
-          Здесь позже будет раздел работы с пакетами, оплатами и балансами уроков.
-        </p>
-      </section>
-
-      <section class="admin-card">
-        <h2>Прочее</h2>
-        <p class="muted">
-          Дополнительные сервисы админ-панели можно будет добавить сюда.
-        </p>
       </section>
     </main>
   </div>
@@ -215,6 +216,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
+import TopNavigationBar from '../../components/TopNavigationBar.vue'
 import {
   adminGetUsers,
   adminUpdateUser,
@@ -330,11 +332,6 @@ const handleDelete = async (user) => {
 }
 
 // ===== НАВИГАЦИЯ / АВТОРИЗАЦИЯ =====
-const handleLogout = () => {
-  auth.logout()
-  router.push({ name: 'login' })
-}
-
 const goToSchedule = () => {
   router.push({ name: 'admin-schedule' })
 }
@@ -357,271 +354,571 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* тот же стиль, что и раньше, без изменений по сути */
+* {
+  box-sizing: border-box;
+}
+
 .admin-page {
   min-height: 100vh;
-  background: #080808;
-  color: #f5f5f5;
-  padding: 24px;
-  box-sizing: border-box;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
-
-.admin-header {
+  height: 100vh;
+  width: 100vw;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  padding: 0;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  margin-bottom: 20px;
+  flex-direction: column;
 }
 
-.title-block h1 {
-  font-size: 26px;
-  font-weight: 600;
+.admin-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.page-header {
+  padding: 20px 24px 0;
+  margin-bottom: 24px;
+}
+
+.title-block {
+  flex: 1;
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 0 0 8px 0;
+  color: #e8eaf6;
+  letter-spacing: -1px;
 }
 
 .subtitle {
-  margin-top: 4px;
-  font-size: 14px;
-  color: #aaa;
-}
-
-.admin-info {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-}
-
-.admin-user {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.admin-email {
-  font-size: 14px;
-}
-
-.role-badge {
-  padding: 3px 8px;
-  border-radius: 999px;
-  border: 1px solid #444;
-  font-size: 11px;
-  text-transform: uppercase;
-}
-
-.admin-actions {
-  display: flex;
-  gap: 8px;
+  margin: 0;
+  font-size: 1rem;
+  color: #c5cae9;
+  font-weight: 500;
 }
 
 .btn {
-  padding: 6px 12px;
-  border-radius: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
   border: none;
   cursor: pointer;
-  background: #1e88e5;
-  color: #fff;
-  font-size: 13px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn.primary {
+  background: rgba(255, 255, 255, 0.95);
+  color: #667eea;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
 }
 
 .btn.secondary {
-  background: #333;
-  color: #f5f5f5;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .btn.danger {
-  background: #c62828;
+  background: rgba(255, 107, 107, 0.2);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  border: 1px solid rgba(255, 107, 107, 0.4);
 }
 
 .btn.small {
-  padding: 4px 8px;
-  font-size: 12px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
 }
 
-/* layout */
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.btn.secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.btn.danger:hover:not(:disabled) {
+  background: rgba(255, 107, 107, 0.3);
+  border-color: rgba(255, 107, 107, 0.6);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .admin-main {
-  display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-  grid-auto-rows: min-content;
-  gap: 16px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px 32px;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .admin-card {
-  border-radius: 12px;
-  border: 1px solid #333;
-  padding: 16px;
-  background: #111;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  animation: fadeInUp 0.4s ease-out;
 }
 
-.quick-links-card {
-  grid-column: 1 / -1;
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.users-card {
-  grid-column: 1 / 3;
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.card-icon {
+  font-size: 2rem;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
+}
+
+.card-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin: 0;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  letter-spacing: -0.5px;
 }
 
 .quick-links {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 12px;
-  margin-top: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
 }
 
 .quick-link {
-  border-radius: 10px;
-  border: 1px solid #333;
-  padding: 10px 12px;
-  background: #151515;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 24px;
   cursor: pointer;
-  transition: background 0.15s, transform 0.1s, border-color 0.15s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
 }
 
 .quick-link:hover {
-  background: #1c1c1c;
-  border-color: #1e88e5;
-  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.ql-icon {
+  font-size: 2rem;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
+  flex-shrink: 0;
+}
+
+.ql-content {
+  flex: 1;
 }
 
 .ql-title {
-  font-weight: 600;
-  margin-bottom: 4px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .ql-desc {
-  font-size: 13px;
-  color: #bbb;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.5;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
 }
 
-/* users table */
 .section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 20px;
 }
 
 .filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 10px;
+  gap: 12px;
+  align-items: center;
 }
 
-.filters input,
-.filters select {
-  padding: 6px 8px;
-  border-radius: 6px;
-  border: 1px solid #444;
-  background: #000;
-  color: #f5f5f5;
-  font-size: 13px;
+.filter-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.filter-input,
+.filter-select {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.filter-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.filter-input:focus,
+.filter-select:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+}
+
+.filter-select {
+  cursor: pointer;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  gap: 16px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-state p {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  background: rgba(255, 107, 107, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 107, 107, 0.4);
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+}
+
+.error-icon {
+  font-size: 1.2rem;
+}
+
+.table-container {
+  overflow-x: auto;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 .users-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 4px;
-  font-size: 13px;
+  font-size: 0.9rem;
 }
 
-.users-table th,
-.users-table td {
-  border-bottom: 1px solid #333;
-  padding: 6px 8px;
-  text-align: left;
+.users-table thead {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .users-table th {
-  font-weight: 600;
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.users-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.users-table tbody tr {
+  transition: background 0.2s;
+}
+
+.users-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .role-select {
-  padding: 4px 6px;
-  border-radius: 6px;
-  border: 1px solid #444;
-  background: #000;
-  color: #f5f5f5;
-  font-size: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.role-select:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.25);
 }
 
 .actions {
   display: flex;
-  gap: 6px;
+  gap: 8px;
 }
 
-/* edit panel */
+.btn-icon {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-icon.edit:hover {
+  background: rgba(102, 126, 234, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-icon.delete:hover {
+  background: rgba(255, 107, 107, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-icon.close {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.8);
+  padding: 4px 8px;
+}
+
+.btn-icon.close:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
 .edit-panel {
-  margin-top: 14px;
-  padding-top: 10px;
-  border-top: 1px solid #333;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 2px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.edit-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.edit-panel-header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.form-row {
+  margin-bottom: 16px;
+}
+
+.form-label {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.edit-panel form {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.label-text {
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.edit-panel label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 13px;
+.form-input {
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  font-family: inherit;
 }
 
-.edit-panel input {
-  padding: 6px 8px;
-  border-radius: 6px;
-  border: 1px solid #444;
-  background: #000;
-  color: #f5f5f5;
+.form-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
 }
 
 .edit-actions {
   display: flex;
-  gap: 8px;
-  margin-top: 4px;
+  gap: 12px;
+  margin-top: 20px;
 }
 
-.error {
-  color: #ff6b6b;
-  font-size: 13px;
-  margin-top: 4px;
-}
-
-.status-text {
-  font-size: 13px;
-  color: #bbb;
-  margin-top: 4px;
-}
-
-.muted {
-  font-size: 13px;
-  color: #999;
-}
-
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
   .admin-main {
+    padding: 0 24px 32px;
+  }
+
+  .quick-links {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    padding: 16px 16px 0;
+  }
+
+  .page-title {
+    font-size: 2rem;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .admin-main {
+    padding: 0 16px 24px;
+  }
+
+  .admin-card {
+    padding: 24px 20px;
+  }
+
+  .quick-links {
     grid-template-columns: 1fr;
   }
 
-  .users-card {
-    grid-column: 1 / -1;
+  .table-container {
+    overflow-x: scroll;
   }
 
-  .admin-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .admin-info {
-    align-items: flex-start;
+  .users-table {
+    min-width: 800px;
   }
 }
 </style>
