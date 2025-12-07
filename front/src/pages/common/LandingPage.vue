@@ -3,109 +3,6 @@
   <div class="home-page">
     <TopNavigationBar />
 
-    <!-- Верхняя навигация (старая, удаляется) -->
-    <header class="top-nav" style="display: none;">
-      <nav class="nav-right">
-        <!-- Кнопка Администрирование для работников школы -->
-        <div 
-          v-if="auth.isAuthenticated && isStaffRole" 
-          class="admin-menu"
-        >
-          <button class="admin-btn" @click="toggleAdminMenu">
-            <span class="admin-btn-icon">⚙️</span>
-            <span>Администрирование</span>
-          </button>
-          <div 
-            class="admin-dropdown"
-            :class="{ 'admin-dropdown-open': showAdminMenu }"
-            @click.stop
-          >
-            <!-- Разделы для Админа -->
-            <template v-if="auth.normalizedRole === 'admin'">
-              <router-link :to="{ name: 'admin-dashboard' }" class="dropdown-item" @click="closeAdminMenu">
-                <span class="dropdown-icon">📊</span>
-                <span>Админ панель</span>
-              </router-link>
-              <router-link :to="{ name: 'admin-schedule' }" class="dropdown-item" @click="closeAdminMenu">
-                <span class="dropdown-icon">📅</span>
-                <span>Расписание</span>
-              </router-link>
-              <router-link :to="{ name: 'admin-courses' }" class="dropdown-item" @click="closeAdminMenu">
-                <span class="dropdown-icon">📚</span>
-                <span>Курсы</span>
-              </router-link>
-              <router-link :to="{ name: 'admin-logs' }" class="dropdown-item" @click="closeAdminMenu">
-                <span class="dropdown-icon">📋</span>
-                <span>Логи</span>
-              </router-link>
-            </template>
-            
-            <!-- Разделы для Менеджера -->
-            <template v-if="auth.normalizedRole === 'manager'">
-              <router-link :to="{ name: 'manager-dashboard' }" class="dropdown-item" @click="closeAdminMenu">
-                <span class="dropdown-icon">📊</span>
-                <span>Панель менеджера</span>
-              </router-link>
-              <router-link :to="{ name: 'manager-schedule' }" class="dropdown-item" @click="closeAdminMenu">
-                <span class="dropdown-icon">📅</span>
-                <span>Расписание</span>
-              </router-link>
-              <router-link :to="{ name: 'manager-balance' }" class="dropdown-item" @click="closeAdminMenu">
-                <span class="dropdown-icon">💰</span>
-                <span>Баланс</span>
-              </router-link>
-            </template>
-            
-            <!-- Разделы для Учителя -->
-            <template v-if="auth.normalizedRole === 'teacher'">
-              <router-link :to="{ name: 'teacher-dashboard' }" class="dropdown-item" @click="closeAdminMenu">
-                <span class="dropdown-icon">📊</span>
-                <span>Панель учителя</span>
-              </router-link>
-              <router-link :to="{ name: 'teacher-schedule' }" class="dropdown-item" @click="closeAdminMenu">
-                <span class="dropdown-icon">📅</span>
-                <span>Расписание</span>
-              </router-link>
-            </template>
-          </div>
-        </div>
-
-        <!-- Меню пользователя -->
-        <div v-if="auth.isAuthenticated" class="user-menu">
-          <button class="user-name" @click="toggleUserMenu">
-            {{ auth.user?.email || 'Пользователь' }}
-          </button>
-          <div 
-            class="user-dropdown"
-            :class="{ 'user-dropdown-open': showUserMenu }"
-            @click.stop
-          >
-            <router-link 
-              v-if="auth.normalizedRole === 'applicant'"
-              :to="{ name: 'applicant-dashboard' }" 
-              class="dropdown-item"
-              @click="closeUserMenu"
-            >
-              Личный кабинет
-            </router-link>
-            <router-link 
-              v-if="auth.normalizedRole === 'student'"
-              :to="{ name: 'student-dashboard' }" 
-              class="dropdown-item"
-              @click="closeUserMenu"
-            >
-              Личный кабинет
-            </router-link>
-            <button @click="handleLogout" class="dropdown-item">Выйти</button>
-          </div>
-        </div>
-        <div v-else class="auth-buttons">
-          <router-link :to="{ name: 'login' }" class="nav-btn">Войти</router-link>
-          <router-link :to="{ name: 'register' }" class="nav-btn primary">Регистрация</router-link>
-        </div>
-      </nav>
-    </header>
-
     <!-- Основной контент -->
     <main class="main-container">
       <section class="content-section">
@@ -191,7 +88,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { useRouter } from 'vue-router'
 import TopNavigationBar from '../../components/TopNavigationBar.vue'
@@ -232,13 +129,6 @@ onMounted(() => {
   if (auth.isAuthenticated && !auth.user) {
     auth.fetchMe()
   }
-  
-  // Закрытие меню при клике вне их
-  document.addEventListener('click', handleDocumentClick)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleDocumentClick)
 })
 </script>
 
