@@ -32,6 +32,7 @@ class TeacherLessonSerializer(serializers.ModelSerializer):
             "cancellation_reason",
             "feedback",
             "debited_from_balance",
+            "is_trial",
             "created_at",
         )
     

@@ -7,6 +7,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from accounts.permissions import IsManagerOrAdmin
 from .models import Lesson, LessonBalance, Payment, AuditLog
+from django.db import transaction
 from .manager_serializers import (
     ManagerClientSerializer,
     ManagerLessonSerializer,
@@ -164,6 +165,7 @@ class ManagerLessonsListCreateAPI(generics.ListCreateAPIView):
                 "teacher": lesson.teacher_id,
                 "teacher_email": lesson.teacher.email if lesson.teacher else None,
                 "scheduled_at": lesson.scheduled_at.isoformat(),
+                "is_trial": lesson.is_trial,
             },
         )
 
@@ -179,7 +181,57 @@ class ManagerLessonUpdateAPI(generics.UpdateAPIView):
     http_method_names = ["patch", "options", "head"]
 
     def perform_update(self, serializer):
+        old_lesson = self.get_object()
+        old_status = old_lesson.status
+        old_debited = old_lesson.debited_from_balance
+        
         lesson = serializer.save()
+        
+        new_status = lesson.status
+        status_changed = new_status != old_status
+        
+        # ЛОГИКА УПРАВЛЕНИЯ БАЛАНСОМ (аналогично учителю)
+        with transaction.atomic():
+            # Если статус изменился на DONE (завершено)
+            if status_changed and new_status == Lesson.STATUS_DONE:
+                # Списываем баланс только если:
+                # 1. Это НЕ пробное занятие
+                # 2. Баланс еще не был списан
+                if not lesson.is_trial and not lesson.debited_from_balance:
+                    lb, _ = LessonBalance.objects.select_for_update().get_or_create(
+                        student=lesson.student
+                    )
+                    if lb.lessons_available > 0:
+                        lb.lessons_available -= 1
+                        lb.save()
+                        lesson.debited_from_balance = True
+                        lesson.save(update_fields=['debited_from_balance'])
+            
+            # Если статус изменился на CANCELLED (отменено)
+            elif status_changed and new_status == Lesson.STATUS_CANCELLED:
+                # Возвращаем баланс только если:
+                # 1. Это НЕ пробное занятие
+                # 2. Баланс был списан ранее
+                if not lesson.is_trial and old_debited:
+                    lb, _ = LessonBalance.objects.select_for_update().get_or_create(
+                        student=lesson.student
+                    )
+                    lb.lessons_available += 1
+                    lb.save()
+                    lesson.debited_from_balance = False
+                    lesson.save(update_fields=['debited_from_balance'])
+            
+            # Если статус изменился с DONE на другой
+            elif status_changed and old_status == Lesson.STATUS_DONE and new_status != Lesson.STATUS_DONE:
+                # Возвращаем баланс, если он был списан
+                if not lesson.is_trial and old_debited:
+                    lb, _ = LessonBalance.objects.select_for_update().get_or_create(
+                        student=lesson.student
+                    )
+                    lb.lessons_available += 1
+                    lb.save()
+                    lesson.debited_from_balance = False
+                    lesson.save(update_fields=['debited_from_balance'])
         
         # Синхронизация комментария: если комментарий изменился, обновляем его во всех уроках с этим учеником
         if 'comment' in serializer.validated_data:
@@ -197,6 +249,9 @@ class ManagerLessonUpdateAPI(generics.UpdateAPIView):
                 "student": lesson.student_id,
                 "teacher": lesson.teacher_id,
                 "status": lesson.status,
+                "old_status": old_status,
+                "is_trial": lesson.is_trial,
+                "debited_from_balance": lesson.debited_from_balance,
                 "cancellation_reason": getattr(lesson, 'cancellation_reason', None) if lesson.status == Lesson.STATUS_CANCELLED else None,
             },
         )
@@ -261,6 +316,10 @@ class ManagerLessonDebitAPI(APIView):
         except Lesson.DoesNotExist:
             return Response({"detail": "lesson not found"}, status=404)
 
+        # Пробные занятия не списываются с баланса
+        if les.is_trial:
+            return Response({"detail": "trial lessons cannot be debited"}, status=400)
+
         if les.debited_from_balance:
             return Response({"detail": "already debited"}, status=400)
 
@@ -286,6 +345,7 @@ class ManagerLessonDebitAPI(APIView):
                     "lesson_id": les.id,
                     "student": les.student_id,
                     "mark_done": mark_done,
+                    "is_trial": False,
                 },
             )
 

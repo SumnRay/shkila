@@ -20,3 +20,4 @@ class Migration(migrations.Migration):
             field=models.TextField(blank=True, help_text='Обратная связь по занятию (заполняется при статусе DONE)'),
         ),
     ]
+

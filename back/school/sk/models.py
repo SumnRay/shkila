@@ -111,6 +111,11 @@ class Lesson(models.Model):
         default=False,
         help_text="True, если занятие уже списано с баланса",
     )
+    
+    is_trial = models.BooleanField(
+        default=False,
+        help_text="True, если это пробное занятие (не списывается с баланса)",
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
 

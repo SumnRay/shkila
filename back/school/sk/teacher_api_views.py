@@ -5,7 +5,8 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
 from accounts.permissions import IsTeacherOrAdmin
-from .models import Lesson, AuditLog
+from .models import Lesson, AuditLog, LessonBalance
+from django.db import transaction
 from .teacher_serializers import (
     TeacherLessonSerializer,
     TeacherLessonUpdateSerializer,
@@ -156,6 +157,9 @@ class TeacherLessonUpdateAPI(generics.UpdateAPIView):
         return qs
 
     def perform_update(self, serializer):
+        old_status = self.get_object().status
+        old_debited = self.get_object().debited_from_balance
+        
         try:
             lesson = serializer.save()
         except Exception as e:
@@ -176,6 +180,52 @@ class TeacherLessonUpdateAPI(generics.UpdateAPIView):
                 logger.error(f"Error updating lesson: {e}")
                 raise
         
+        new_status = lesson.status
+        status_changed = new_status != old_status
+        
+        # ЛОГИКА УПРАВЛЕНИЯ БАЛАНСОМ
+        with transaction.atomic():
+            # Если статус изменился на DONE (завершено)
+            if status_changed and new_status == Lesson.STATUS_DONE:
+                # Списываем баланс только если:
+                # 1. Это НЕ пробное занятие
+                # 2. Баланс еще не был списан
+                if not lesson.is_trial and not lesson.debited_from_balance:
+                    lb, _ = LessonBalance.objects.select_for_update().get_or_create(
+                        student=lesson.student
+                    )
+                    if lb.lessons_available > 0:
+                        lb.lessons_available -= 1
+                        lb.save()
+                        lesson.debited_from_balance = True
+                        lesson.save(update_fields=['debited_from_balance'])
+            
+            # Если статус изменился на CANCELLED (отменено)
+            elif status_changed and new_status == Lesson.STATUS_CANCELLED:
+                # Возвращаем баланс только если:
+                # 1. Это НЕ пробное занятие
+                # 2. Баланс был списан ранее
+                if not lesson.is_trial and old_debited:
+                    lb, _ = LessonBalance.objects.select_for_update().get_or_create(
+                        student=lesson.student
+                    )
+                    lb.lessons_available += 1
+                    lb.save()
+                    lesson.debited_from_balance = False
+                    lesson.save(update_fields=['debited_from_balance'])
+            
+            # Если статус изменился с DONE на другой (например, обратно на PLANNED)
+            elif status_changed and old_status == Lesson.STATUS_DONE and new_status != Lesson.STATUS_DONE:
+                # Возвращаем баланс, если он был списан
+                if not lesson.is_trial and old_debited:
+                    lb, _ = LessonBalance.objects.select_for_update().get_or_create(
+                        student=lesson.student
+                    )
+                    lb.lessons_available += 1
+                    lb.save()
+                    lesson.debited_from_balance = False
+                    lesson.save(update_fields=['debited_from_balance'])
+        
         # Синхронизация комментария: если комментарий изменился, обновляем его во всех уроках с этим учеником
         # (комментарий общий для всех уроков с учеником, независимо от учителя)
         if 'comment' in serializer.validated_data:
@@ -192,6 +242,9 @@ class TeacherLessonUpdateAPI(generics.UpdateAPIView):
                 "lesson_id": lesson.id,
                 "student": lesson.student_id,
                 "status": lesson.status,
+                "old_status": old_status,
+                "is_trial": lesson.is_trial,
+                "debited_from_balance": lesson.debited_from_balance,
                 "cancellation_reason": getattr(lesson, 'cancellation_reason', None) if lesson.status == Lesson.STATUS_CANCELLED else None,
                 "has_feedback": bool(getattr(lesson, 'feedback', '')) if lesson.status == Lesson.STATUS_DONE else None,
             },

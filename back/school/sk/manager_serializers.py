@@ -35,6 +35,7 @@ class ManagerLessonSerializer(serializers.ModelSerializer):
             "cancellation_reason",
             "feedback",
             "debited_from_balance",
+            "is_trial",
             "created_at",
         )
     
@@ -60,9 +61,11 @@ class ManagerLessonCreateSerializer(serializers.ModelSerializer):
     link = serializers.CharField(required=False, allow_blank=True, max_length=300)
     comment = serializers.CharField(required=False, allow_blank=True)
 
+    is_trial = serializers.BooleanField(required=False, default=False, help_text="Пробное занятие (не списывается с баланса)")
+
     class Meta:
         model = Lesson
-        fields = ("student", "student_email", "teacher", "teacher_email", "scheduled_at", "link", "comment")
+        fields = ("student", "student_email", "teacher", "teacher_email", "scheduled_at", "link", "comment", "is_trial")
 
     def validate(self, attrs):
         import logging
@@ -109,7 +112,18 @@ class ManagerLessonCreateSerializer(serializers.ModelSerializer):
             logger.error("Teacher is required but not provided")
             raise serializers.ValidationError({"teacher": "Either teacher or teacher_email is required"})
         
-        logger.info(f"Validation successful. Final attrs: student={attrs.get('student')}, teacher={attrs.get('teacher')}")
+        # Валидация для пробных занятий
+        is_trial = attrs.get('is_trial', False)
+        if is_trial:
+            # Проверяем баланс ученика - пробные занятия можно создавать только если баланс = 0
+            from .models import LessonBalance
+            lb, _ = LessonBalance.objects.get_or_create(student=attrs['student'])
+            if lb.lessons_available > 0:
+                raise serializers.ValidationError({
+                    "is_trial": "Пробные занятия можно создавать только когда баланс ученика равен 0"
+                })
+        
+        logger.info(f"Validation successful. Final attrs: student={attrs.get('student')}, teacher={attrs.get('teacher')}, is_trial={is_trial}")
         return attrs
 
 
@@ -120,24 +134,11 @@ class ManagerLessonUpdateSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Lesson
-        fields = ("scheduled_at", "status", "link", "comment", "cancellation_reason")
+        fields = ("scheduled_at", "status", "link", "comment", "cancellation_reason", "is_trial")
 
     def save(self, **kwargs):
-        # Проверяем наличие полей в БД через проверку атрибутов модели
-        validated_data = self.validated_data.copy()
-        
-        # Удаляем поля, которых может не быть в БД (если миграция не применена)
-        try:
-            # Проверяем, есть ли поле в модели
-            if 'cancellation_reason' in validated_data:
-                field = self.Meta.model._meta.get_field('cancellation_reason')
-        except Exception:
-            # Если поля нет, удаляем из validated_data
-            validated_data.pop('cancellation_reason', None)
-        
-        # Обновляем validated_data
-        self.validated_data = validated_data
-        
+        # Миграции применены, поля должны быть в БД
+        # Просто сохраняем как обычно
         return super().save(**kwargs)
 
     def validate(self, attrs):
