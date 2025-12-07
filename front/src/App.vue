@@ -11,8 +11,10 @@
 
 <style scoped>
 .app {
-  min-height: 100vh;
-  background: #050505;
-  color: #f5f5f5;
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 </style>

@@ -210,8 +210,7 @@ class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = (
-            "id", "title", "description", "is_active", "default_lessons", 
-            "default_price", "modules", "modules_count", "created_at", "updated_at"
+            "id", "title", "modules", "modules_count", "created_at", "updated_at"
         )
         read_only_fields = ("id", "created_at", "updated_at")
 
@@ -220,4 +219,4 @@ class CourseCreateUpdateSerializer(serializers.ModelSerializer):
     """Сериализатор для создания/обновления курса"""
     class Meta:
         model = Course
-        fields = ("title", "description", "is_active", "default_lessons", "default_price")
+        fields = ("title",)

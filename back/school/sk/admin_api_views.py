@@ -363,6 +363,16 @@ class AdminCourseListCreateAPI(generics.ListCreateAPIView):
     def get_queryset(self):
         return Course.objects.prefetch_related('modules__topics').all().order_by('id')
 
+    def create(self, request, *args, **kwargs):
+        """Переопределяем create, чтобы возвращать полные данные курса после создания"""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        
+        # Возвращаем полные данные курса с модулями
+        full_serializer = CourseSerializer(serializer.instance)
+        return Response(full_serializer.data, status=status.HTTP_201_CREATED)
+
 
 class AdminCourseDetailAPI(generics.RetrieveUpdateDestroyAPIView):
     """
@@ -377,6 +387,18 @@ class AdminCourseDetailAPI(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method in ['PATCH', 'PUT']:
             return CourseCreateUpdateSerializer
         return CourseSerializer
+
+    def update(self, request, *args, **kwargs):
+        """Переопределяем update, чтобы возвращать полные данные курса после обновления"""
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        
+        # Возвращаем полные данные курса с модулями
+        full_serializer = CourseSerializer(instance)
+        return Response(full_serializer.data)
 
 
 # ======= MODULES =======
@@ -403,11 +425,13 @@ class AdminModuleListCreateAPI(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         course_id = self.request.data.get('course_id') or self.request.query_params.get('course_id')
         if not course_id:
-            return Response({"detail": "course_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+            from rest_framework.exceptions import ValidationError
+            raise ValidationError({"detail": "course_id is required"})
         try:
             course = Course.objects.get(id=course_id)
         except Course.DoesNotExist:
-            return Response({"detail": "Course not found"}, status=status.HTTP_404_NOT_FOUND)
+            from rest_framework.exceptions import NotFound
+            raise NotFound("Course not found")
         module = serializer.save(course=course)
         AuditLog.objects.create(
             actor=self.request.user,
@@ -418,6 +442,16 @@ class AdminModuleListCreateAPI(generics.ListCreateAPIView):
                 "module_title": module.title,
             },
         )
+
+    def create(self, request, *args, **kwargs):
+        """Переопределяем create, чтобы возвращать полные данные модуля после создания"""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        
+        # Возвращаем полные данные модуля с темами
+        full_serializer = ModuleSerializer(serializer.instance)
+        return Response(full_serializer.data, status=status.HTTP_201_CREATED)
 
 
 class AdminModuleDetailAPI(generics.RetrieveUpdateDestroyAPIView):
@@ -433,6 +467,18 @@ class AdminModuleDetailAPI(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method in ['PATCH', 'PUT']:
             return ModuleCreateUpdateSerializer
         return ModuleSerializer
+
+    def update(self, request, *args, **kwargs):
+        """Переопределяем update, чтобы возвращать полные данные модуля после обновления"""
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        
+        # Возвращаем полные данные модуля с темами
+        full_serializer = ModuleSerializer(instance)
+        return Response(full_serializer.data)
 
 
 # ======= LESSON TOPICS =======
@@ -459,11 +505,13 @@ class AdminLessonTopicListCreateAPI(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         module_id = self.request.data.get('module_id') or self.request.query_params.get('module_id')
         if not module_id:
-            return Response({"detail": "module_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+            from rest_framework.exceptions import ValidationError
+            raise ValidationError({"detail": "module_id is required"})
         try:
             module = Module.objects.get(id=module_id)
         except Module.DoesNotExist:
-            return Response({"detail": "Module not found"}, status=status.HTTP_404_NOT_FOUND)
+            from rest_framework.exceptions import NotFound
+            raise NotFound("Module not found")
         topic = serializer.save(module=module)
         AuditLog.objects.create(
             actor=self.request.user,
@@ -474,6 +522,16 @@ class AdminLessonTopicListCreateAPI(generics.ListCreateAPIView):
                 "topic_title": topic.title,
             },
         )
+
+    def create(self, request, *args, **kwargs):
+        """Переопределяем create, чтобы возвращать полные данные темы после создания"""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        
+        # Возвращаем полные данные темы
+        full_serializer = LessonTopicSerializer(serializer.instance)
+        return Response(full_serializer.data, status=status.HTTP_201_CREATED)
 
 
 class AdminLessonTopicDetailAPI(generics.RetrieveUpdateDestroyAPIView):
@@ -489,3 +547,15 @@ class AdminLessonTopicDetailAPI(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method in ['PATCH', 'PUT']:
             return LessonTopicCreateUpdateSerializer
         return LessonTopicSerializer
+
+    def update(self, request, *args, **kwargs):
+        """Переопределяем update, чтобы возвращать полные данные темы после обновления"""
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        
+        # Возвращаем полные данные темы
+        full_serializer = LessonTopicSerializer(instance)
+        return Response(full_serializer.data)

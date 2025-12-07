@@ -29,7 +29,7 @@ class ApplicantCourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ("id", "title", "description", "default_lessons", "default_price", "modules", "modules_count")
+        fields = ("id", "title", "modules", "modules_count")
 
 
 class ApplicantBalanceSerializer(serializers.ModelSerializer):
@@ -51,8 +51,8 @@ class ApplicantPaymentCreateSerializer(serializers.Serializer):
 
     def validate_course_id(self, value):
         from .models import Course
-        if not Course.objects.filter(pk=value, is_active=True).exists():
-            raise serializers.ValidationError("Курс не найден или не активен")
+        if not Course.objects.filter(pk=value).exists():
+            raise serializers.ValidationError("Курс не найден")
         return value
 
 

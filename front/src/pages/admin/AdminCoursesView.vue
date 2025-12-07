@@ -42,12 +42,8 @@
                 </button>
               </div>
             </div>
-            <p v-if="course.description" class="course-description">{{ course.description }}</p>
             <div class="course-meta">
               <span>Модулей: {{ course.modules_count || 0 }}</span>
-              <span :class="{ 'inactive': !course.is_active }">
-                {{ course.is_active ? 'Активен' : 'Неактивен' }}
-              </span>
             </div>
           </div>
         </div>
@@ -135,22 +131,6 @@
           <label class="field">
             <span>Название *</span>
             <input v-model="courseForm.title" type="text" required />
-          </label>
-          <label class="field">
-            <span>Описание</span>
-            <textarea v-model="courseForm.description" rows="3"></textarea>
-          </label>
-          <label class="field">
-            <span>Количество занятий по умолчанию</span>
-            <input v-model.number="courseForm.default_lessons" type="number" min="0" />
-          </label>
-          <label class="field">
-            <span>Цена по умолчанию</span>
-            <input v-model.number="courseForm.default_price" type="number" min="0" step="0.01" />
-          </label>
-          <label class="field checkbox-field">
-            <input v-model="courseForm.is_active" type="checkbox" />
-            <span>Активен</span>
           </label>
           <div class="modal-actions">
             <button type="submit" :disabled="saving">
@@ -295,7 +275,9 @@ const loadCourses = async () => {
 
 // Выбор курса
 const selectCourse = async (course) => {
-  selectedCourse.value = course
+  // Используем объект из списка курсов, чтобы иметь актуальные данные
+  const courseFromList = courses.value.find(c => c.id === course.id) || course
+  selectedCourse.value = { ...courseFromList }
   await loadModules(course.id)
 }
 
@@ -314,10 +296,6 @@ const openCreateCourseModal = () => {
   editingCourse.value = false
   courseForm.value = {
     title: '',
-    description: '',
-    default_lessons: 4,
-    default_price: 0,
-    is_active: true,
   }
   showCourseModal.value = true
 }
@@ -335,10 +313,6 @@ const editCourse = (course) => {
   currentEditingCourseId = course.id
   courseForm.value = {
     title: course.title,
-    description: course.description || '',
-    default_lessons: course.default_lessons || 4,
-    default_price: course.default_price || 0,
-    is_active: course.is_active,
   }
   showCourseModal.value = true
 }
@@ -347,11 +321,26 @@ const saveCourse = async () => {
   saving.value = true
   try {
     if (editingCourse.value && currentEditingCourseId) {
-      await adminUpdateCourse(currentEditingCourseId, courseForm.value)
+      const { data } = await adminUpdateCourse(currentEditingCourseId, courseForm.value)
+      // Обновляем список курсов
+      await loadCourses()
+      // Обновляем выбранный курс, если он был отредактирован
+      if (selectedCourse.value?.id === currentEditingCourseId) {
+        // Используем данные из ответа API (с модулями) или из обновленного списка
+        const updatedCourse = courses.value.find(c => c.id === currentEditingCourseId)
+        if (updatedCourse) {
+          selectedCourse.value = { ...updatedCourse }
+          // Перезагружаем модули для обновленного курса
+          await loadModules(currentEditingCourseId)
+        } else if (data) {
+          selectedCourse.value = { ...data }
+          await loadModules(currentEditingCourseId)
+        }
+      }
     } else {
       await adminCreateCourse(courseForm.value)
+      await loadCourses()
     }
-    await loadCourses()
     closeCourseModal()
   } catch (err) {
     console.error('Ошибка сохранения курса:', err)
@@ -420,6 +409,7 @@ const saveModule = async () => {
     } else {
       await adminCreateModule(payload)
     }
+    // Всегда перезагружаем модули после сохранения, чтобы получить актуальные данные с темами
     await loadModules(selectedCourse.value.id)
     closeModuleModal()
   } catch (err) {
@@ -482,7 +472,7 @@ const closeTopicModal = () => {
 }
 
 const saveTopic = async () => {
-  if (!currentModuleId) return
+  if (!currentModuleId || !selectedCourse.value) return
   saving.value = true
   try {
     const payload = {
@@ -494,6 +484,7 @@ const saveTopic = async () => {
     } else {
       await adminCreateLessonTopic(payload)
     }
+    // Всегда перезагружаем модули после сохранения темы, чтобы получить актуальные данные
     await loadModules(selectedCourse.value.id)
     closeTopicModal()
   } catch (err) {

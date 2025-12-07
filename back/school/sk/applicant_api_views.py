@@ -23,7 +23,7 @@ class PublicCoursesListAPI(generics.ListAPIView):
     serializer_class = ApplicantCourseSerializer
 
     def get_queryset(self):
-        return Course.objects.prefetch_related('modules__topics').filter(is_active=True).order_by("id")
+        return Course.objects.prefetch_related('modules__topics').all().order_by("id")
 
 
 class ApplicantCoursesListAPI(generics.ListAPIView):
@@ -35,7 +35,7 @@ class ApplicantCoursesListAPI(generics.ListAPIView):
     serializer_class = ApplicantCourseSerializer
 
     def get_queryset(self):
-        return Course.objects.prefetch_related('modules__topics').filter(is_active=True).order_by("id")
+        return Course.objects.prefetch_related('modules__topics').all().order_by("id")
 
 
 class ApplicantBalanceAPI(APIView):

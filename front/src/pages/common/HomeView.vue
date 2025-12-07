@@ -27,6 +27,6 @@ const handleLogout = () => {
 
 <style scoped>
 .home {
-  padding: 24px;
+  padding: 0px;
 }
 </style>

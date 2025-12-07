@@ -148,17 +148,9 @@ class AuditLog(models.Model):
 
 class Course(models.Model):
     """
-    Курс/направление (Python, Roblox, и т.п.).
-    Можно использовать для тарифов и пакетов.
+    Курс. Содержит только название, модули и темы занятий.
     """
     title = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-    is_active = models.BooleanField(default=True)
-
-    # Значения по умолчанию для пакета:
-    default_lessons = models.PositiveIntegerField(default=4)
-    default_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
