@@ -6,6 +6,7 @@ from .teacher_api_views import (
     TeacherStudentsListAPI,
     TeacherStudentLessonsAPI,
     TeacherStudentByEmailAPI,
+    TeacherStudentsAutocompleteAPI,
 )
 
 urlpatterns = [
@@ -17,5 +18,6 @@ urlpatterns = [
     # Журнал учеников
     path('students/', TeacherStudentsListAPI.as_view()),                     # GET список учеников
     path('students/by-email/', TeacherStudentByEmailAPI.as_view()),          # GET поиск ученика по email
+    path('students/autocomplete/', TeacherStudentsAutocompleteAPI.as_view()),  # GET автодополнение учеников
     path('students/<int:student_id>/lessons/', TeacherStudentLessonsAPI.as_view()),  # GET журнал по ученику
 ]

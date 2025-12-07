@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db import transaction
+from django.db import transaction, models
 from rest_framework import generics, status, filters
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -60,6 +60,64 @@ class ManagerUserByEmailAPI(APIView):
             return Response({"detail": "user not found"}, status=404)
         except User.MultipleObjectsReturned:
             return Response({"detail": "multiple users found"}, status=400)
+
+
+class ManagerUsersAutocompleteAPI(APIView):
+    """
+    Получить список пользователей для автодополнения.
+    GET /api/manager/users/autocomplete/?role=STUDENT|TEACHER&search=test
+    """
+    permission_classes = [IsManagerOrAdmin]
+
+    def get(self, request):
+        role = request.query_params.get('role', '').upper()
+        search = request.query_params.get('search', '').strip()
+        
+        queryset = User.objects.all()
+        
+        if role:
+            queryset = queryset.filter(role=role)
+        
+        if search:
+            queryset = queryset.filter(
+                models.Q(email__icontains=search) |
+                models.Q(student_full_name__icontains=search) |
+                models.Q(parent_full_name__icontains=search)
+            )
+        
+        # Ограничиваем количество результатов
+        users = queryset[:50]
+        
+        return Response([{
+            "id": user.id,
+            "email": user.email,
+            "student_full_name": user.student_full_name,
+            "parent_full_name": user.parent_full_name,
+            "role": user.role,
+        } for user in users])
+
+
+class ManagerAutocompleteAPI(APIView):
+    """
+    Получить списки email для автодополнения.
+    GET /api/manager/autocomplete/?type=students|teachers
+    """
+    permission_classes = [IsManagerOrAdmin]
+
+    def get(self, request):
+        autocomplete_type = request.query_params.get('type', 'students')
+        
+        if autocomplete_type == 'students':
+            # Все ученики и абитуриенты
+            users = User.objects.filter(role__in=[User.Roles.STUDENT, User.Roles.APPLICANT]).values('email', 'student_full_name', 'id')
+        elif autocomplete_type == 'teachers':
+            # Все учителя
+            users = User.objects.filter(role=User.Roles.TEACHER).values('email', 'id')
+        else:
+            return Response({"detail": "Invalid type. Use 'students' or 'teachers'"}, status=400)
+        
+        results = [{"email": u['email'], "id": u['id'], "name": u.get('student_full_name', '')} for u in users]
+        return Response(results)
 
 
 # ======= УРОКИ / РАСПИСАНИЕ =======

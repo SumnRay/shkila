@@ -225,3 +225,67 @@ class TeacherStudentByEmailAPI(APIView):
             "role": user.role,
             "is_my_student": True,
         })
+
+
+class TeacherStudentsAutocompleteAPI(APIView):
+    """
+    Получить список учеников учителя для автодополнения.
+    GET /api/teacher/students/autocomplete/?search=test
+    """
+    permission_classes = [IsTeacherOrAdmin]
+
+    def get(self, request):
+        from django.db import models
+        search = request.query_params.get('search', '').strip()
+        teacher = request.user
+        
+        # Получаем всех учеников, у которых есть уроки с этим учителем
+        if teacher.is_superuser or getattr(teacher, "role", None) == "ADMIN":
+            # Админ видит всех учеников
+            students = User.objects.filter(role__in=['STUDENT', 'APPLICANT']).distinct()
+        else:
+            # Учитель видит только своих учеников
+            students = User.objects.filter(
+                lessons_as_student__teacher=teacher
+            ).distinct()
+        
+        if search:
+            students = students.filter(
+                models.Q(email__icontains=search) |
+                models.Q(student_full_name__icontains=search) |
+                models.Q(parent_full_name__icontains=search)
+            )
+        
+        # Ограничиваем количество результатов
+        students = students[:50]
+        
+        return Response([{
+            "id": student.id,
+            "email": student.email,
+            "student_full_name": student.student_full_name,
+            "parent_full_name": student.parent_full_name,
+            "role": student.role,
+        } for student in students])
+
+
+class TeacherAutocompleteAPI(APIView):
+    """
+    Получить список email учеников учителя для автодополнения.
+    GET /api/teacher/autocomplete/
+    """
+    permission_classes = [IsTeacherOrAdmin]
+
+    def get(self, request):
+        teacher = request.user
+        
+        # Получаем всех учеников, у которых есть хотя бы один урок с этим учителем
+        if teacher.is_superuser or getattr(teacher, "role", None) == "ADMIN":
+            # Админ видит всех учеников
+            students = User.objects.filter(role__in=[User.Roles.STUDENT, User.Roles.APPLICANT]).values('email', 'student_full_name', 'id')
+        else:
+            # Учитель видит только своих учеников
+            student_ids = Lesson.objects.filter(teacher=teacher).values_list('student_id', flat=True).distinct()
+            students = User.objects.filter(id__in=student_ids).values('email', 'student_full_name', 'id')
+        
+        results = [{"email": s['email'], "id": s['id'], "name": s.get('student_full_name', '')} for s in students]
+        return Response(results)

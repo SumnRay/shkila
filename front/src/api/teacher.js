@@ -39,3 +39,13 @@ export function teacherGetStudentLessons(studentId, params = {}) {
 export function teacherSearchStudentByEmail(email) {
   return apiClient.get('/api/teacher/students/by-email/', { params: { email } })
 }
+
+// Автодополнение учеников учителя
+export function teacherGetStudentsAutocomplete(search = '') {
+  return apiClient.get('/api/teacher/students/autocomplete/', { params: { search } })
+}
+
+// Получить список email учеников учителя для автодополнения
+export function teacherGetAutocomplete() {
+  return apiClient.get('/api/teacher/autocomplete/')
+}

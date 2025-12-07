@@ -102,11 +102,22 @@
               <input
                 v-model="formStudentEmail"
                 type="email"
+                :list="`student-email-list-${isManager ? 'manager' : 'teacher'}`"
                 placeholder="student@example.com"
                 required
                 @blur="validateStudentEmail"
-                @input="clearStudentError"
+                @input="handleStudentEmailInput"
+                autocomplete="off"
               />
+              <datalist :id="`student-email-list-${isManager ? 'manager' : 'teacher'}`">
+                <option
+                  v-for="student in studentAutocompleteList"
+                  :key="student.id"
+                  :value="student.email"
+                >
+                  {{ student.student_full_name || student.email }}
+                </option>
+              </datalist>
               <button
                 type="button"
                 class="btn-search"
@@ -129,11 +140,22 @@
               <input
                 v-model="formTeacherEmail"
                 type="email"
+                list="teacher-email-list-manager"
                 placeholder="teacher@example.com"
                 required
                 @blur="validateTeacherEmail"
-                @input="clearTeacherError"
+                @input="handleTeacherEmailInput"
+                autocomplete="off"
               />
+              <datalist id="teacher-email-list-manager">
+                <option
+                  v-for="teacher in teacherAutocompleteList"
+                  :key="teacher.id"
+                  :value="teacher.email"
+                >
+                  {{ teacher.email }}
+                </option>
+              </datalist>
               <button
                 type="button"
                 class="btn-search"
@@ -264,6 +286,10 @@ const props = defineProps({
     type: Function,
     default: null
   },
+  onGetAutocomplete: {
+    type: Function,
+    default: null
+  },
   userRole: {
     type: String,
     default: 'manager' // 'manager' или 'teacher'
@@ -390,6 +416,13 @@ const searchingTeacher = ref(false)
 const studentError = ref('')
 const teacherError = ref('')
 
+// Автодополнение
+const studentAutocompleteList = ref([])
+const teacherAutocompleteList = ref([])
+const autocompleteLoading = ref(false)
+let studentAutocompleteTimeout = null
+let teacherAutocompleteTimeout = null
+
 const createLoading = ref(false)
 const createError = ref('')
 
@@ -406,6 +439,14 @@ const openCreate = (iso, hour) => {
   teacherError.value = ''
   createError.value = ''
   showCreateModal.value = true
+  
+  // Загружаем начальные списки для автодополнения
+  if (props.onGetAutocomplete) {
+    loadStudentAutocomplete('')
+    if (isManager.value) {
+      loadTeacherAutocomplete('')
+    }
+  }
 }
 
 const closeCreate = () => {
@@ -479,6 +520,76 @@ const clearTeacherError = () => {
   foundTeacher.value = null
 }
 
+// Загрузка списков для автодополнения
+const loadStudentAutocomplete = async (search = '') => {
+  if (!props.onGetAutocomplete) return
+  
+  try {
+    autocompleteLoading.value = true
+    const result = await props.onGetAutocomplete('student', search)
+    studentAutocompleteList.value = Array.isArray(result) ? result : result.data || []
+  } catch (err) {
+    console.error('load student autocomplete error:', err)
+    studentAutocompleteList.value = []
+  } finally {
+    autocompleteLoading.value = false
+  }
+}
+
+const loadTeacherAutocomplete = async (search = '') => {
+  if (!props.onGetAutocomplete || !isManager.value) return
+  
+  try {
+    autocompleteLoading.value = true
+    const result = await props.onGetAutocomplete('teacher', search)
+    teacherAutocompleteList.value = Array.isArray(result) ? result : result.data || []
+  } catch (err) {
+    console.error('load teacher autocomplete error:', err)
+    teacherAutocompleteList.value = []
+  } finally {
+    autocompleteLoading.value = false
+  }
+}
+
+// Обработка ввода для автодополнения (с debounce)
+const handleStudentEmailInput = (event) => {
+  const value = event.target.value.trim()
+  clearStudentError()
+  
+  // Очищаем предыдущий таймер
+  if (studentAutocompleteTimeout) {
+    clearTimeout(studentAutocompleteTimeout)
+  }
+  
+  // Загружаем подсказки при вводе (с задержкой 300ms)
+  if (value.length >= 2) {
+    studentAutocompleteTimeout = setTimeout(() => {
+      loadStudentAutocomplete(value)
+    }, 300)
+  } else {
+    studentAutocompleteList.value = []
+  }
+}
+
+const handleTeacherEmailInput = (event) => {
+  const value = event.target.value.trim()
+  clearTeacherError()
+  
+  // Очищаем предыдущий таймер
+  if (teacherAutocompleteTimeout) {
+    clearTimeout(teacherAutocompleteTimeout)
+  }
+  
+  // Загружаем подсказки при вводе (с задержкой 300ms)
+  if (value.length >= 2) {
+    teacherAutocompleteTimeout = setTimeout(() => {
+      loadTeacherAutocomplete(value)
+    }, 300)
+  } else {
+    teacherAutocompleteList.value = []
+  }
+}
+
 const canCreateLesson = computed(() => {
   if (isManager.value) {
     return foundStudent.value && foundTeacher.value
@@ -502,10 +613,36 @@ const handleCreate = async () => {
     return
   }
 
+  // Формируем правильный формат даты и времени (ISO 8601 с секундами и часовым поясом)
+  // formTime может быть в формате "HH:MM" или "HH:MM:SS", добавляем секунды если нужно
+  let timeStr = formTime.value
+  if (timeStr && timeStr.split(':').length === 2) {
+    timeStr = `${timeStr}:00` // Добавляем секунды если их нет
+  }
+  
+  // Создаем объект Date с локальной датой и временем
+  const localDateTime = new Date(`${formDate.value}T${timeStr}`)
+  
+  // Получаем смещение часового пояса в формате +HH:MM или -HH:MM
+  const timezoneOffset = -localDateTime.getTimezoneOffset()
+  const offsetHours = Math.floor(Math.abs(timezoneOffset) / 60)
+  const offsetMinutes = Math.abs(timezoneOffset) % 60
+  const offsetSign = timezoneOffset >= 0 ? '+' : '-'
+  const offsetStr = `${offsetSign}${String(offsetHours).padStart(2, '0')}:${String(offsetMinutes).padStart(2, '0')}`
+  
+  // Формируем ISO строку с часовым поясом
+  const isoString = `${formDate.value}T${timeStr}${offsetStr}`
+  
   const payload = {
     student_email: formStudentEmail.value.trim(),
-    scheduled_at: `${formDate.value}T${formTime.value}`,
-    comment: formComment.value?.trim() || '',
+    scheduled_at: isoString,
+  }
+
+  // Добавляем comment только если он не пустой
+  if (formComment.value?.trim()) {
+    payload.comment = formComment.value.trim()
+  } else {
+    payload.comment = ''
   }
 
   // Добавляем link только если он не пустой
@@ -513,6 +650,7 @@ const handleCreate = async () => {
     payload.link = formLink.value.trim()
   }
 
+  // Для менеджера добавляем teacher_email
   if (isManager.value) {
     payload.teacher_email = formTeacherEmail.value.trim()
   }
@@ -547,7 +685,10 @@ const handleCreate = async () => {
       } else if (errorData.detail) {
         createError.value = errorData.detail
       } else {
-        createError.value = 'Ошибка создания урока. Проверьте все поля.'
+        // Показываем первую ошибку из объекта
+        const firstErrorKey = Object.keys(errorData)[0]
+        const firstError = errorData[firstErrorKey]
+        createError.value = `${firstErrorKey}: ${Array.isArray(firstError) ? firstError[0] : firstError}`
       }
     } else {
       createError.value = 'Ошибка создания урока. Проверьте подключение к серверу.'
@@ -614,7 +755,24 @@ const handleUpdate = async () => {
     }
 
     if (canEditTime.value && editForm.value.date && editForm.value.time) {
-      payload.scheduled_at = `${editForm.value.date}T${editForm.value.time}`
+      // Формируем правильный формат даты и времени (ISO 8601 с секундами и часовым поясом)
+      let timeStr = editForm.value.time
+      if (timeStr && timeStr.split(':').length === 2) {
+        timeStr = `${timeStr}:00` // Добавляем секунды если их нет
+      }
+      
+      // Создаем объект Date с локальной датой и временем
+      const localDateTime = new Date(`${editForm.value.date}T${timeStr}`)
+      
+      // Получаем смещение часового пояса в формате +HH:MM или -HH:MM
+      const timezoneOffset = -localDateTime.getTimezoneOffset()
+      const offsetHours = Math.floor(Math.abs(timezoneOffset) / 60)
+      const offsetMinutes = Math.abs(timezoneOffset) % 60
+      const offsetSign = timezoneOffset >= 0 ? '+' : '-'
+      const offsetStr = `${offsetSign}${String(offsetHours).padStart(2, '0')}:${String(offsetMinutes).padStart(2, '0')}`
+      
+      // Формируем ISO строку с часовым поясом
+      payload.scheduled_at = `${editForm.value.date}T${timeStr}${offsetStr}`
     }
 
     await props.onUpdateLesson(activeLesson.value.id, payload)

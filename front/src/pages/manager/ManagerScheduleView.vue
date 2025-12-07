@@ -24,6 +24,7 @@
         :on-create-lesson="handleCreateLesson"
         :on-update-lesson="handleUpdateLesson"
         :on-search-user="handleSearchUser"
+        :on-get-autocomplete="handleGetAutocomplete"
         user-role="manager"
         :current-user-email="auth.user?.email || ''"
         @lesson-selected="selectLesson"
@@ -38,7 +39,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import ScheduleView from '../../components/ScheduleView.vue'
-import { managerGetLessons, managerCreateLesson, managerUpdateLesson, managerSearchUserByEmail } from '../../api/manager'
+import { managerGetLessons, managerCreateLesson, managerUpdateLesson, managerSearchUserByEmail, managerGetUsersAutocomplete } from '../../api/manager'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -100,6 +101,16 @@ const handleSearchUser = async (email, type) => {
       console.warn('Unauthorized - token may have expired')
     }
     throw err
+  }
+}
+
+const handleGetAutocomplete = async (role, search = '') => {
+  try {
+    const { data } = await managerGetUsersAutocomplete(role, search)
+    return data
+  } catch (err) {
+    console.error('get autocomplete error:', err)
+    return []
   }
 }
 

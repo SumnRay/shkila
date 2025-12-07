@@ -2,6 +2,7 @@ from django.urls import path
 from .manager_api_views import (
     ManagerClientsListAPI,
     ManagerUserByEmailAPI,
+    ManagerUsersAutocompleteAPI,
     ManagerLessonsListCreateAPI, ManagerLessonUpdateAPI, ManagerLessonCancelAPI, ManagerLessonDebitAPI,
     ManagerPaymentsListCreateAPI, ManagerPaymentConfirmAPI, ManagerStudentBalanceAPI, ManagerStudentBalanceUpdateAPI,
 )
@@ -12,6 +13,7 @@ urlpatterns = [
     
     # Поиск пользователя по email (должен быть перед lessons, чтобы не конфликтовал)
     path('users/by-email/', ManagerUserByEmailAPI.as_view()),  # GET поиск по email
+    path('users/autocomplete/', ManagerUsersAutocompleteAPI.as_view()),  # GET автодополнение
 
     # Расписание / Уроки
     path('lessons/', ManagerLessonsListCreateAPI.as_view()),          # GET/POST

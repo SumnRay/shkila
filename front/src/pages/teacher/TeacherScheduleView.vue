@@ -34,6 +34,7 @@
         :on-create-lesson="handleCreateLesson"
         :on-update-lesson="handleUpdateLesson"
         :on-search-user="handleSearchUser"
+        :on-get-autocomplete="handleGetAutocomplete"
         user-role="teacher"
         :current-user-email="auth.user?.email || ''"
         @lesson-selected="selectLesson"
@@ -48,7 +49,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import ScheduleView from '../../components/ScheduleView.vue'
-import { teacherGetLessons, teacherCreateLesson, teacherUpdateLesson, teacherSearchStudentByEmail } from '../../api/teacher'
+import { teacherGetLessons, teacherCreateLesson, teacherUpdateLesson, teacherSearchStudentByEmail, teacherGetStudentsAutocomplete } from '../../api/teacher'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -120,6 +121,17 @@ const handleSearchUser = async (email, type) => {
   } catch (err) {
     console.error('search student error:', err)
     throw err
+  }
+}
+
+const handleGetAutocomplete = async (role, search = '') => {
+  try {
+    // Для учителя role игнорируется, всегда возвращаем учеников
+    const { data } = await teacherGetStudentsAutocomplete(search)
+    return data
+  } catch (err) {
+    console.error('get autocomplete error:', err)
+    return []
   }
 }
 

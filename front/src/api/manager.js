@@ -70,3 +70,14 @@ export function managerSearchUserByEmail(email) {
   return apiClient.get('/api/manager/users/by-email/', { params: { email } })
 }
 
+// Автодополнение пользователей
+export function managerGetUsersAutocomplete(role, search = '') {
+  return apiClient.get('/api/manager/users/autocomplete/', { params: { role, search } })
+}
+
+// Получить список email для автодополнения
+// type: 'students' | 'teachers'
+export function managerGetAutocomplete(type) {
+  return apiClient.get('/api/manager/autocomplete/', { params: { type } })
+}
+
