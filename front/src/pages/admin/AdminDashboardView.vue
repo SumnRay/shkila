@@ -7,60 +7,12 @@
     <main class="admin-main">
       <div class="page-header">
         <div class="title-block">
-          <h1 class="page-title">Админ-панель</h1>
+          <h1 class="page-title">Управление пользователями</h1>
           <p class="subtitle">
-            Управление пользователями, расписанием и журналом логов.
+            Просмотр, редактирование и управление пользователями системы.
           </p>
         </div>
       </div>
-      <!-- ВЕРХНИЕ КАРТОЧКИ (навигаторы) -->
-      <section class="admin-card quick-links-card">
-        <div class="card-header">
-          <div class="card-icon">⚡</div>
-          <h2 class="card-title">Быстрые действия</h2>
-        </div>
-        <div class="quick-links">
-          <div class="quick-link" @click="goToSchedule">
-            <div class="ql-icon">📅</div>
-            <div class="ql-content">
-              <div class="ql-title">Календарь уроков</div>
-              <div class="ql-desc">
-                Смотреть расписание, создавать и переносить занятия для учеников и преподавателей.
-              </div>
-            </div>
-          </div>
-
-          <div class="quick-link" @click="goToLogs">
-            <div class="ql-icon">📋</div>
-            <div class="ql-content">
-              <div class="ql-title">Система логов</div>
-              <div class="ql-desc">
-                История действий: создание и изменение уроков, аккаунтов и ролей.
-              </div>
-            </div>
-          </div>
-
-          <div class="quick-link" @click="loadUsers">
-            <div class="ql-icon">👥</div>
-            <div class="ql-content">
-              <div class="ql-title">Управление пользователями</div>
-              <div class="ql-desc">
-                Список всех пользователей: роли, контакты, редактирование и удаление.
-              </div>
-            </div>
-          </div>
-
-          <div class="quick-link" @click="goToCourses">
-            <div class="ql-icon">📚</div>
-            <div class="ql-content">
-              <div class="ql-title">Управление курсами</div>
-              <div class="ql-desc">
-                Создание и редактирование курсов, модулей и тем занятий.
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <!-- ПОЛЬЗОВАТЕЛИ -->
       <section class="admin-card users-card">

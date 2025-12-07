@@ -28,12 +28,12 @@
           <div v-if="showAdminMenu" class="admin-dropdown" @click.stop>
             <template v-if="isAdmin">
               <router-link :to="{ name: 'admin-dashboard' }" class="dropdown-item" @click="closeAdminMenu">
-                <span class="item-icon">📊</span>
-                <span>Панель управления</span>
+                <span class="item-icon">👥</span>
+                <span>Управление пользователями</span>
               </router-link>
               <router-link :to="{ name: 'admin-schedule' }" class="dropdown-item" @click="closeAdminMenu">
                 <span class="item-icon">📅</span>
-                <span>Календарь</span>
+                <span>Расписание</span>
               </router-link>
               <router-link :to="{ name: 'admin-courses' }" class="dropdown-item" @click="closeAdminMenu">
                 <span class="item-icon">📚</span>
