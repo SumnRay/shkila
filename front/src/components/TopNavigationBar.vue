@@ -11,8 +11,8 @@
 
     <!-- Правая часть -->
     <div class="nav-right">
-      <!-- Кнопка администрирования (для admin и manager) -->
-      <div v-if="hasAdminAccess" class="admin-section">
+      <!-- Кнопка администрирования (для admin, manager и teacher) -->
+      <div v-if="hasAdminAccess || isTeacher" class="admin-section">
         <button 
           class="admin-toggle-btn" 
           @click="toggleAdminMenu"
@@ -56,6 +56,16 @@
               <router-link :to="{ name: 'manager-balance' }" class="dropdown-item" @click="closeAdminMenu">
                 <span class="item-icon">💰</span>
                 <span>Балансы</span>
+              </router-link>
+            </template>
+            <template v-else-if="isTeacher">
+              <router-link :to="{ name: 'teacher-dashboard' }" class="dropdown-item" @click="closeAdminMenu">
+                <span class="item-icon">📊</span>
+                <span>Панель учителя</span>
+              </router-link>
+              <router-link :to="{ name: 'teacher-schedule' }" class="dropdown-item" @click="closeAdminMenu">
+                <span class="item-icon">📅</span>
+                <span>Мое расписание</span>
               </router-link>
             </template>
           </div>

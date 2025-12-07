@@ -2,8 +2,9 @@
 <template>
   <div class="auth-page">
     <TopNavigationBar />
-    <div class="auth-container">
-      <div class="auth-card">
+    <div class="auth-page-content">
+      <div class="auth-container">
+        <div class="auth-card">
         <div class="auth-header">
           <div class="auth-icon">🔐</div>
           <h1 class="auth-title">Вход</h1>
@@ -65,6 +66,7 @@
             </router-link>
           </p>
         </div>
+        </div>
       </div>
     </div>
   </div>
@@ -103,11 +105,25 @@ const handleSubmit = async () => {
   animation: gradientShift 15s ease infinite;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.auth-page :deep(.top-navigation-bar) {
+  position: relative;
+  z-index: 1001;
+}
+
+.auth-page-content {
+  flex: 1;
+  display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
   position: relative;
-  overflow: hidden;
+  z-index: 1;
 }
 
 .auth-page::before {
@@ -121,6 +137,7 @@ const handleSubmit = async () => {
     radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
     radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
   pointer-events: none;
+  z-index: 0;
 }
 
 @keyframes gradientShift {
@@ -140,6 +157,7 @@ const handleSubmit = async () => {
   max-width: 480px;
   position: relative;
   z-index: 1;
+  margin-top: 0;
 }
 
 .auth-card {

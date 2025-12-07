@@ -2,8 +2,9 @@
 <template>
   <div class="auth-page">
     <TopNavigationBar />
-    <div class="auth-container">
-      <div class="auth-card">
+    <div class="auth-page-content">
+      <div class="auth-container">
+        <div class="auth-card">
         <div class="auth-header">
           <div class="auth-icon">✨</div>
           <h1 class="auth-title">Регистрация</h1>
@@ -121,6 +122,7 @@
             </router-link>
           </p>
         </div>
+        </div>
       </div>
     </div>
   </div>
@@ -166,19 +168,31 @@ const handleSubmit = async () => {
 
 .auth-page {
   min-height: 100vh;
-  height: 100vh;
   width: 100vw;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
   background-size: 400% 400%;
   animation: gradientShift 15s ease infinite;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
+  flex-direction: column;
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
+}
+
+.auth-page :deep(.top-navigation-bar) {
+  position: relative;
+  z-index: 1001;
+}
+
+.auth-page-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+  z-index: 1;
 }
 
 .auth-page::before {
@@ -192,6 +206,7 @@ const handleSubmit = async () => {
     radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
     radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
   pointer-events: none;
+  z-index: 0;
 }
 
 @keyframes gradientShift {
@@ -211,7 +226,6 @@ const handleSubmit = async () => {
   max-width: 500px;
   position: relative;
   z-index: 1;
-  margin: 10px 0;
 }
 
 .auth-card {
@@ -462,12 +476,8 @@ const handleSubmit = async () => {
 }
 
 @media (max-width: 768px) {
-  .auth-page {
+  .auth-page-content {
     padding: 12px;
-  }
-
-  .auth-container {
-    margin: 10px 0;
   }
 
   .auth-card {
