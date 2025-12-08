@@ -136,11 +136,6 @@ const handleWeekChanged = (params) => {
   loadLessons(params)
 }
 
-
-const goToDashboard = () => {
-  router.push({ name: 'teacher-dashboard' })
-}
-
 onMounted(() => {
   if (!auth.isAuthenticated) {
     router.push({ name: 'login' })

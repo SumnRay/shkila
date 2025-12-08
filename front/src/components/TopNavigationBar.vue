@@ -55,13 +55,13 @@
               </router-link>
             </template>
             <template v-else-if="isTeacher">
-              <router-link :to="{ name: 'teacher-dashboard' }" class="dropdown-item" @click="closeAdminMenu">
-                <span class="item-icon">📊</span>
-                <span>Панель учителя</span>
+              <router-link :to="{ name: 'teacher-students' }" class="dropdown-item" @click="closeAdminMenu">
+                <span class="item-icon">👥</span>
+                <span>Список учеников</span>
               </router-link>
               <router-link :to="{ name: 'teacher-schedule' }" class="dropdown-item" @click="closeAdminMenu">
                 <span class="item-icon">📅</span>
-                <span>Мое расписание</span>
+                <span>Расписание занятий</span>
               </router-link>
             </template>
           </div>
@@ -89,15 +89,6 @@
                   <div class="user-info-role">{{ roleDisplayName }}</div>
                 </div>
                 <div class="dropdown-divider"></div>
-                <router-link 
-                  v-if="isTeacher" 
-                  :to="{ name: 'teacher-dashboard' }" 
-                  class="dropdown-item" 
-                  @click="closeUserMenu"
-                >
-                  <span class="item-icon">📊</span>
-                  <span>Панель учителя</span>
-                </router-link>
                 <router-link 
                   v-if="isTeacher" 
                   :to="{ name: 'teacher-schedule' }" 
