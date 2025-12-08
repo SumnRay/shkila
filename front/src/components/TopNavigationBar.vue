@@ -45,17 +45,13 @@
               </router-link>
             </template>
             <template v-else-if="isManager">
-              <router-link :to="{ name: 'manager-dashboard' }" class="dropdown-item" @click="closeAdminMenu">
-                <span class="item-icon">📊</span>
-                <span>Панель управления</span>
+              <router-link :to="{ name: 'manager-balance' }" class="dropdown-item" @click="closeAdminMenu">
+                <span class="item-icon">💰</span>
+                <span>Управление балансами</span>
               </router-link>
               <router-link :to="{ name: 'manager-schedule' }" class="dropdown-item" @click="closeAdminMenu">
                 <span class="item-icon">📅</span>
-                <span>Календарь</span>
-              </router-link>
-              <router-link :to="{ name: 'manager-balance' }" class="dropdown-item" @click="closeAdminMenu">
-                <span class="item-icon">💰</span>
-                <span>Балансы</span>
+                <span>Календарь занятий</span>
               </router-link>
             </template>
             <template v-else-if="isTeacher">

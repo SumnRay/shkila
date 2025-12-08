@@ -11,7 +11,6 @@ import AdminDashboardView from '../pages/admin/AdminDashboardView.vue'
 import AdminScheduleView from '../pages/admin/AdminScheduleView.vue'
 import AdminLogsView from '../pages/admin/AdminLogsView.vue'
 import AdminCoursesView from '../pages/admin/AdminCoursesView.vue'
-import ManagerDashboardView from '../pages/manager/ManagerDashboardView.vue'
 import ManagerScheduleView from '../pages/manager/ManagerScheduleView.vue'
 import ManagerBalanceView from '../pages/manager/ManagerBalanceView.vue'
 import TeacherDashboardView from '../pages/teacher/TeacherDashboardView.vue'
@@ -73,12 +72,6 @@ const routes = [
     name: 'admin-courses',
     component: AdminCoursesView,
     meta: { requiresAuth: true, roles: ['admin'] },
-  },
-  {
-    path: '/manager',
-    name: 'manager-dashboard',
-    component: ManagerDashboardView,
-    meta: { requiresAuth: true, roles: ['manager'] },
   },
   {
     path: '/manager/schedule',

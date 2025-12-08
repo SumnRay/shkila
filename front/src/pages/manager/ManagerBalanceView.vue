@@ -3,26 +3,31 @@
   <div class="manager-balance-page">
     <TopNavigationBar />
 
-    <main class="manager-main">
+    <main class="balance-main">
       <div class="page-header">
         <div class="title-block">
-          <h1>Управление балансом</h1>
+          <h1 class="page-title">Управление балансами</h1>
           <p class="subtitle">
             Просмотр и изменение баланса уроков у учеников.
           </p>
         </div>
       </div>
+
       <!-- ПОИСК УЧЕНИКА -->
-      <section class="manager-card search-card">
-        <h2>Поиск ученика</h2>
+      <section class="balance-card search-card">
+        <div class="card-header">
+          <div class="card-icon">🔍</div>
+          <h2 class="card-title">Поиск ученика</h2>
+        </div>
         <div class="search-form">
           <input
             v-model="searchQuery"
             type="text"
             placeholder="Email или ФИО ученика"
+            class="search-input"
             @input="searchStudents"
           />
-          <select v-model="selectedStudentId" @change="loadStudentBalance">
+          <select v-model="selectedStudentId" @change="loadStudentBalance" class="search-select">
             <option value="">Выберите ученика</option>
             <option v-for="student in searchResults" :key="student.id" :value="student.id">
               {{ student.email }} - {{ student.student_full_name || 'Без ФИО' }}
@@ -32,14 +37,17 @@
       </section>
 
       <!-- БАЛАНС УЧЕНИКА -->
-      <section v-if="currentBalance" class="manager-card balance-card">
-        <h2>Баланс ученика</h2>
+      <section v-if="currentBalance" class="balance-card balance-info-card">
+        <div class="card-header">
+          <div class="card-icon">💰</div>
+          <h2 class="card-title">Баланс ученика</h2>
+        </div>
         <div class="balance-info">
           <div class="balance-item">
             <span class="label">Email:</span>
             <span class="value">{{ currentBalance.student_email }}</span>
           </div>
-          <div class="balance-item">
+          <div class="balance-item highlight">
             <span class="label">Доступно уроков:</span>
             <span class="value large">{{ currentBalance.lessons_available }}</span>
           </div>
@@ -50,77 +58,95 @@
         </div>
 
         <div class="balance-actions">
-          <h3>Изменить баланс</h3>
+          <h3 class="actions-title">Изменить баланс</h3>
           <div class="balance-form">
-            <label>
-              <span>Установить новое значение:</span>
+            <label class="form-label">
+              <span class="label-text">Установить новое значение:</span>
               <input
                 v-model.number="newBalance"
                 type="number"
                 min="0"
                 placeholder="Количество уроков"
+                class="form-input"
               />
             </label>
             <div class="or-divider">или</div>
-            <label>
-              <span>Изменить на:</span>
+            <label class="form-label">
+              <span class="label-text">Изменить на:</span>
               <input
                 v-model.number="balanceDelta"
                 type="number"
                 placeholder="+5 или -3"
+                class="form-input"
               />
             </label>
             <button
-              class="btn"
+              class="btn primary"
               @click="updateBalance"
               :disabled="updatingBalance || (!newBalance && !balanceDelta)"
             >
               {{ updatingBalance ? 'Сохраняем...' : 'Сохранить' }}
             </button>
           </div>
-          <p v-if="updateError" class="error">{{ updateError }}</p>
-          <p v-if="updateSuccess" class="success">{{ updateSuccess }}</p>
+          <p v-if="updateError" class="error-message">
+            <span class="error-icon">⚠️</span>
+            {{ updateError }}
+          </p>
+          <p v-if="updateSuccess" class="success-message">
+            <span class="success-icon">✅</span>
+            {{ updateSuccess }}
+          </p>
         </div>
       </section>
 
       <!-- СПИСОК ВСЕХ УЧЕНИКОВ С БАЛАНСОМ -->
-      <section class="manager-card students-list-card">
-        <div class="section-header">
-          <h2>Все ученики</h2>
-          <button class="btn small" @click="loadAllStudents" :disabled="loadingStudents">
-            {{ loadingStudents ? 'Обновляем...' : 'Обновить' }}
+      <section class="balance-card students-list-card">
+        <div class="card-header">
+          <div class="card-icon">👥</div>
+          <h2 class="card-title">Все ученики</h2>
+          <button class="btn small secondary" @click="loadAllStudents" :disabled="loadingStudents">
+            {{ loadingStudents ? '⏳ Обновляем...' : '🔄 Обновить' }}
           </button>
         </div>
 
-        <p v-if="studentsError" class="error">{{ studentsError }}</p>
-        <p v-if="loadingStudents" class="status-text">Загружаем учеников...</p>
+        <div v-if="studentsError" class="error-message">
+          <span class="error-icon">⚠️</span>
+          <span>{{ studentsError }}</span>
+        </div>
 
-        <table v-if="!loadingStudents && allStudents.length" class="students-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Email</th>
-              <th>ФИО</th>
-              <th>Баланс</th>
-              <th>Действия</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="student in allStudents" :key="student.id">
-              <td>{{ student.id }}</td>
-              <td>{{ student.email }}</td>
-              <td>{{ student.student_full_name || '—' }}</td>
-              <td>{{ student.balance || 0 }}</td>
-              <td class="actions">
-                <button class="btn small secondary" @click="selectStudent(student.id)">
-                  Выбрать
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div v-if="loadingStudents" class="loading-state">
+          <div class="spinner"></div>
+          <p>Загружаем учеников...</p>
+        </div>
 
-        <p v-else-if="!loadingStudents && !allStudents.length" class="status-text">
+        <div v-if="!loadingStudents && allStudents.length" class="table-container">
+          <table class="students-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>ФИО</th>
+                <th>Баланс</th>
+                <th>Действия</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="student in allStudents" :key="student.id">
+                <td>{{ student.id }}</td>
+                <td>{{ student.email }}</td>
+                <td>{{ student.student_full_name || '—' }}</td>
+                <td class="balance-cell">{{ student.balance || 0 }}</td>
+                <td class="actions">
+                  <button class="btn small secondary" @click="selectStudent(student.id)">
+                    Выбрать
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p v-else-if="!loadingStudents && !allStudents.length" class="empty-state">
           Учеников пока нет.
         </p>
       </section>
@@ -278,12 +304,6 @@ const formatDate = (dateString) => {
   })
 }
 
-// ===== НАВИГАЦИЯ =====
-
-const goToDashboard = () => {
-  router.push({ name: 'manager-dashboard' })
-}
-
 onMounted(() => {
   if (!auth.isAuthenticated) {
     router.push({ name: 'login' })
@@ -302,278 +322,474 @@ onMounted(() => {
 </script>
 
 <style scoped>
+* {
+  box-sizing: border-box;
+}
+
 .manager-balance-page {
   min-height: 100vh;
-  background: #080808;
-  color: #f5f5f5;
-  padding: 24px;
-  box-sizing: border-box;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
-
-.manager-header {
+  height: 100vh;
+  width: 100vw;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  padding: 0;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  margin-bottom: 20px;
+  flex-direction: column;
 }
 
-.title-block h1 {
-  font-size: 26px;
-  font-weight: 600;
+.manager-balance-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.page-header {
+  padding: 20px 24px 0;
+  margin-bottom: 24px;
+}
+
+.title-block {
+  flex: 1;
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 0 0 8px 0;
+  color: #e8eaf6;
+  letter-spacing: -1px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .subtitle {
-  margin-top: 4px;
-  font-size: 14px;
-  color: #aaa;
+  margin: 0;
+  font-size: 1rem;
+  color: #c5cae9;
+  font-weight: 500;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.manager-info {
+.balance-main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px 32px;
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
+  gap: 20px;
+  flex: 1;
+  overflow-y: auto;
 }
 
-.manager-user {
+.balance-card {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
 }
 
-.manager-email {
-  font-size: 14px;
+.card-icon {
+  font-size: 2rem;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
 }
 
-.role-badge {
-  padding: 3px 8px;
-  border-radius: 999px;
-  border: 1px solid #444;
-  font-size: 11px;
-  text-transform: uppercase;
-  background: #2e7d32;
-}
-
-.manager-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.btn {
-  padding: 6px 12px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  background: #1e88e5;
-  color: #fff;
-  font-size: 13px;
-}
-
-.btn.secondary {
-  background: #333;
-  color: #f5f5f5;
-}
-
-.btn.small {
-  padding: 4px 8px;
-  font-size: 12px;
-}
-
-.btn:hover:not(:disabled) {
-  opacity: 0.9;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.manager-main {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.manager-card {
-  border-radius: 12px;
-  border: 1px solid #333;
-  padding: 16px;
-  background: #111;
+.card-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin: 0;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  flex: 1;
 }
 
 .search-card {
   grid-column: 1 / -1;
 }
 
-.balance-card {
-  grid-column: 1 / 2;
-}
-
-.students-list-card {
-  grid-column: 2 / 3;
-}
-
 .search-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 12px;
+  gap: 16px;
 }
 
-.search-form input,
-.search-form select {
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #444;
-  background: #000;
-  color: #f5f5f5;
-  font-size: 14px;
+.search-input,
+.search-select {
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.search-input:focus,
+.search-select:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.search-select option {
+  background: #667eea;
+  color: #ffffff;
+}
+
+.balance-info-card {
+  grid-column: 1 / 2;
 }
 
 .balance-info {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 12px;
-  padding: 16px;
-  background: #151515;
-  border-radius: 8px;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .balance-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 12px 0;
+}
+
+.balance-item.highlight {
+  border-top: 2px solid rgba(255, 255, 255, 0.3);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  padding: 16px 0;
 }
 
 .balance-item .label {
-  color: #aaa;
-  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  font-weight: 600;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .balance-item .value {
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .balance-item .value.large {
-  font-size: 24px;
-  color: #1e88e5;
+  font-size: 2.5rem;
+  color: #ffffff;
+  font-weight: 800;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .balance-actions {
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid #333;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 2px solid rgba(255, 255, 255, 0.2);
 }
 
-.balance-actions h3 {
-  margin-top: 0;
-  margin-bottom: 16px;
+.actions-title {
+  margin: 0 0 20px 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .balance-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
-.balance-form label {
+.form-label {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
-.balance-form label span {
-  color: #aaa;
-  font-size: 13px;
+.label-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.balance-form input {
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #444;
-  background: #000;
-  color: #f5f5f5;
-  font-size: 14px;
+.form-input {
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.form-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .or-divider {
   text-align: center;
-  color: #666;
-  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  font-weight: 600;
   margin: 4px 0;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.section-header {
-  display: flex;
-  justify-content: space-between;
+.btn {
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+  display: inline-flex;
   align-items: center;
-  margin-bottom: 12px;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn.primary {
+  background: rgba(255, 255, 255, 0.95);
+  color: #667eea;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+}
+
+.btn.secondary {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn.small {
+  padding: 8px 16px;
+  font-size: 0.85rem;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.btn.secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.error-message,
+.success-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-top: 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.error-message {
+  background: rgba(239, 68, 68, 0.2);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.success-message {
+  background: rgba(34, 197, 94, 0.2);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.error-icon,
+.success-icon {
+  font-size: 1.2rem;
+}
+
+.students-list-card {
+  grid-column: 2 / 3;
+}
+
+.loading-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.table-container {
+  overflow-x: auto;
+  margin-top: 16px;
 }
 
 .students-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 8px;
-  font-size: 13px;
+  font-size: 0.95rem;
 }
 
 .students-table th,
 .students-table td {
-  border-bottom: 1px solid #333;
-  padding: 8px;
+  padding: 12px 16px;
   text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .students-table th {
-  font-weight: 600;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  font-size: 1rem;
+}
+
+.students-table td {
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 500;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.balance-cell {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #ffffff;
 }
 
 .actions {
   display: flex;
-  gap: 6px;
+  gap: 8px;
 }
 
-.error {
-  color: #ff6b6b;
-  font-size: 13px;
-  margin-top: 8px;
-}
-
-.success {
-  color: #4caf50;
-  font-size: 13px;
-  margin-top: 8px;
-}
-
-.status-text {
-  font-size: 13px;
-  color: #bbb;
-  margin-top: 8px;
-}
-
-@media (max-width: 900px) {
-  .manager-main {
+@media (max-width: 1200px) {
+  .balance-main {
+    display: grid;
     grid-template-columns: 1fr;
+    gap: 20px;
   }
 
-  .balance-card,
+  .balance-info-card,
   .students-list-card {
     grid-column: 1 / -1;
   }
+}
 
-  .manager-header {
-    flex-direction: column;
-    align-items: flex-start;
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 2rem;
   }
 
-  .manager-info {
-    align-items: flex-start;
+  .card-title {
+    font-size: 1.5rem;
+  }
+
+  .balance-item .value.large {
+    font-size: 2rem;
   }
 }
 </style>
-
-
