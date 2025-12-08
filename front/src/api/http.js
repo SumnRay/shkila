@@ -62,6 +62,17 @@ apiClient.interceptors.response.use(
         localStorage.removeItem('refresh')
         processQueue(error, null)
         isRefreshing = false
+        
+        // Редиректим на страницу логина, если не на странице логина/регистрации
+        if (typeof window !== 'undefined' && window.location) {
+          const currentPath = window.location.pathname
+          if (!currentPath.includes('/login') && !currentPath.includes('/register')) {
+            setTimeout(() => {
+              window.location.href = '/login'
+            }, 100)
+          }
+        }
+        
         return Promise.reject(error)
       }
 
@@ -91,10 +102,17 @@ apiClient.interceptors.response.use(
         processQueue(refreshError, null)
         isRefreshing = false
         
-        // Если это не запрос на /api/auth/me, перенаправляем на логин
-        if (!originalRequest.url.includes('/api/auth/me')) {
-          // Можно добавить редирект на страницу логина, но не будем делать это здесь
-          // чтобы не создавать циклических зависимостей
+        // Обновляем состояние auth store, если он доступен
+        // Используем динамический импорт, чтобы избежать циклических зависимостей
+        if (typeof window !== 'undefined' && window.location) {
+          // Редиректим на страницу логина только если мы не на странице логина/регистрации
+          const currentPath = window.location.pathname
+          if (!currentPath.includes('/login') && !currentPath.includes('/register')) {
+            // Используем setTimeout, чтобы избежать проблем с навигацией во время обработки ошибки
+            setTimeout(() => {
+              window.location.href = '/login'
+            }, 100)
+          }
         }
         
         return Promise.reject(refreshError)

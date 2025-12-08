@@ -115,6 +115,11 @@ export const useAuthStore = defineStore('auth', {
       try {
         const { data } = await getMeApi()
         this.user = data
+        // Обновляем access токен из localStorage на случай, если он был обновлен interceptor'ом
+        const currentAccess = localStorage.getItem('access')
+        if (currentAccess && currentAccess !== this.access) {
+          this.access = currentAccess
+        }
       } catch (err) {
         // Не логируем пользователя при 401, если токен был обновлен автоматически
         // Interceptor в http.js уже обработает обновление токена
@@ -124,10 +129,21 @@ export const useAuthStore = defineStore('auth', {
           const currentAccess = localStorage.getItem('access')
           if (!currentAccess || currentAccess === this.access) {
             // Токен не был обновлен, значит он невалидный - выходим
-            console.error('fetchMe error: Invalid token')
+            console.error('fetchMe error: Invalid token, logging out')
             this.logout()
+          } else {
+            // Токен был обновлен, обновляем его в store
+            this.access = currentAccess
+            // Пытаемся снова получить данные пользователя
+            try {
+              const { data } = await getMeApi()
+              this.user = data
+            } catch (retryErr) {
+              // Если и после обновления токена не получилось, выходим
+              console.error('fetchMe retry error:', retryErr)
+              this.logout()
+            }
           }
-          // Если токен был обновлен, не делаем ничего - следующий запрос должен пройти
         } else {
           console.error('fetchMe error:', err)
           // Для других ошибок не выходим автоматически
