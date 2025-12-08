@@ -30,3 +30,6 @@ export function applicantCreatePayment(payload) {
 export function applicantCreateRequest(payload) {
   return apiClient.post('/api/applicant/requests/create/', payload)
 }
+
+
+
