@@ -53,6 +53,10 @@
                 <span class="item-icon">📅</span>
                 <span>Календарь занятий</span>
               </router-link>
+              <router-link :to="{ name: 'manager-requests' }" class="dropdown-item" @click="closeAdminMenu">
+                <span class="item-icon">💬</span>
+                <span>Сообщения клиентов</span>
+              </router-link>
             </template>
             <template v-else-if="isTeacher">
               <router-link :to="{ name: 'teacher-students' }" class="dropdown-item" @click="closeAdminMenu">

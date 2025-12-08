@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Course, LessonBalance, Payment, Module, LessonTopic
+from .models import Course, LessonBalance, Payment, Module, LessonTopic, ClientRequest
 
 User = get_user_model()
 
@@ -63,3 +63,17 @@ class ApplicantPaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = ("id", "amount", "package_name", "paid_at", "confirmed")
+
+
+class ApplicantClientRequestCreateSerializer(serializers.ModelSerializer):
+    """
+    Создание обращения к менеджеру абитуриентом.
+    """
+    class Meta:
+        model = ClientRequest
+        fields = ("comment",)
+
+    def create(self, validated_data):
+        # Автоматически устанавливаем клиента из request.user
+        validated_data['client'] = self.context['request'].user
+        return super().create(validated_data)

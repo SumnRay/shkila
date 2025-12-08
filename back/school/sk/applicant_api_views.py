@@ -5,12 +5,13 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from accounts.permissions import IsApplicantOrAdmin
-from .models import Course, LessonBalance, Payment, Module, LessonTopic
+from .models import Course, LessonBalance, Payment, Module, LessonTopic, ClientRequest
 from .applicant_serializers import (
     ApplicantCourseSerializer,
     ApplicantBalanceSerializer,
     ApplicantPaymentCreateSerializer,
     ApplicantPaymentSerializer,
+    ApplicantClientRequestCreateSerializer,
 )
 
 
@@ -91,3 +92,25 @@ class ApplicantCreatePaymentAPI(APIView):
         )
 
         return Response(ApplicantPaymentSerializer(payment).data, status=201)
+
+
+# ===== ОБРАЩЕНИЯ К МЕНЕДЖЕРУ =====
+
+class ApplicantCreateClientRequestAPI(APIView):
+    """
+    Создание обращения к менеджеру абитуриентом.
+    POST /api/applicant/requests/create/
+    Body: {"comment": "Текст комментария (необязательно)"}
+    """
+    permission_classes = [IsAuthenticated, IsApplicantOrAdmin]
+
+    def post(self, request):
+        ser = ApplicantClientRequestCreateSerializer(data=request.data, context={'request': request})
+        ser.is_valid(raise_exception=True)
+        request_obj = ser.save()
+        return Response({
+            "id": request_obj.id,
+            "comment": request_obj.comment,
+            "status": request_obj.status,
+            "created_at": request_obj.created_at,
+        }, status=201)

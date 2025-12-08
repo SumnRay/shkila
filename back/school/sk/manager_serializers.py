@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Lesson, LessonBalance, Payment
+from .models import Lesson, LessonBalance, Payment, ClientRequest
 
 User = get_user_model()
 
@@ -209,3 +209,61 @@ class ManagerPaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = ("id", "student", "student_email", "amount", "package_name", "paid_at", "confirmed")
+
+
+# ===== ОБРАЩЕНИЯ КЛИЕНТОВ =====
+
+class ClientRequestCreateSerializer(serializers.ModelSerializer):
+    """
+    Создание обращения клиентом.
+    """
+    class Meta:
+        model = ClientRequest
+        fields = ("comment",)
+
+    def create(self, validated_data):
+        # Автоматически устанавливаем клиента из request.user
+        validated_data['client'] = self.context['request'].user
+        return super().create(validated_data)
+
+
+class ClientRequestSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для просмотра обращений (менеджер).
+    """
+    client_email = serializers.EmailField(source="client.email", read_only=True)
+    manager_email = serializers.EmailField(source="manager.email", read_only=True, allow_null=True)
+
+    class Meta:
+        model = ClientRequest
+        fields = (
+            "id",
+            "client",
+            "client_email",
+            "comment",
+            "status",
+            "manager",
+            "manager_email",
+            "created_at",
+            "responded_at",
+        )
+
+
+class ClientRequestUpdateSerializer(serializers.ModelSerializer):
+    """
+    Обновление статуса обращения менеджером.
+    """
+    class Meta:
+        model = ClientRequest
+        fields = ("status",)
+
+    def update(self, instance, validated_data):
+        new_status = validated_data.get('status')
+        
+        # Если статус меняется на RESPONDED, фиксируем менеджера и время
+        if new_status == ClientRequest.STATUS_RESPONDED and instance.status != ClientRequest.STATUS_RESPONDED:
+            from django.utils import timezone
+            validated_data['manager'] = self.context['request'].user
+            validated_data['responded_at'] = timezone.now()
+        
+        return super().update(instance, validated_data)

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Course, Lesson, LessonBalance, Payment, StudentProfile
+from .models import Course, Lesson, LessonBalance, Payment, StudentProfile, ClientRequest
 
 User = get_user_model()
 
@@ -79,3 +79,17 @@ class StudentPaymentCreateSerializer(serializers.Serializer):
         if not Course.objects.filter(pk=value, is_active=True).exists():
             raise serializers.ValidationError("Курс не найден или не активен")
         return value
+
+
+class StudentClientRequestCreateSerializer(serializers.ModelSerializer):
+    """
+    Создание обращения к менеджеру учеником.
+    """
+    class Meta:
+        model = ClientRequest
+        fields = ("comment",)
+
+    def create(self, validated_data):
+        # Автоматически устанавливаем клиента из request.user
+        validated_data['client'] = self.context['request'].user
+        return super().create(validated_data)

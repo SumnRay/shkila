@@ -5,6 +5,7 @@ from .manager_api_views import (
     ManagerUsersAutocompleteAPI,
     ManagerLessonsListCreateAPI, ManagerLessonUpdateAPI, ManagerLessonCancelAPI, ManagerLessonDebitAPI,
     ManagerPaymentsListCreateAPI, ManagerPaymentConfirmAPI, ManagerStudentBalanceAPI, ManagerStudentBalanceUpdateAPI,
+    ManagerClientRequestsListAPI, ManagerClientRequestUpdateAPI,
 )
 
 urlpatterns = [
@@ -26,4 +27,8 @@ urlpatterns = [
     path('payments/<int:pk>/confirm/', ManagerPaymentConfirmAPI.as_view()),  # POST
     path('students/<int:student_id>/balance/', ManagerStudentBalanceAPI.as_view()),  # GET
     path('students/<int:student_id>/balance/update/', ManagerStudentBalanceUpdateAPI.as_view()),  # PATCH
+
+    # Обращения клиентов
+    path('requests/', ManagerClientRequestsListAPI.as_view()),         # GET список обращений
+    path('requests/<int:pk>/', ManagerClientRequestUpdateAPI.as_view()),  # PATCH изменить статус
 ]

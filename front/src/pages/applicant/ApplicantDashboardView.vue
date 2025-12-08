@@ -20,6 +20,13 @@
             <div class="stat-value">→</div>
           </div>
         </router-link>
+        <button class="stat-card manager-card" @click="showRequestForm = true">
+          <div class="stat-icon">💬</div>
+          <div class="stat-content">
+            <div class="stat-label">Обратиться к менеджеру</div>
+            <div class="stat-value">→</div>
+          </div>
+        </button>
       </div>
 
       <!-- Основной контент в две колонки -->
@@ -77,6 +84,14 @@
         </div>
       </div>
     </div>
+
+    <!-- Форма обращения к менеджеру -->
+    <ManagerRequestForm
+      :show="showRequestForm"
+      :on-submit="handleCreateRequest"
+      @close="showRequestForm = false"
+      @success="handleRequestSuccess"
+    />
   </div>
 </template>
 
@@ -99,6 +114,8 @@ const balanceError = ref(null)
 const lessons = ref([])
 const lessonsLoading = ref(false)
 const lessonsError = ref(null)
+
+const showRequestForm = ref(false)
 
 const loadBalance = async () => {
   balanceLoading.value = true
@@ -158,6 +175,15 @@ const formatTime = (dateString) => {
     hour: '2-digit',
     minute: '2-digit',
   })
+}
+
+const handleCreateRequest = async (payload) => {
+  await applicantCreateRequest(payload)
+}
+
+const handleRequestSuccess = () => {
+  // Можно показать уведомление об успешной отправке
+  console.log('Обращение успешно отправлено')
 }
 
 onMounted(async () => {
@@ -267,6 +293,24 @@ onMounted(async () => {
 .stat-card.payment-card:hover {
   background: rgba(76, 175, 80, 1);
   border-color: rgba(76, 175, 80, 0.8);
+  transform: translateY(-4px);
+}
+
+.stat-card.manager-card {
+  background: rgba(255, 152, 0, 0.9);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 152, 0, 0.6);
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  width: 100%;
+}
+
+.stat-card.manager-card:hover {
+  background: rgba(255, 152, 0, 1);
+  border-color: rgba(255, 152, 0, 0.8);
   transform: translateY(-4px);
 }
 

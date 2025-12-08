@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
 from accounts.permissions import IsManagerOrAdmin
-from .models import Lesson, LessonBalance, Payment, AuditLog
+from .models import Lesson, LessonBalance, Payment, AuditLog, ClientRequest
 from django.db import transaction
 from .manager_serializers import (
     ManagerClientSerializer,
@@ -15,6 +15,8 @@ from .manager_serializers import (
     ManagerLessonUpdateSerializer,
     ManagerBalanceSerializer,
     ManagerPaymentSerializer,
+    ClientRequestSerializer,
+    ClientRequestUpdateSerializer,
 )
 
 User = get_user_model()
@@ -527,3 +529,65 @@ class ManagerStudentBalanceUpdateAPI(APIView):
             )
 
         return Response(ManagerBalanceSerializer(lb).data)
+
+
+# ======= ОБРАЩЕНИЯ КЛИЕНТОВ =======
+
+class ManagerClientRequestsListAPI(generics.ListAPIView):
+    """
+    Список обращений клиентов для менеджера.
+    GET /api/manager/requests/?status=SENT|RESPONDED
+    """
+    permission_classes = [IsManagerOrAdmin]
+    serializer_class = ClientRequestSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ["status"]
+    ordering_fields = ["created_at", "id"]
+    ordering = ["-created_at"]
+
+    def get_queryset(self):
+        status = self.request.query_params.get('status', '').upper()
+        queryset = ClientRequest.objects.select_related("client", "manager").all()
+        
+        # Если запрашивается архив (RESPONDED), показываем только их
+        if status == ClientRequest.STATUS_RESPONDED:
+            queryset = queryset.filter(status=ClientRequest.STATUS_RESPONDED)
+        # По умолчанию показываем только новые (SENT)
+        elif not status:
+            queryset = queryset.filter(status=ClientRequest.STATUS_SENT)
+        
+        return queryset
+
+
+class ManagerClientRequestUpdateAPI(generics.UpdateAPIView):
+    """
+    Изменение статуса обращения менеджером.
+    PATCH /api/manager/requests/{id}/
+    Body: {"status": "RESPONDED"}
+    """
+    permission_classes = [IsManagerOrAdmin]
+    serializer_class = ClientRequestUpdateSerializer
+    queryset = ClientRequest.objects.select_related("client", "manager").all()
+    http_method_names = ["patch", "options", "head"]
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        
+        # Логируем действие
+        AuditLog.objects.create(
+            actor=request.user,
+            action="MANAGER_RESPOND_TO_REQUEST",
+            meta={
+                "request_id": instance.id,
+                "client_email": instance.client.email,
+                "manager_email": request.user.email,
+                "status": instance.status,
+            },
+        )
+        
+        # Возвращаем полные данные
+        response_serializer = ClientRequestSerializer(instance)
+        return Response(response_serializer.data)

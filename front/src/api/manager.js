@@ -81,6 +81,20 @@ export function managerGetAutocomplete(type) {
   return apiClient.get('/api/manager/autocomplete/', { params: { type } })
 }
 
+// ===== ОБРАЩЕНИЯ КЛИЕНТОВ =====
+
+// Получить список обращений клиентов
+// params: { status: 'SENT' | 'RESPONDED' }
+export function managerGetClientRequests(params = {}) {
+  return apiClient.get('/api/manager/requests/', { params })
+}
+
+// Изменить статус обращения
+// payload: { status: 'RESPONDED' }
+export function managerUpdateClientRequest(id, payload) {
+  return apiClient.patch(`/api/manager/requests/${id}/`, payload)
+}
+
 
 
 

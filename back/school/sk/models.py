@@ -234,3 +234,55 @@ class StudentProfile(models.Model):
 
     def __str__(self):
         return f"StudentProfile({self.user}): lvl={self.level}, xp={self.xp}"
+
+
+class ClientRequest(models.Model):
+    """
+    Обращение клиента (абитуриента/ученика) к менеджеру.
+    """
+    STATUS_SENT = "SENT"
+    STATUS_RESPONDED = "RESPONDED"
+
+    STATUS_CHOICES = [
+        (STATUS_SENT, "Отправлено"),
+        (STATUS_RESPONDED, "Есть реакция на обращение"),
+    ]
+
+    client = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="client_requests",
+        help_text="Клиент, который отправил обращение",
+    )
+    comment = models.TextField(
+        blank=True,
+        help_text="Комментарий клиента (необязательное поле)",
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=STATUS_SENT,
+        help_text="Статус обращения",
+    )
+    manager = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="responded_requests",
+        help_text="Менеджер, который отреагировал на обращение",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    responded_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Дата и время реакции менеджера",
+    )
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Обращение клиента"
+        verbose_name_plural = "Обращения клиентов"
+
+    def __str__(self):
+        return f"ClientRequest(id={self.id}, client={self.client.email}, status={self.status})"

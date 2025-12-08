@@ -36,6 +36,11 @@ export function studentGetSeasonSummary() {
   return apiClient.get('/api/student/season/summary/')
 }
 
+// Создать обращение к менеджеру
+export function studentCreateRequest(payload) {
+  return apiClient.post('/api/student/requests/create/', payload)
+}
+
 
 
 

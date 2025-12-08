@@ -8,7 +8,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth import get_user_model
 
 from accounts.permissions import IsStudentOrAdmin, IsStudentOrApplicantOrAdmin
-from .models import Course, Lesson, LessonBalance, Payment, StudentProfile
+from .models import Course, Lesson, LessonBalance, Payment, StudentProfile, ClientRequest
 from .student_serializers import (
     StudentDashboardSerializer,
     StudentCourseSerializer,
@@ -17,6 +17,7 @@ from .student_serializers import (
     StudentPaymentSerializer,
     StudentPaymentCreateSerializer,
     StudentProfileSerializer,
+    StudentClientRequestCreateSerializer,
 )
 
 User = get_user_model()
@@ -153,3 +154,25 @@ class StudentSeasonSummaryAPI(APIView):
         profile, _ = StudentProfile.objects.get_or_create(user=request.user)
         ser = StudentProfileSerializer(profile)
         return Response(ser.data)
+
+
+# ===== ОБРАЩЕНИЯ К МЕНЕДЖЕРУ =====
+
+class StudentCreateClientRequestAPI(APIView):
+    """
+    Создание обращения к менеджеру учеником.
+    POST /api/student/requests/create/
+    Body: {"comment": "Текст комментария (необязательно)"}
+    """
+    permission_classes = [IsAuthenticated, IsStudentOrAdmin]
+
+    def post(self, request):
+        ser = StudentClientRequestCreateSerializer(data=request.data, context={'request': request})
+        ser.is_valid(raise_exception=True)
+        request_obj = ser.save()
+        return Response({
+            "id": request_obj.id,
+            "comment": request_obj.comment,
+            "status": request_obj.status,
+            "created_at": request_obj.created_at,
+        }, status=201)

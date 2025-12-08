@@ -7,6 +7,7 @@ from .student_api_views import (
     StudentPaymentsListAPI,
     StudentCreatePaymentAPI,
     StudentSeasonSummaryAPI,
+    StudentCreateClientRequestAPI,
 )
 
 urlpatterns = [
@@ -17,4 +18,5 @@ urlpatterns = [
     path("payments/", StudentPaymentsListAPI.as_view()),                  # GET история платежей
     path("payments/create/", StudentCreatePaymentAPI.as_view()),          # POST создать платеж
     path("season/summary/", StudentSeasonSummaryAPI.as_view()),          # GET краткая инфа о сезоне
+    path("requests/create/", StudentCreateClientRequestAPI.as_view()),    # POST создать обращение к менеджеру
 ]
