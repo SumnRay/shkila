@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 import pymysql
+from dotenv import load_dotenv
 
 # Используем PyMySQL вместо mysqlclient (не требует компиляции C-расширений)
 pymysql.install_as_MySQLdb()
@@ -20,17 +21,21 @@ pymysql.install_as_MySQLdb()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Загружаем переменные окружения из .env файла в директории проекта
+env_path = BASE_DIR / '.env'
+load_dotenv(dotenv_path=env_path)
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-f&lmw5%_*j$*1q$)#cmj(ge$_7$ipt1fuq5cgg9pdkh5tdyc*&'
+SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-dev-key-change-in-production")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "").split(",") if h.strip()]
 
 
 # Application definition
@@ -63,12 +68,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'school.urls'
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "http://localhost:8080",
-    "http://127.0.0.1:8080",
-]
+CORS_ALLOWED_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()]
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -111,12 +111,11 @@ WSGI_APPLICATION = 'school.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'shkila',
-        'USER': 'school_user',
-        'PASSWORD': '052308911a_Z',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
-        
+        'NAME': os.getenv("DB_NAME", "flare"),
+        'USER': os.getenv("DB_USER", "flare_user"),
+        'PASSWORD': os.getenv("DB_PASSWORD", ""),
+        'HOST': os.getenv("DB_HOST", "127.0.0.1"),
+        'PORT': os.getenv("DB_PORT", "3306"),
     }
 }
 
@@ -156,6 +155,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 AUTH_USER_MODEL = 'accounts.User'
 
@@ -164,14 +164,15 @@ LOGIN_REDIRECT_URL = 'accounts:login'
 LOGOUT_REDIRECT_URL = 'accounts:login'
 
 
-ROOT_ADMIN_EMAIL = "kazak_jenya@mail.ru"
+ROOT_ADMIN_EMAIL = os.getenv("ROOT_ADMIN_EMAIL", "admin@example.com")
 
 # Белый список email'ов для создания админов через AdminLoginAPI
 # Первые 2 из этого списка могут стать суперпользователями
 ADMIN_SEED_EMAILS = [
-    "kazak_jenya@mail.ru",
-    "nikitasemenenko3@gmail.com",
-    # Добавьте сюда второй email для второго админа, если нужно
+    e.strip() for e in os.getenv(
+        "ADMIN_SEED_EMAILS",
+        ROOT_ADMIN_EMAIL
+    ).split(",") if e.strip()
 ]
 
 # Default primary key field type

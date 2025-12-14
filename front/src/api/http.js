@@ -1,8 +1,13 @@
 // src/api/http.js
 import axios from 'axios'
 
+// Используем переменную окружения или относительный путь для продакшена
+// В dev режиме: VITE_API_BASE_URL=http://127.0.0.1:8000
+// В prod: оставить пустым или использовать относительный путь /api
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
+
 const apiClient = axios.create({
-  baseURL: 'http://127.0.0.1:8000', // твой бэк
+  baseURL: API_BASE_URL,
   withCredentials: false,
 })
 
