@@ -68,9 +68,45 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'school.urls'
 
-CORS_ALLOWED_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()]
+# CORS настройки
+cors_origins_env = os.getenv("CORS_ORIGINS", "")
+# Проверяем, есть ли .env файл (если SECRET_KEY не задан, значит скорее всего dev режим)
+has_env_file = os.path.exists(env_path)
+# В dev режиме (DEBUG=True или нет .env файла) добавляем localhost:5173 по умолчанию
+if (DEBUG or not has_env_file) and not cors_origins_env:
+    # В dev режиме, если CORS_ORIGINS не задан, разрешаем localhost:5173
+    CORS_ALLOWED_ORIGINS = ['http://localhost:5173', 'http://127.0.0.1:5173']
+elif cors_origins_env:
+    # Если CORS_ORIGINS задан в .env, используем его
+    CORS_ALLOWED_ORIGINS = [o.strip() for o in cors_origins_env.split(",") if o.strip()]
+else:
+    # Fallback - пустой список (будет ошибка, но это лучше чем разрешить все)
+    CORS_ALLOWED_ORIGINS = []
 
 CORS_ALLOW_CREDENTIALS = True
+
+# Разрешаем все необходимые заголовки для JWT и других запросов
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+# Разрешаем все методы
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (

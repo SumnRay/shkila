@@ -1,10 +1,15 @@
 // src/api/http.js
 import axios from 'axios'
 
-// Используем переменную окружения или относительный путь для продакшена
-// В dev режиме: VITE_API_BASE_URL=http://127.0.0.1:8000
-// В prod: оставить пустым или использовать относительный путь /api
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
+// Используем переменную окружения или дефолтное значение для dev режима
+// В dev режиме: VITE_API_BASE_URL=http://127.0.0.1:8000 (или будет использован дефолт)
+// В prod: оставить пустым (будет использоваться относительный путь, проксируется через Nginx)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://127.0.0.1:8000' : '')
+
+// Для refresh токена используем тот же baseURL, что и для основного apiClient
+const getRefreshURL = () => {
+  return `${API_BASE_URL}/api/token/refresh/`
+}
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -83,8 +88,9 @@ apiClient.interceptors.response.use(
 
       try {
         // Пытаемся обновить токен
+        // Используем прямой axios, чтобы избежать перехвата через interceptor
         const response = await axios.post(
-          `${apiClient.defaults.baseURL}/api/token/refresh/`,
+          getRefreshURL(),
           { refresh }
         )
         
