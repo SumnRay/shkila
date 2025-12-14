@@ -1,77 +1,64 @@
 <!-- src/pages/student/StudentDashboardView.vue -->
 <template>
   <div class="student-dashboard">
-    <TopNavigationBar />
+    <!-- Верхняя навигация -->
+    <nav class="top-nav-bar">
+      <div class="nav-left">
+        <router-link :to="{ name: 'home' }" class="nav-link">На главную</router-link>
+        <router-link :to="{ name: 'payment-calculator' }" class="nav-link">Оплатить занятие</router-link>
+        <router-link :to="{ name: 'home' }" class="nav-link">Мои курсы</router-link>
+      </div>
+      <div class="nav-right">
+        <button class="logout-btn" @click="handleLogout">Выход</button>
+      </div>
+    </nav>
 
     <div class="dashboard-content">
-      <!-- Статистика вверху -->
-      <div class="stats-section">
-        <div class="stat-card balance-card">
-          <div class="stat-icon">📚</div>
-          <div class="stat-content">
-            <div class="stat-label">Доступно уроков</div>
-            <div class="stat-value">{{ dashboardData?.balance || 0 }}</div>
-          </div>
-        </div>
-        <router-link :to="{ name: 'payment-calculator' }" class="stat-card payment-card">
-          <div class="stat-icon">💳</div>
-          <div class="stat-content">
-            <div class="stat-label">Оплатить занятия</div>
-            <div class="stat-value">→</div>
-          </div>
-        </router-link>
-        <button class="stat-card manager-card" @click="showRequestForm = true">
-          <div class="stat-icon">💬</div>
-          <div class="stat-content">
-            <div class="stat-label">Обратиться к менеджеру</div>
-            <div class="stat-value">→</div>
-          </div>
-        </button>
-      </div>
-
-      <!-- Основной контент в две колонки -->
       <div class="main-grid">
         <!-- Левая колонка -->
         <div class="left-column">
-          <!-- Профиль -->
+          <!-- Профиль пользователя -->
           <div class="card profile-card">
-            <div class="card-title">
-              <span>👤</span>
-              <h3>Профиль</h3>
+            <div class="profile-avatar">
+              <svg viewBox="0 0 100 100" class="avatar-icon">
+                <circle cx="50" cy="50" r="50" fill="rgba(255, 255, 255, 0.1)"/>
+                <circle cx="50" cy="35" r="15" fill="rgba(255, 255, 255, 0.8)"/>
+                <path d="M 20 85 Q 20 65 50 65 Q 80 65 80 85" fill="rgba(255, 255, 255, 0.8)"/>
+              </svg>
             </div>
-            <div class="profile-content">
-              <div class="profile-main">
-                <div class="profile-name">{{ dashboardData?.student_full_name || auth.user?.student_full_name || 'Ученик' }}</div>
-                <div class="profile-email">{{ dashboardData?.email || auth.user?.email || '—' }}</div>
+            <div class="profile-info">
+              <div class="profile-name">{{ dashboardData?.student_full_name || auth.user?.student_full_name || 'Ученик' }}</div>
+              <div class="profile-email">{{ dashboardData?.email || auth.user?.email || '—' }}</div>
+            </div>
+            <router-link :to="{ name: 'edit-profile' }" class="edit-btn">
+              Редактировать
+            </router-link>
+          </div>
+
+          <!-- Осталось занятий -->
+          <div class="card balance-section">
+            <div class="section-title">Осталось занятий</div>
+            <div class="balance-cards">
+              <div class="balance-card">
+                <div class="balance-label">Осталось занятий: {{ dashboardData?.balance || 0 }}</div>
+                <div class="balance-course">Курс: {{ currentCourse || 'Общий' }}</div>
+                <div class="balance-teacher">Преподаватель: {{ currentTeacher || '—' }}</div>
               </div>
-              <router-link :to="{ name: 'edit-profile' }" class="btn-edit">
-                Редактировать
-              </router-link>
             </div>
           </div>
 
-          <!-- Ближайшие уроки -->
-          <div class="card lessons-card">
-            <div class="card-title">
-              <span>📅</span>
-              <h3>Ближайшие уроки</h3>
-              <button @click="loadLessons" class="btn-refresh" :disabled="lessonsLoading">
-                {{ lessonsLoading ? '...' : '↻' }}
-              </button>
+          <!-- Домашнее задание -->
+          <div class="card homework-section">
+            <div class="section-title">Домашнее задание</div>
+            <div v-if="homeworkLoading" class="loading">Загрузка...</div>
+            <div v-else-if="homeworkItems.length === 0" class="empty">
+              Нет домашних заданий
             </div>
-            <div v-if="lessonsLoading" class="loading">Загрузка...</div>
-            <div v-else-if="lessonsError" class="error">{{ lessonsError }}</div>
-            <div v-else-if="upcomingLessons.length === 0" class="empty">
-              Нет запланированных уроков
-            </div>
-            <div v-else class="lessons-list">
-              <div v-for="lesson in upcomingLessons" :key="lesson.id" class="lesson-item">
-                <div class="lesson-time">{{ formatTime(lesson.scheduled_at) }}</div>
-                <div class="lesson-date">{{ formatDate(lesson.scheduled_at) }}</div>
-                <div class="lesson-teacher">{{ lesson.teacher_email || 'Не назначен' }}</div>
-                <div v-if="lesson.link" class="lesson-link">
-                  <a :href="lesson.link" target="_blank" class="link-btn">Ссылка</a>
-                </div>
+            <div v-else class="homework-cards">
+              <div v-for="(item, index) in homeworkItems" :key="index" class="homework-card">
+                <div class="homework-course">Курс: {{ item.course || '—' }}</div>
+                <div v-if="item.feedback" class="homework-description">{{ item.feedback }}</div>
+                <div v-else class="homework-description empty">Домашнее задание не задано</div>
               </div>
             </div>
           </div>
@@ -79,11 +66,41 @@
 
         <!-- Правая колонка -->
         <div class="right-column">
-          <!-- История занятий -->
-          <LessonHistory />
+          <!-- Расписание -->
+          <div class="card schedule-card">
+            <h2 class="schedule-title">Расписание</h2>
+            <div v-if="lessonsLoading" class="loading">Загрузка...</div>
+            <div v-else-if="lessonsError" class="error">{{ lessonsError }}</div>
+            <div v-else-if="allLessons.length === 0" class="empty">
+              Нет запланированных занятий
+            </div>
+            <div v-else class="schedule-list">
+              <div 
+                v-for="(lesson, index) in displayedLessons" 
+                :key="lesson.id" 
+                class="schedule-item"
+              >
+                <div class="schedule-date">
+                  {{ index === 0 ? 'Ближайшее занятие:' : 'Занятие:' }} {{ formatDate(lesson.scheduled_at) }}
+                </div>
+                <div class="schedule-course">Курс: {{ lesson.course || '—' }}</div>
+                <div class="schedule-teacher">Преподаватель: {{ lesson.teacher_email || 'Не назначен' }}</div>
+              </div>
+            </div>
+            <div v-if="allLessons.length > 3" class="schedule-more">
+              <button class="more-btn" @click="showAllLessons = !showAllLessons">
+                {{ showAllLessons ? 'Скрыть' : 'Больше' }}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Кнопка "Задать вопрос" -->
+    <button class="floating-btn" @click="showRequestForm = true">
+      Задать вопрос
+    </button>
 
     <!-- Форма обращения к менеджеру -->
     <ManagerRequestForm
@@ -99,8 +116,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
-import TopNavigationBar from '../../components/TopNavigationBar.vue'
-import LessonHistory from '../../components/LessonHistory.vue'
 import ManagerRequestForm from '../../components/ManagerRequestForm.vue'
 import { studentGetDashboard, studentGetLessons, studentCreateRequest } from '../../api/student'
 
@@ -116,6 +131,7 @@ const lessonsLoading = ref(false)
 const lessonsError = ref(null)
 
 const showRequestForm = ref(false)
+const showAllLessons = ref(false)
 
 const loadDashboard = async () => {
   dashboardLoading.value = true
@@ -136,7 +152,6 @@ const loadLessons = async () => {
   lessonsError.value = null
   try {
     const { data } = await studentGetLessons({
-      status: 'PLANNED',
       ordering: 'scheduled_at'
     })
     lessons.value = Array.isArray(data) ? data : data.results || []
@@ -148,7 +163,7 @@ const loadLessons = async () => {
   }
 }
 
-const upcomingLessons = computed(() => {
+const allLessons = computed(() => {
   const now = new Date()
   return lessons.value
     .filter(lesson => {
@@ -156,46 +171,54 @@ const upcomingLessons = computed(() => {
       const lessonDate = new Date(lesson.scheduled_at)
       return lessonDate >= now
     })
-    .slice(0, 5) // Показываем только ближайшие 5 уроков
+    .sort((a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at))
 })
 
-const formatDateTime = (dateString) => {
-  if (!dateString) return '—'
-  const d = new Date(dateString)
-  return d.toLocaleString('ru-RU', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
+const displayedLessons = computed(() => {
+  if (showAllLessons.value) {
+    return allLessons.value
+  }
+  return allLessons.value.slice(0, 3)
+})
+
+const homeworkItems = computed(() => {
+  const doneLessons = lessons.value.filter(lesson => lesson.status === 'DONE' && lesson.feedback)
+  return doneLessons.slice(0, 5).map(lesson => ({
+    course: lesson.course || '—',
+    feedback: lesson.feedback
+  }))
+})
+
+const homeworkLoading = computed(() => lessonsLoading.value)
+
+const currentCourse = computed(() => {
+  // Можно получить из первого урока или другого источника
+  if (allLessons.value.length > 0) {
+    return allLessons.value[0].course || '—'
+  }
+  return '—'
+})
+
+const currentTeacher = computed(() => {
+  if (allLessons.value.length > 0) {
+    return allLessons.value[0].teacher_email || '—'
+  }
+  return '—'
+})
 
 const formatDate = (dateString) => {
-  if (!dateString) return '—'
+  if (!dateString) return 'дд.мм.гг'
   const d = new Date(dateString)
   return d.toLocaleDateString('ru-RU', {
     day: '2-digit',
-    month: 'short',
+    month: '2-digit',
+    year: '2-digit',
   })
 }
 
-const formatTime = (dateString) => {
-  if (!dateString) return '—'
-  const d = new Date(dateString)
-  return d.toLocaleTimeString('ru-RU', {
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
-
-const getStatusText = (status) => {
-  const statusMap = {
-    'PLANNED': 'Запланировано',
-    'DONE': 'Проведено',
-    'CANCELLED': 'Отменено',
-  }
-  return statusMap[status] || status
+const handleLogout = () => {
+  auth.logout()
+  router.push({ name: 'home' })
 }
 
 const handleCreateRequest = async (payload) => {
@@ -203,7 +226,7 @@ const handleCreateRequest = async (payload) => {
 }
 
 const handleRequestSuccess = () => {
-  // Можно показать уведомление об успешной отправке
+  showRequestForm.value = false
   console.log('Обращение успешно отправлено')
 }
 
@@ -225,234 +248,113 @@ onMounted(async () => {
 <style scoped>
 .student-dashboard {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
-  position: relative;
+  background: #1A1A1A;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  color: #FFFFFF;
+  padding-bottom: 100px;
 }
 
-.student-dashboard::before {
-  content: '';
-  position: absolute;
+/* Верхняя навигация */
+.top-nav-bar {
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-  pointer-events: none;
+  z-index: 100;
+  background: rgba(26, 26, 26, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+  padding: 12px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
-@keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+.nav-left {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.nav-link {
+  color: #FFFFFF;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  padding: 4px 0;
+}
+
+.nav-link:hover {
+  color: #FFD700;
+}
+
+.logout-btn {
+  padding: 8px 20px;
+  border-radius: 8px;
+  border: 1px solid #FFD700;
+  background: transparent;
+  color: #FFFFFF;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.logout-btn:hover {
+  background: #FFD700;
+  color: #1A1A1A;
 }
 
 .dashboard-content {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 32px 24px;
-  position: relative;
-  z-index: 1;
+  padding: 32px;
 }
 
-/* Статистика вверху */
-.stats-section {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-  margin-bottom: 32px;
-}
-
-.stat-card {
-  background: rgba(76, 68, 118, 0.85);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(102, 126, 234, 0.4);
-  border-radius: 16px;
-  padding: 24px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  transition: all 0.3s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-  background: rgba(76, 68, 118, 0.95);
-  border-color: rgba(102, 126, 234, 0.6);
-}
-
-.stat-card.balance-card {
-  background: rgba(102, 126, 234, 0.9);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  color: #ffffff;
-  border: 1px solid rgba(102, 126, 234, 0.6);
-}
-
-.stat-icon {
-  font-size: 2.5rem;
-  line-height: 1;
-}
-
-.stat-content {
-  flex: 1;
-}
-
-.stat-label {
-  font-size: 0.85rem;
-  margin-bottom: 4px;
-  color: rgba(255, 255, 255, 0.85);
-  font-weight: 600;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.balance-card .stat-label {
-  color: rgba(255, 255, 255, 0.9);
-  opacity: 1;
-}
-
-.stat-value {
-  font-size: 2rem;
-  font-weight: 700;
-  line-height: 1.2;
-  color: #ffffff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.balance-card .stat-value {
-  color: #ffffff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.stat-card.payment-card {
-  background: rgba(76, 175, 80, 0.9);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  color: #ffffff;
-  border: 1px solid rgba(76, 175, 80, 0.6);
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.stat-card.payment-card:hover {
-  background: rgba(76, 175, 80, 1);
-  border-color: rgba(76, 175, 80, 0.8);
-  transform: translateY(-4px);
-}
-
-.stat-card.manager-card {
-  background: rgba(255, 152, 0, 0.9);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  color: #ffffff;
-  border: 1px solid rgba(255, 152, 0, 0.6);
-  text-decoration: none;
-  cursor: pointer;
-  border: none;
-  width: 100%;
-}
-
-.stat-card.manager-card:hover {
-  background: rgba(255, 152, 0, 1);
-  border-color: rgba(255, 152, 0, 0.8);
-  transform: translateY(-4px);
-}
-
-/* Основная сетка */
 .main-grid {
   display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 24px;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: start;
 }
 
 /* Карточки */
 .card {
-  background: rgba(76, 68, 118, 0.85);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(102, 126, 234, 0.4);
-  border-radius: 16px;
+  background: rgba(40, 40, 40, 0.8);
+  border: 3px solid #FFD700;
+  border-radius: 12px;
   padding: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  transition: all 0.3s ease;
-}
-
-.card:hover {
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-  background: rgba(76, 68, 118, 0.95);
-  transform: translateY(-2px);
-  border-color: rgba(102, 126, 234, 0.6);
-}
-
-.card-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-}
-
-.card-title span {
-  font-size: 1.5rem;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-}
-
-.card-title h3 {
-  margin: 0;
-  font-size: 1.25rem;
-  color: #ffffff;
-  flex: 1;
-  font-weight: 800;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.btn-refresh {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  font-size: 1.2rem;
-  color: #ffffff;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 6px;
-  transition: all 0.3s ease;
-}
-
-.btn-refresh:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.5);
-  transform: rotate(180deg);
-}
-
-.btn-refresh:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  margin-bottom: 24px;
 }
 
 /* Профиль */
 .profile-card {
-  margin-bottom: 24px;
-}
-
-.profile-content {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
 }
 
-.profile-main {
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  background: rgba(60, 60, 60, 0.8);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #FFD700;
+}
+
+.avatar-icon {
+  width: 60px;
+  height: 60px;
+}
+
+.profile-info {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -460,125 +362,190 @@ onMounted(async () => {
 
 .profile-name {
   font-size: 1.5rem;
-  font-weight: 700;
-  color: #ffffff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  font-weight: 800;
+  color: #FFFFFF;
 }
 
 .profile-email {
   font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.85);
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  color: rgba(255, 255, 255, 0.8);
 }
 
-.btn-edit {
+.edit-btn {
   padding: 10px 20px;
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
+  border: 1px solid #FFD700;
+  background: transparent;
+  color: #FFFFFF;
   text-decoration: none;
-  font-weight: 600;
-  text-align: center;
-  transition: all 0.3s ease;
   font-size: 0.9rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  font-weight: 600;
+  transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
-.btn-edit:hover {
-  background: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.5);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+.edit-btn:hover {
+  background: #FFD700;
+  color: #1A1A1A;
 }
 
-/* Уроки */
-.lessons-list {
+/* Секции */
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 16px;
+}
+
+.balance-cards,
+.homework-cards {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.lesson-item {
-  display: grid;
-  grid-template-columns: auto 1fr auto auto;
-  gap: 16px;
-  align-items: center;
+.balance-card,
+.homework-card {
+  background: rgba(50, 50, 50, 0.6);
+  border: 2px solid #FFD700;
+  border-radius: 8px;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  border-left: 4px solid rgba(255, 255, 255, 0.5);
-  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.lesson-item:hover {
-  background: rgba(255, 255, 255, 0.25);
-  transform: translateX(4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.lesson-time {
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: #ffffff;
-  min-width: 60px;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.lesson-date {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.85);
-  min-width: 80px;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.lesson-teacher {
-  font-size: 0.9rem;
+.balance-label,
+.balance-course,
+.balance-teacher,
+.homework-course {
   color: rgba(255, 255, 255, 0.9);
-  font-weight: 500;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  font-size: 0.95rem;
 }
 
-.lesson-link {
-  min-width: 80px;
-}
-
-.link-btn {
-  padding: 6px 12px;
-  background: rgba(255, 255, 255, 0.95);
-  color: #667eea;
-  border-radius: 6px;
-  text-decoration: none;
-  font-size: 0.85rem;
+.balance-label {
   font-weight: 600;
+}
+
+.homework-description {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+.homework-description.empty {
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+}
+
+/* Расписание */
+.schedule-card {
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.schedule-title {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #FFFFFF;
+  text-align: center;
+  margin: 0 0 24px 0;
+  padding: 0;
+}
+
+.schedule-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.schedule-item {
+  background: rgba(50, 50, 50, 0.6);
+  border: 2px solid #FFD700;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.schedule-date {
+  font-weight: 600;
+  color: #FFFFFF;
+  font-size: 0.95rem;
+}
+
+.schedule-course,
+.schedule-teacher {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+}
+
+.schedule-more {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.more-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #FFD700;
+  background: transparent;
+  color: #FFD700;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
   transition: all 0.3s ease;
-  display: inline-block;
-  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
+  font-family: inherit;
 }
 
-.link-btn:hover {
-  background: rgba(255, 255, 255, 1);
+.more-btn:hover {
+  background: #FFD700;
+  color: #1A1A1A;
+}
+
+/* Floating button */
+.floating-btn {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  padding: 14px 28px;
+  border-radius: 8px;
+  border: 1px solid #FFD700;
+  background: transparent;
+  color: #FFFFFF;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  z-index: 50;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.floating-btn:hover {
+  background: #FFD700;
+  color: #1A1A1A;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
 }
 
+/* Состояния */
 .loading,
 .empty,
 .error {
   text-align: center;
   padding: 24px;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 0.9rem;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
 }
 
 .error {
-  color: #ffb3b3;
-  font-weight: 600;
-  text-shadow: 0 2px 8px rgba(255, 107, 107, 0.4);
+  color: #ffaaaa;
 }
 
 /* Адаптивность */
@@ -593,33 +560,30 @@ onMounted(async () => {
     padding: 20px 16px;
   }
 
-  .stats-section {
-    grid-template-columns: 1fr;
+  .top-nav-bar {
+    padding: 10px 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .nav-left {
     gap: 16px;
   }
 
-  .lesson-item {
-    grid-template-columns: 1fr;
-    gap: 8px;
+  .nav-link {
+    font-size: 0.85rem;
   }
 
-  .lesson-time {
-    min-width: auto;
-  }
-
-  .lesson-date {
-    min-width: auto;
-  }
-
-  .lesson-link {
-    width: 100%;
-  }
-
-  .link-btn {
-    display: block;
+  .profile-card {
+    flex-direction: column;
     text-align: center;
+  }
+
+  .floating-btn {
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    font-size: 0.9rem;
   }
 }
 </style>
-
-
