@@ -4,8 +4,7 @@
     <!-- Левая часть - Название школы -->
     <div class="nav-left">
       <router-link :to="{ name: 'home' }" class="school-logo">
-        <span class="logo-icon">🎓</span>
-        <span class="logo-text">Онлайн Школа</span>
+        <span class="logo-text">F.L.A.R.E.</span>
       </router-link>
     </div>
 
@@ -239,16 +238,16 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   z-index: 1000;
-  background: rgba(25, 30, 45, 0.95);
-  backdrop-filter: blur(30px) saturate(180%);
-  -webkit-backdrop-filter: blur(30px) saturate(180%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(26, 26, 26, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 215, 0, 0.2);
   padding: 12px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   min-height: 64px;
 }
 
@@ -262,26 +261,22 @@ onUnmounted(() => {
   align-items: center;
   gap: 10px;
   text-decoration: none;
-  color: #e8eaf6;
-  font-weight: 700;
-  font-size: 1.25rem;
+  color: #FFFFFF;
+  font-weight: 900;
+  font-size: 1.5rem;
   transition: all 0.3s ease;
   padding: 8px 12px;
   border-radius: 8px;
+  letter-spacing: 1px;
 }
 
 .school-logo:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.1);
+  color: #FFD700;
   transform: translateY(-1px);
 }
 
-.logo-icon {
-  font-size: 1.5rem;
-}
-
 .logo-text {
-  letter-spacing: -0.5px;
+  letter-spacing: 2px;
 }
 
 .nav-right {
@@ -300,10 +295,10 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: rgba(102, 126, 234, 0.2);
-  border: 1px solid rgba(102, 126, 234, 0.4);
+  background: transparent;
+  border: 1px solid #FFD700;
   border-radius: 8px;
-  color: #c5cae9;
+  color: #FFD700;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
@@ -311,15 +306,15 @@ onUnmounted(() => {
 }
 
 .admin-toggle-btn:hover {
-  background: rgba(102, 126, 234, 0.3);
-  border-color: rgba(102, 126, 234, 0.6);
-  color: #e8eaf6;
+  background: rgba(255, 215, 0, 0.1);
+  border-color: #FF8C00;
+  color: #FF8C00;
 }
 
 .admin-toggle-btn.active {
-  background: rgba(102, 126, 234, 0.4);
-  border-color: rgba(102, 126, 234, 0.8);
-  color: #ffffff;
+  background: rgba(255, 215, 0, 0.15);
+  border-color: #FFD700;
+  color: #FFD700;
 }
 
 .admin-icon {
@@ -341,12 +336,12 @@ onUnmounted(() => {
   top: calc(100% + 8px);
   right: 0;
   min-width: 220px;
-  background: rgba(30, 35, 50, 0.98);
+  background: rgba(40, 40, 40, 0.98);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 215, 0, 0.3);
   border-radius: 12px;
   padding: 8px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   z-index: 1001;
 }
 
@@ -355,7 +350,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  color: #c5cae9;
+  color: rgba(255, 255, 255, 0.9);
   text-decoration: none;
   border-radius: 8px;
   font-size: 0.9rem;
@@ -369,8 +364,8 @@ onUnmounted(() => {
 }
 
 .dropdown-item:hover {
-  background: rgba(102, 126, 234, 0.2);
-  color: #e8eaf6;
+  background: rgba(255, 215, 0, 0.15);
+  color: #FFD700;
 }
 
 .item-icon {
@@ -393,10 +388,10 @@ onUnmounted(() => {
   align-items: center;
   gap: 10px;
   padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  border: 1px solid rgba(255, 215, 0, 0.3);
   border-radius: 8px;
-  color: #e8eaf6;
+  color: #FFFFFF;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
@@ -404,12 +399,13 @@ onUnmounted(() => {
 }
 
 .user-menu-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 215, 0, 0.1);
+  border-color: #FFD700;
+  color: #FFD700;
 }
 
 .user-email {
-  color: #e8eaf6;
+  color: #FFFFFF;
   font-weight: 600;
 }
 
@@ -423,34 +419,34 @@ onUnmounted(() => {
 }
 
 .user-role-badge.role-admin {
-  background: rgba(239, 68, 68, 0.3);
-  color: #fca5a5;
-  border: 1px solid rgba(239, 68, 68, 0.5);
+  background: rgba(255, 215, 0, 0.2);
+  color: #FFD700;
+  border: 1px solid rgba(255, 215, 0, 0.4);
 }
 
 .user-role-badge.role-manager {
-  background: rgba(59, 130, 246, 0.3);
-  color: #93c5fd;
-  border: 1px solid rgba(59, 130, 246, 0.5);
+  background: rgba(255, 215, 0, 0.2);
+  color: #FFD700;
+  border: 1px solid rgba(255, 215, 0, 0.4);
 }
 
 .user-role-badge.role-teacher {
-  background: rgba(34, 197, 94, 0.3);
-  color: #86efac;
-  border: 1px solid rgba(34, 197, 94, 0.5);
+  background: rgba(255, 215, 0, 0.2);
+  color: #FFD700;
+  border: 1px solid rgba(255, 215, 0, 0.4);
 }
 
 .user-role-badge.role-student,
 .user-role-badge.role-applicant {
-  background: rgba(147, 51, 234, 0.3);
-  color: #c4b5fd;
-  border: 1px solid rgba(147, 51, 234, 0.5);
+  background: rgba(255, 215, 0, 0.2);
+  color: #FFD700;
+  border: 1px solid rgba(255, 215, 0, 0.4);
 }
 
 .user-arrow {
   font-size: 0.7rem;
   transition: transform 0.3s ease;
-  color: #c5cae9;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .user-arrow.rotated {
@@ -463,12 +459,12 @@ onUnmounted(() => {
   top: calc(100% + 8px);
   right: 0;
   min-width: 240px;
-  background: rgba(30, 35, 50, 0.98);
+  background: rgba(40, 40, 40, 0.98);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 215, 0, 0.3);
   border-radius: 12px;
   padding: 8px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   z-index: 1001;
 }
 
@@ -485,13 +481,13 @@ onUnmounted(() => {
 }
 
 .user-info-email {
-  color: #e8eaf6;
+  color: #FFFFFF;
   font-weight: 600;
   font-size: 0.95rem;
 }
 
 .user-info-role {
-  color: #c5cae9;
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.8rem;
   font-weight: 500;
 }
@@ -503,12 +499,12 @@ onUnmounted(() => {
 }
 
 .logout-item {
-  color: #fca5a5;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .logout-item:hover {
-  background: rgba(239, 68, 68, 0.2);
-  color: #fee2e2;
+  background: rgba(255, 68, 68, 0.2);
+  color: #ffaaaa;
 }
 
 /* Кнопки входа и регистрации */
@@ -529,27 +525,28 @@ onUnmounted(() => {
 }
 
 .login-btn {
-  color: #c5cae9;
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
+  color: #FFD700;
+  background: transparent;
+  border-color: #FFD700;
 }
 
 .login-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: #e8eaf6;
-  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 215, 0, 0.1);
+  color: #FF8C00;
+  border-color: #FF8C00;
 }
 
 .register-btn {
-  color: #ffffff;
-  background: rgba(102, 126, 234, 0.8);
-  border-color: rgba(102, 126, 234, 1);
+  color: #1A1A1A;
+  background: #FFD700;
+  border-color: #FFD700;
 }
 
 .register-btn:hover {
-  background: rgba(102, 126, 234, 1);
+  background: #FF8C00;
+  border-color: #FF8C00;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
 }
 
 /* Overlay */

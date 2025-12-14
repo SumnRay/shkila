@@ -1,89 +1,137 @@
 <!-- src/pages/common/LandingPage.vue -->
 <template>
   <div class="home-page">
-    <TopNavigationBar />
-
-    <!-- Основной контент -->
-    <main class="main-container">
-      <section class="content-section">
-        <header class="content-header">
-          <h1 class="page-title">Курсы</h1>
-        </header>
-
-        <div v-if="loading" class="loading-state">
-          <div class="loading-spinner"></div>
-          <p>Загрузка курсов...</p>
-        </div>
-        
-        <div v-else-if="courses.length === 0" class="empty-state">
-          <p>Курсы пока не добавлены</p>
-        </div>
-        
-        <div v-else class="courses-grid">
-          <article 
-            v-for="course in courses" 
-            :key="course.id" 
-            class="course-card"
-            @click="openCourseDetails(course)"
-          >
-            <div class="course-card-content">
-              <h2 class="course-title">{{ course.title }}</h2>
-              <div class="course-meta">
-                <span class="meta-icon">📚</span>
-                <span class="meta-text">Модулей: {{ course.modules_count || 0 }}</span>
-              </div>
-            </div>
-            <button class="course-btn" @click.stop="openCourseDetails(course)">
-              ПОДРОБНЕЕ
-            </button>
-          </article>
-        </div>
-      </section>
-    </main>
-
-    <!-- Модальное окно с деталями курса -->
-    <div v-if="selectedCourse" class="modal-backdrop" @click="closeCourseDetails">
-      <div class="course-modal" @click.stop>
-        <header class="course-modal-header">
-          <h2>{{ selectedCourse.title }}</h2>
-          <button class="close-btn" @click="closeCourseDetails" aria-label="Закрыть">×</button>
-        </header>
-        <div class="course-modal-content">
-          <div v-if="selectedCourse.modules && selectedCourse.modules.length" class="modules-section">
-            <h3>Модули курса</h3>
-            <div class="modules-list">
-              <article
-                v-for="module in selectedCourse.modules"
-                :key="module.id"
-                class="module-card"
-              >
-                <header class="module-header">
-                  <h4>{{ module.title }}</h4>
-                  <span class="module-order">Модуль {{ module.order }}</span>
-                </header>
-                <p v-if="module.description" class="module-description">
-                  {{ module.description }}
-                </p>
-                <div v-if="module.topics && module.topics.length" class="topics-list">
-                  <h5>Темы занятий ({{ module.topics_count || module.topics.length }}):</h5>
-                  <ul class="topics-ul">
-                    <li v-for="topic in module.topics" :key="topic.id" class="topic-item">
-                      <span class="topic-order">{{ topic.order }}.</span>
-                      <div class="topic-content">
-                        <strong>{{ topic.title }}</strong>
-                        <p v-if="topic.description" class="topic-description">{{ topic.description }}</p>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-                <p v-else class="no-topics">Тем пока нет</p>
-              </article>
-            </div>
-          </div>
-          <p v-else class="no-modules">Модулей пока нет</p>
+    <!-- Навигация -->
+    <div class="top-nav">
+      <div class="nav-right">
+        <router-link 
+          v-if="!auth.isAuthenticated" 
+          :to="{ name: 'login' }" 
+          class="nav-btn auth-btn"
+        >
+          Вход/Регистрация
+        </router-link>
+        <div v-else class="nav-auth-wrapper">
+          <TopNavigationBar />
         </div>
       </div>
     </div>
+
+    <!-- Hero секция -->
+    <section class="hero-section">
+      <div class="hero-content">
+        <div class="hero-text">
+          <h1 class="hero-title">F.L.A.R.E.</h1>
+          <p class="hero-subtitle">— современное обучение программированию</p>
+          <p class="hero-slogan">От первого шага до первых проектов.</p>
+          <div class="hero-cta">
+            <button class="cta-button" @click="handleEnroll">
+              Записаться
+            </button>
+            <span class="cta-text">Начни прямо сейчас!</span>
+          </div>
+        </div>
+        <div class="hero-graphic">
+          <div class="circuit-board">
+            <svg viewBox="0 0 200 200" class="power-icon">
+              <defs>
+                <linearGradient id="powerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+                  <stop offset="50%" style="stop-color:#FFA500;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#FF8C00;stop-opacity:1" />
+                </linearGradient>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+                <filter id="strongGlow">
+                  <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+              <!-- Main circuit traces (thicker, more prominent) -->
+              <path d="M 10 100 L 70 100" stroke="url(#powerGradient)" stroke-width="3" fill="none" filter="url(#glow)"/>
+              <path d="M 130 100 L 190 100" stroke="url(#powerGradient)" stroke-width="3" fill="none" filter="url(#glow)"/>
+              <path d="M 100 10 L 100 70" stroke="url(#powerGradient)" stroke-width="3" fill="none" filter="url(#glow)"/>
+              <path d="M 100 130 L 100 190" stroke="url(#powerGradient)" stroke-width="3" fill="none" filter="url(#glow)"/>
+              
+              <!-- Diagonal traces -->
+              <path d="M 30 30 L 50 50" stroke="url(#powerGradient)" stroke-width="2" fill="none" filter="url(#glow)"/>
+              <path d="M 170 30 L 150 50" stroke="url(#powerGradient)" stroke-width="2" fill="none" filter="url(#glow)"/>
+              <path d="M 30 170 L 50 150" stroke="url(#powerGradient)" stroke-width="2" fill="none" filter="url(#glow)"/>
+              <path d="M 170 170 L 150 150" stroke="url(#powerGradient)" stroke-width="2" fill="none" filter="url(#glow)"/>
+              
+              <!-- Additional circuit connections -->
+              <path d="M 70 100 L 70 80 L 50 80" stroke="url(#powerGradient)" stroke-width="2" fill="none" filter="url(#glow)"/>
+              <path d="M 130 100 L 130 80 L 150 80" stroke="url(#powerGradient)" stroke-width="2" fill="none" filter="url(#glow)"/>
+              <path d="M 70 100 L 70 120 L 50 120" stroke="url(#powerGradient)" stroke-width="2" fill="none" filter="url(#glow)"/>
+              <path d="M 130 100 L 130 120 L 150 120" stroke="url(#powerGradient)" stroke-width="2" fill="none" filter="url(#glow)"/>
+              
+              <!-- Circuit nodes (small circles at intersections) -->
+              <circle cx="70" cy="100" r="3" fill="url(#powerGradient)" filter="url(#glow)"/>
+              <circle cx="130" cy="100" r="3" fill="url(#powerGradient)" filter="url(#glow)"/>
+              <circle cx="100" cy="70" r="3" fill="url(#powerGradient)" filter="url(#glow)"/>
+              <circle cx="100" cy="130" r="3" fill="url(#powerGradient)" filter="url(#glow)"/>
+              
+              <!-- Power button circle (main element) -->
+              <circle cx="100" cy="100" r="40" stroke="url(#powerGradient)" stroke-width="5" fill="none" filter="url(#strongGlow)"/>
+              <circle cx="100" cy="100" r="35" stroke="url(#powerGradient)" stroke-width="3" fill="none" filter="url(#glow)"/>
+              
+              <!-- Power symbol (more prominent) -->
+              <path d="M 100 70 L 100 130" stroke="url(#powerGradient)" stroke-width="5" stroke-linecap="round" filter="url(#strongGlow)"/>
+              <path d="M 100 100 L 82 82" stroke="url(#powerGradient)" stroke-width="5" stroke-linecap="round" filter="url(#strongGlow)"/>
+              
+              <!-- Inner glow effect -->
+              <circle cx="100" cy="100" r="30" fill="none" stroke="url(#powerGradient)" stroke-width="1" opacity="0.3" filter="url(#glow)"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Секция курсов -->
+    <section class="courses-section">
+      <h2 class="courses-title">Курсы</h2>
+      
+      <div v-if="loading" class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Загрузка курсов...</p>
+      </div>
+      
+      <div v-else-if="courses.length === 0" class="empty-state">
+        <p>Курсы пока не добавлены</p>
+      </div>
+      
+      <div v-else class="courses-grid">
+        <article 
+          v-for="course in displayedCourses" 
+          :key="course.id" 
+          class="course-card"
+        >
+          <h3 class="course-card-title">{{ course.title }}</h3>
+          <div class="course-card-description">
+            <p v-for="(line, index) in getCourseDescription(course)" :key="index">
+              {{ line }}
+            </p>
+          </div>
+          <button class="course-enroll-btn" @click="handleCourseEnroll(course)">
+            Записаться
+          </button>
+        </article>
+      </div>
+
+      <div v-if="courses.length > 3" class="more-courses">
+        <button class="more-courses-btn" @click="showAllCourses = !showAllCourses">
+          {{ showAllCourses ? 'Скрыть' : 'Больше курсов →' }}
+        </button>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -97,9 +145,15 @@ import apiClient from '../../api/http'
 const auth = useAuthStore()
 const router = useRouter()
 const courses = ref([])
-const selectedCourse = ref(null)
 const loading = ref(false)
-// Навигация теперь в TopNavigationBar компоненте
+const showAllCourses = ref(false)
+
+const displayedCourses = computed(() => {
+  if (showAllCourses.value || courses.value.length <= 3) {
+    return courses.value
+  }
+  return courses.value.slice(0, 3)
+})
 
 const fetchCourses = async () => {
   loading.value = true
@@ -116,12 +170,63 @@ const fetchCourses = async () => {
   }
 }
 
-const openCourseDetails = (course) => {
-  selectedCourse.value = course
+const getCourseDescription = (course) => {
+  // Описания курсов на основе названия
+  const descriptions = {
+    'python': [
+      'Просто начать. Легко продолжать.',
+      'Понятный синтаксис — идеально для первых шагов.',
+      'Используется в анализе данных, AI, вебе и автоматизации.'
+    ],
+    'c++': [
+      'Максимум мощности и контроля.',
+      'Высокая производительность для игр и системных приложений.',
+      'Позволяет управлять памятью и ресурсами напрямую.'
+    ],
+    'javascript': [
+      'Язык, который работает в браузере.',
+      'Делает сайты интерактивными и живыми.',
+      'React, Vue, Node.js — огромная экосистема для роста.'
+    ]
+  }
+
+  // Ищем точное совпадение или частичное
+  const courseTitle = course.title.toLowerCase().trim()
+  
+  // Проверяем точное совпадение
+  if (descriptions[courseTitle]) {
+    return descriptions[courseTitle]
+  }
+  
+  // Проверяем частичное совпадение
+  for (const [key, desc] of Object.entries(descriptions)) {
+    if (courseTitle.includes(key) || key.includes(courseTitle)) {
+      return desc
+    }
+  }
+
+  // Дефолтное описание
+  return [
+    'Современный подход к обучению.',
+    'Практические задания и проекты.',
+    `Модулей: ${course.modules_count || 0}`
+  ]
 }
 
-const closeCourseDetails = () => {
-  selectedCourse.value = null
+const handleEnroll = () => {
+  if (auth.isAuthenticated) {
+    router.push({ name: 'applicant-dashboard' })
+  } else {
+    router.push({ name: 'register' })
+  }
+}
+
+const handleCourseEnroll = (course) => {
+  if (auth.isAuthenticated) {
+    router.push({ name: 'applicant-dashboard' })
+  } else {
+    router.push({ name: 'register' })
+  }
 }
 
 onMounted(() => {
@@ -138,329 +243,192 @@ onMounted(() => {
 }
 
 .home-page {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
+  background: #1A1A1A;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  color: #FFFFFF;
   margin: 0;
   padding: 0;
-  position: relative;
-}
-
-.home-page::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-  pointer-events: none;
-}
-
-@keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* Навигация */
 .top-nav {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(30px) saturate(180%);
-  -webkit-backdrop-filter: blur(30px) saturate(180%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 0;
-  margin: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(26, 26, 26, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 16px 32px;
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  flex-shrink: 0;
-  z-index: 100;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  min-height: 80px;
-  position: relative;
 }
 
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 0 32px;
-  margin: 0;
-  height: 100%;
 }
 
-.auth-buttons {
+.nav-auth-wrapper {
   display: flex;
-  gap: 12px;
+  align-items: center;
 }
 
-.nav-btn {
-  padding: 12px 28px;
-  border-radius: 12px;
+.nav-auth-wrapper :deep(.top-navigation-bar) {
+  background: transparent;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+  position: static;
+}
+
+.auth-btn {
+  padding: 10px 24px;
+  border-radius: 8px;
   text-decoration: none;
   font-size: 0.95rem;
   font-weight: 600;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  border: 1px solid #FFD700;
+  color: #FFD700;
+  background: transparent;
   display: inline-block;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  position: relative;
-  overflow: hidden;
 }
 
-.nav-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
+.auth-btn:hover {
+  background: #FFD700;
+  color: #1A1A1A;
 }
 
-.nav-btn:hover::before {
-  left: 100%;
+/* Hero секция */
+.hero-section {
+  padding: 60px 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: auto;
 }
 
-.nav-btn.primary {
-  background: rgba(255, 255, 255, 0.95);
-  color: #667eea;
-  border-color: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
-}
-
-.nav-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  text-decoration: none;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  border-color: rgba(255, 255, 255, 0.5);
-}
-
-.nav-btn.primary:hover {
-  background: rgba(255, 255, 255, 1);
-  text-decoration: none;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.4);
-}
-
-/* Меню администрирования */
-.admin-menu {
-  position: relative;
-  cursor: pointer;
-}
-
-.admin-btn {
-  padding: 12px 24px;
-  color: #ffffff;
-  font-weight: 600;
-  font-size: 0.95rem;
-  display: flex;
+.hero-content {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 40px;
   align-items: center;
-  gap: 8px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.3s;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  border: none;
-  font-family: inherit;
+  min-height: auto;
 }
 
-.admin-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-}
-
-.admin-btn-icon {
-  font-size: 1.1rem;
-}
-
-.admin-dropdown {
-  position: absolute;
-  top: calc(100% + 12px);
-  right: 0;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(30px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 16px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-  min-width: 240px;
-  display: none;
-  z-index: 1000;
-  overflow: hidden;
-}
-
-.admin-dropdown-open {
-  display: block;
-  animation: fadeInDown 0.2s ease;
-}
-
-.user-menu {
-  position: relative;
-  cursor: pointer;
-}
-
-.user-name {
-  padding: 12px 24px;
-  color: #ffffff;
-  font-weight: 600;
-  font-size: 0.95rem;
-  display: flex;
-  align-items: center;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.3s;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  border: none;
-  font-family: inherit;
-}
-
-.user-name:hover {
-  background: rgba(255, 255, 255, 0.25);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-}
-
-.user-dropdown {
-  position: absolute;
-  top: calc(100% + 12px);
-  right: 0;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(30px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 16px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-  min-width: 220px;
-  display: none;
-  z-index: 1000;
-  overflow: hidden;
-}
-
-.user-dropdown-open {
-  display: block;
-  animation: fadeInDown 0.2s ease;
-}
-
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.dropdown-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 18px;
-  text-decoration: none;
-  color: #495057;
-  border: none;
-  background: none;
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.dropdown-item:hover {
-  background: linear-gradient(90deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
-  color: #667eea;
-}
-
-.dropdown-icon {
-  font-size: 1.2rem;
-  width: 24px;
-  text-align: center;
-}
-
-/* Основной контент - 100% ширины и высоты */
-.main-container {
-  width: 100%;
-  height: 100%;
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 0;
-  margin: 0;
+.hero-text {
   display: flex;
   flex-direction: column;
+  gap: 16px;
+  max-width: 100%;
 }
 
-.content-section {
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-}
-
-.content-header {
-  margin: 0;
-  padding: 32px 32px 20px 32px;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 1;
-}
-
-.page-title {
+.hero-title {
   font-size: 4.5rem;
   font-weight: 900;
   margin: 0;
   padding: 0;
-  color: #ffffff;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  color: #FFFFFF;
   letter-spacing: -2px;
   line-height: 1.1;
-  animation: fadeInUp 0.6s ease-out;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.hero-subtitle {
+  font-size: 1.4rem;
+  margin: 0;
+  padding: 0;
+  color: #FFFFFF;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.hero-slogan {
+  font-size: 1rem;
+  margin: 0;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.hero-cta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.cta-button {
+  padding: 14px 36px;
+  border-radius: 8px;
+  border: none;
+  background: #FFD700;
+  color: #1A1A1A;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.cta-button:hover {
+  background: #FF8C00;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
+}
+
+.cta-text {
+  font-size: 0.95rem;
+  color: #FFFFFF;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.hero-graphic {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+}
+
+.circuit-board {
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+  aspect-ratio: 1;
+  position: relative;
+}
+
+.power-icon {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.5));
+}
+
+/* Секция курсов */
+.courses-section {
+  padding: 80px 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.courses-title {
+  font-size: 3rem;
+  font-weight: 900;
+  text-align: center;
+  margin: 0 0 60px 0;
+  padding: 0;
+  color: #FFFFFF;
+  letter-spacing: -1px;
 }
 
 /* Состояния загрузки */
@@ -470,24 +438,20 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex: 1;
-  color: rgba(255, 255, 255, 0.9);
+  padding: 80px 20px;
+  color: rgba(255, 255, 255, 0.8);
   font-size: 1.2rem;
   font-weight: 600;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  position: relative;
-  z-index: 1;
 }
 
 .loading-spinner {
   width: 56px;
   height: 56px;
-  border: 5px solid rgba(255, 255, 255, 0.2);
-  border-top-color: #ffffff;
+  border: 5px solid rgba(255, 215, 0, 0.2);
+  border-top-color: #FFD700;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 @keyframes spin {
@@ -496,470 +460,217 @@ onMounted(() => {
   }
 }
 
-/* Сетка курсов - использует максимум пространства */
+/* Сетка курсов */
 .courses-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-  gap: 0;
-  width: 100%;
-  flex: 1;
-  align-content: start;
-  padding: 0;
-  margin: 0;
-  position: relative;
-  z-index: 1;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-bottom: 40px;
+  max-width: 100%;
 }
 
 .course-card {
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 0;
-  padding: 0;
-  margin: 0;
-  position: relative;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
-  min-height: 360px;
+  background: rgba(40, 40, 40, 0.8);
+  border: 3px solid #FFD700;
+  border-radius: 12px;
+  padding: 32px;
   display: flex;
   flex-direction: column;
-  cursor: pointer;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
-.course-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 5px;
-  background: linear-gradient(90deg, #ffffff 0%, rgba(255, 255, 255, 0.5) 100%);
-  transform: scaleX(0);
-  transition: transform 0.4s ease;
-  z-index: 2;
-}
-
-.course-card::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-  opacity: 0;
-  transition: opacity 0.4s ease;
+  gap: 20px;
+  transition: all 0.3s ease;
+  min-height: 400px;
+  height: 100%;
 }
 
 .course-card:hover {
-  background: rgba(255, 255, 255, 0.35);
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-  border-color: rgba(255, 255, 255, 0.5);
+  border-color: #FF8C00;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(255, 215, 0, 0.3);
 }
 
-.course-card:hover::before {
-  transform: scaleX(1);
+.course-card-title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0;
+  padding: 0;
+  color: #FFFFFF;
 }
 
-.course-card:hover::after {
-  opacity: 1;
-}
-
-.course-card-content {
-  padding: 40px;
+.course-card-description {
   flex: 1;
   display: flex;
   flex-direction: column;
-  position: relative;
-  z-index: 1;
-}
-
-.course-title {
-  font-size: 2rem;
-  font-weight: 800;
-  margin: 0 0 24px 0;
-  padding: 0;
-  color: #ffffff;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  line-height: 1.2;
-  letter-spacing: -0.5px;
-}
-
-.course-meta {
-  margin: 0;
-  padding: 0;
-  font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.9);
-  display: flex;
-  align-items: center;
   gap: 12px;
 }
 
-.meta-icon {
-  font-size: 1.6rem;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-}
-
-.meta-text {
-  font-weight: 600;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.course-btn {
-  width: 100%;
-  padding: 20px 24px;
+.course-card-description p {
   margin: 0;
-  background: rgba(255, 255, 255, 0.95);
-  color: #667eea;
-  border: none;
-  border-radius: 0;
-  font-weight: 700;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.9);
   font-size: 1rem;
+  line-height: 1.6;
+}
+
+.course-enroll-btn {
+  padding: 14px 28px;
+  border-radius: 8px;
+  border: none;
+  background: #FFD700;
+  color: #1A1A1A;
+  font-size: 1rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
-  position: relative;
-  overflow: hidden;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  z-index: 2;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  margin-top: auto;
 }
 
-.course-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
-  transition: left 0.6s;
-}
-
-.course-btn::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(102, 126, 234, 0.2);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
-}
-
-.course-btn:hover {
-  background: rgba(255, 255, 255, 1);
-  color: #5568d3;
-  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.15);
+.course-enroll-btn:hover {
+  background: #FF8C00;
   transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(255, 215, 0, 0.4);
 }
 
-.course-btn:hover::before {
-  left: 100%;
+.more-courses {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
 }
 
-.course-btn:hover::after {
-  width: 400px;
-  height: 400px;
+.more-courses-btn {
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: 1px solid #FFD700;
+  background: transparent;
+  color: #FFD700;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
 }
 
-.course-btn:active {
-  transform: translateY(0) scale(0.98);
+.more-courses-btn:hover {
+  background: #FFD700;
+  color: #1A1A1A;
 }
 
 /* Адаптивность */
-@media (max-width: 1600px) {
-  .courses-grid {
-    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+@media (max-width: 1200px) {
+  .hero-content {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    min-height: auto;
   }
-}
 
-@media (max-width: 1400px) {
-  .content-header {
-    padding: 28px 28px 16px 28px;
+  .hero-graphic {
+    order: -1;
+    min-height: 250px;
   }
-  
-  .page-title {
+
+  .circuit-board {
+    max-width: 240px;
+  }
+
+  .hero-title {
     font-size: 4rem;
   }
 
   .courses-grid {
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  }
-}
-
-@media (max-width: 1200px) {
-  .content-header {
-    padding: 18px 18px 12px 18px;
-  }
-  
-  .courses-grid {
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  }
-
-  .course-card {
-    min-height: 300px;
-  }
-
-  .course-card-content {
-    padding: 28px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
   }
 }
 
 @media (max-width: 768px) {
-  .nav-right {
-    padding: 0 16px;
+  .hero-section {
+    padding: 40px 20px;
   }
 
-  .content-header {
-    padding: 16px 16px 12px 16px;
+  .hero-content {
+    gap: 32px;
   }
 
-  .page-title {
+  .hero-title {
+    font-size: 3rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.2rem;
+  }
+
+  .hero-slogan {
+    font-size: 0.95rem;
+  }
+
+  .hero-graphic {
+    min-height: 200px;
+  }
+
+  .circuit-board {
+    max-width: 200px;
+  }
+
+  .courses-section {
+    padding: 50px 20px;
+  }
+
+  .courses-title {
     font-size: 2.5rem;
   }
 
   .courses-grid {
     grid-template-columns: 1fr;
+    gap: 24px;
   }
 
   .course-card {
-    min-height: 280px;
+    min-height: auto;
   }
 
-  .course-card-content {
-    padding: 24px;
-  }
-
-  .course-title {
-    font-size: 1.5rem;
+  .top-nav {
+    padding: 12px 20px;
   }
 }
 
-/* Модальное окно с деталями курса */
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(10px) saturate(180%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 20px;
-  animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
+@media (max-width: 480px) {
+  .hero-section {
+    padding: 30px 16px;
   }
-  to {
-    opacity: 1;
+
+  .hero-title {
+    font-size: 2.5rem;
   }
-}
 
-.course-modal {
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(30px) saturate(180%);
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  max-width: 1000px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
-  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+  .hero-subtitle {
+    font-size: 1.1rem;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  .hero-cta {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
   }
-}
 
-.course-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 36px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-  border-radius: 24px 24px 0 0;
-}
+  .cta-button {
+    width: 100%;
+    padding: 12px 24px;
+  }
 
-.course-modal-header h2 {
-  margin: 0;
-  font-size: 32px;
-  font-weight: 800;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -1px;
-}
+  .cta-text {
+    text-align: center;
+  }
 
-.close-btn {
-  background: rgba(0, 0, 0, 0.04);
-  border: none;
-  font-size: 28px;
-  color: #6c757d;
-  cursor: pointer;
-  padding: 0;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: all 0.2s;
-  line-height: 1;
-}
+  .hero-graphic {
+    min-height: 180px;
+  }
 
-.close-btn:hover {
-  background: rgba(102, 126, 234, 0.1);
-  color: #667eea;
-  transform: rotate(90deg);
-}
+  .circuit-board {
+    max-width: 180px;
+  }
 
-.course-modal-content {
-  padding: 32px;
-}
-
-.modules-section h3 {
-  margin: 0 0 24px 0;
-  font-size: 22px;
-  font-weight: 700;
-  color: #212529;
-}
-
-.modules-list {
-  display: grid;
-  gap: 20px;
-}
-
-.module-card {
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-  border: 1.5px solid rgba(0, 0, 0, 0.06);
-  border-radius: 12px;
-  padding: 24px;
-  transition: all 0.3s ease;
-}
-
-.module-card:hover {
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.1);
-  border-color: rgba(102, 126, 234, 0.2);
-}
-
-.module-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.module-header h4 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 700;
-  color: #212529;
-}
-
-.module-order {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-}
-
-.module-description {
-  color: #6c757d;
-  font-size: 15px;
-  line-height: 1.6;
-  margin-bottom: 20px;
-}
-
-.topics-list {
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-.topics-list h5 {
-  margin: 0 0 16px 0;
-  font-size: 15px;
-  color: #495057;
-  font-weight: 600;
-}
-
-.topics-ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.topic-item {
-  display: flex;
-  gap: 14px;
-  padding: 16px;
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  border-radius: 10px;
-  margin-bottom: 12px;
-  transition: all 0.2s ease;
-}
-
-.topic-item:hover {
-  background: linear-gradient(90deg, rgba(102, 126, 234, 0.04) 0%, rgba(118, 75, 162, 0.04) 100%);
-  border-color: rgba(102, 126, 234, 0.2);
-  transform: translateX(4px);
-}
-
-.topic-order {
-  color: #667eea;
-  font-weight: 700;
-  min-width: 28px;
-  font-size: 16px;
-}
-
-.topic-content {
-  flex: 1;
-}
-
-.topic-content strong {
-  display: block;
-  color: #212529;
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.topic-description {
-  color: #6c757d;
-  font-size: 13px;
-  line-height: 1.5;
-  margin: 0;
-}
-
-.no-topics,
-.no-modules {
-  color: #adb5bd;
-  font-style: italic;
-  text-align: center;
-  padding: 32px;
-  font-size: 15px;
+  .courses-title {
+    font-size: 2rem;
+  }
 }
 </style>
