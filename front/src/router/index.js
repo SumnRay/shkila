@@ -123,6 +123,26 @@ const router = createRouter({
   routes,
 })
 
+// Названия страниц для title
+const pageTitles = {
+  'home': 'F.L.A.R.E. — Главная',
+  'login': 'Вход — F.L.A.R.E.',
+  'register': 'Регистрация — F.L.A.R.E.',
+  'applicant-dashboard': 'Личный кабинет — F.L.A.R.E.',
+  'edit-profile': 'Редактирование профиля — F.L.A.R.E.',
+  'admin-dashboard': 'Панель администратора — F.L.A.R.E.',
+  'admin-schedule': 'Расписание — Админ — F.L.A.R.E.',
+  'admin-logs': 'Логи — Админ — F.L.A.R.E.',
+  'admin-courses': 'Курсы — Админ — F.L.A.R.E.',
+  'manager-schedule': 'Расписание — Менеджер — F.L.A.R.E.',
+  'manager-balance': 'Балансы — Менеджер — F.L.A.R.E.',
+  'manager-requests': 'Запросы — Менеджер — F.L.A.R.E.',
+  'teacher-students': 'Ученики — Учитель — F.L.A.R.E.',
+  'teacher-schedule': 'Расписание — Учитель — F.L.A.R.E.',
+  'student-dashboard': 'Личный кабинет — F.L.A.R.E.',
+  'payment-calculator': 'Калькулятор оплаты — F.L.A.R.E.',
+}
+
 router.beforeEach(async (to, from, next) => {
   const auth = useAuthStore()
 
@@ -157,6 +177,18 @@ router.beforeEach(async (to, from, next) => {
   }
 
   return next()
+})
+
+// Обновление title при переходе на страницу
+router.afterEach((to) => {
+  const title = pageTitles[to.name] || 'F.L.A.R.E.'
+  document.title = title
+  
+  // Обновление favicon (можно менять для разных страниц, но пока оставим один)
+  const favicon = document.querySelector("link[rel='icon']")
+  if (favicon) {
+    favicon.href = '/favicon.svg'
+  }
 })
 
 export default router

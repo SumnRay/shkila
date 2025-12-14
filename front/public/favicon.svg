@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="powerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FFA500;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF8C00;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="90" fill="#1A1A1A"/>
+  <!-- Circuit traces -->
+  <path d="M 20 100 L 70 100" stroke="url(#powerGradient)" stroke-width="3" fill="none"/>
+  <path d="M 130 100 L 180 100" stroke="url(#powerGradient)" stroke-width="3" fill="none"/>
+  <path d="M 100 20 L 100 70" stroke="url(#powerGradient)" stroke-width="3" fill="none"/>
+  <path d="M 100 130 L 100 180" stroke="url(#powerGradient)" stroke-width="3" fill="none"/>
+  <!-- Power button circle -->
+  <circle cx="100" cy="100" r="35" stroke="url(#powerGradient)" stroke-width="4" fill="none"/>
+  <!-- Power symbol -->
+  <path d="M 100 70 L 100 130 M 100 100 L 85 85" stroke="url(#powerGradient)" stroke-width="4" stroke-linecap="round"/>
+</svg>
+
