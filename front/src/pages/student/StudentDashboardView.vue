@@ -41,24 +41,6 @@
             <div class="balance-cards">
               <div class="balance-card">
                 <div class="balance-label">Осталось занятий: {{ dashboardData?.balance || 0 }}</div>
-                <div class="balance-course">Курс: {{ currentCourse || 'Общий' }}</div>
-                <div class="balance-teacher">Преподаватель: {{ currentTeacher || '—' }}</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Домашнее задание -->
-          <div class="card homework-section">
-            <div class="section-title">Домашнее задание</div>
-            <div v-if="homeworkLoading" class="loading">Загрузка...</div>
-            <div v-else-if="homeworkItems.length === 0" class="empty">
-              Нет домашних заданий
-            </div>
-            <div v-else class="homework-cards">
-              <div v-for="(item, index) in homeworkItems" :key="index" class="homework-card">
-                <div class="homework-course">Курс: {{ item.course || '—' }}</div>
-                <div v-if="item.feedback" class="homework-description">{{ item.feedback }}</div>
-                <div v-else class="homework-description empty">Домашнее задание не задано</div>
               </div>
             </div>
           </div>
@@ -66,31 +48,26 @@
 
         <!-- Правая колонка -->
         <div class="right-column">
-          <!-- Расписание -->
+          <!-- Следующие запланированные занятия -->
           <div class="card schedule-card">
-            <h2 class="schedule-title">Расписание</h2>
+            <h2 class="schedule-title">Следующие запланированные занятия</h2>
             <div v-if="lessonsLoading" class="loading">Загрузка...</div>
             <div v-else-if="lessonsError" class="error">{{ lessonsError }}</div>
-            <div v-else-if="allLessons.length === 0" class="empty">
+            <div v-else-if="upcomingLessons.length === 0" class="empty">
               Нет запланированных занятий
             </div>
             <div v-else class="schedule-list">
               <div 
-                v-for="(lesson, index) in displayedLessons" 
+                v-for="(lesson, index) in upcomingLessons" 
                 :key="lesson.id" 
                 class="schedule-item"
               >
                 <div class="schedule-date">
-                  {{ index === 0 ? 'Ближайшее занятие:' : 'Занятие:' }} {{ formatDate(lesson.scheduled_at) }}
+                  {{ formatDate(lesson.scheduled_at) }} в {{ formatTime(lesson.scheduled_at) }}
                 </div>
                 <div class="schedule-course">Курс: {{ lesson.course || '—' }}</div>
                 <div class="schedule-teacher">Преподаватель: {{ lesson.teacher_email || 'Не назначен' }}</div>
               </div>
-            </div>
-            <div v-if="allLessons.length > 3" class="schedule-more">
-              <button class="more-btn" @click="showAllLessons = !showAllLessons">
-                {{ showAllLessons ? 'Скрыть' : 'Больше' }}
-              </button>
             </div>
           </div>
         </div>
@@ -131,7 +108,6 @@ const lessonsLoading = ref(false)
 const lessonsError = ref(null)
 
 const showRequestForm = ref(false)
-const showAllLessons = ref(false)
 
 const loadDashboard = async () => {
   dashboardLoading.value = true
@@ -152,6 +128,7 @@ const loadLessons = async () => {
   lessonsError.value = null
   try {
     const { data } = await studentGetLessons({
+      status: 'PLANNED',
       ordering: 'scheduled_at'
     })
     lessons.value = Array.isArray(data) ? data : data.results || []
@@ -163,47 +140,16 @@ const loadLessons = async () => {
   }
 }
 
-const allLessons = computed(() => {
+const upcomingLessons = computed(() => {
   const now = new Date()
   return lessons.value
     .filter(lesson => {
       if (!lesson.scheduled_at) return false
       const lessonDate = new Date(lesson.scheduled_at)
-      return lessonDate >= now
+      return lessonDate >= now && lesson.status === 'PLANNED'
     })
     .sort((a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at))
-})
-
-const displayedLessons = computed(() => {
-  if (showAllLessons.value) {
-    return allLessons.value
-  }
-  return allLessons.value.slice(0, 3)
-})
-
-const homeworkItems = computed(() => {
-  const doneLessons = lessons.value.filter(lesson => lesson.status === 'DONE' && lesson.feedback)
-  return doneLessons.slice(0, 5).map(lesson => ({
-    course: lesson.course || '—',
-    feedback: lesson.feedback
-  }))
-})
-
-const homeworkLoading = computed(() => lessonsLoading.value)
-
-const currentCourse = computed(() => {
-  // Можно получить из первого урока или другого источника
-  if (allLessons.value.length > 0) {
-    return allLessons.value[0].course || '—'
-  }
-  return '—'
-})
-
-const currentTeacher = computed(() => {
-  if (allLessons.value.length > 0) {
-    return allLessons.value[0].teacher_email || '—'
-  }
-  return '—'
+    .slice(0, 3) // Максимум 3 занятия
 })
 
 const formatDate = (dateString) => {
@@ -212,7 +158,16 @@ const formatDate = (dateString) => {
   return d.toLocaleDateString('ru-RU', {
     day: '2-digit',
     month: '2-digit',
-    year: '2-digit',
+    year: 'numeric',
+  })
+}
+
+const formatTime = (dateString) => {
+  if (!dateString) return '—'
+  const d = new Date(dateString)
+  return d.toLocaleTimeString('ru-RU', {
+    hour: '2-digit',
+    minute: '2-digit',
   })
 }
 
@@ -397,15 +352,13 @@ onMounted(async () => {
   margin-bottom: 16px;
 }
 
-.balance-cards,
-.homework-cards {
+.balance-cards {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.balance-card,
-.homework-card {
+.balance-card {
   background: rgba(50, 50, 50, 0.6);
   border: 2px solid #FFD700;
   border-radius: 8px;
@@ -415,28 +368,10 @@ onMounted(async () => {
   gap: 8px;
 }
 
-.balance-label,
-.balance-course,
-.balance-teacher,
-.homework-course {
+.balance-label {
   color: rgba(255, 255, 255, 0.9);
   font-size: 0.95rem;
-}
-
-.balance-label {
   font-weight: 600;
-}
-
-.homework-description {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.9rem;
-  margin-top: 8px;
-  line-height: 1.5;
-}
-
-.homework-description.empty {
-  color: rgba(255, 255, 255, 0.5);
-  font-style: italic;
 }
 
 /* Расписание */
