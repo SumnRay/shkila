@@ -168,16 +168,16 @@ const handleSubmit = async () => {
 
 .auth-page {
   min-height: 100vh;
-  width: 100vw;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
+  width: 100%;
+  background: #1A1A1A;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   display: flex;
   flex-direction: column;
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
+  margin: 0;
+  padding: 0;
 }
 
 .auth-page :deep(.top-navigation-bar) {
@@ -190,53 +190,33 @@ const handleSubmit = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 40px 20px;
   position: relative;
   z-index: 1;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: calc(100vh - 80px);
 }
 
-.auth-page::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-@keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
 
 .auth-container {
   width: 100%;
   max-width: 500px;
   position: relative;
   z-index: 1;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .auth-card {
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 24px;
+  background: rgba(40, 40, 40, 0.8);
+  border: 3px solid #FFD700;
+  border-radius: 12px;
   padding: 32px 36px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   animation: fadeInUp 0.6s ease-out;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 @keyframes fadeInUp {
@@ -273,25 +253,25 @@ const handleSubmit = async () => {
 
 .auth-title {
   font-size: 1.9rem;
-  font-weight: 800;
+  font-weight: 900;
   margin: 0 0 4px 0;
-  color: #ffffff;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  color: #FFFFFF;
   letter-spacing: -1px;
 }
 
 .auth-subtitle {
   font-size: 0.85rem;
   margin: 0;
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 500;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 400;
 }
 
 .auth-form {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form-group {
@@ -304,10 +284,9 @@ const handleSubmit = async () => {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: rgba(255, 255, 255, 0.95);
+  color: #FFFFFF;
   font-weight: 600;
   font-size: 0.9rem;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .label-icon {
@@ -316,11 +295,12 @@ const handleSubmit = async () => {
 
 .form-input {
   padding: 12px 16px;
-  border-radius: 10px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  color: #ffffff;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(40, 45, 60, 0.8);
+  color: #FFFFFF;
   font-size: 0.95rem;
   font-weight: 500;
   transition: all 0.3s ease;
@@ -328,60 +308,42 @@ const handleSubmit = async () => {
 }
 
 .form-input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .form-input:focus {
   outline: none;
-  border-color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+  border-color: #FFD700;
+  background: rgba(40, 45, 60, 1);
+  box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.2);
   transform: translateY(-2px);
 }
 
 .btn-submit {
   margin-top: 4px;
   padding: 14px 24px;
-  background: rgba(255, 255, 255, 0.95);
-  color: #667eea;
+  background: #FFD700;
+  color: #1A1A1A;
   font-weight: 700;
   font-size: 1rem;
-  border-radius: 12px;
+  border-radius: 8px;
   border: none;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.3);
-  position: relative;
-  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
   font-family: inherit;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-}
-
-.btn-submit::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(102, 126, 234, 0.1);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .btn-submit:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 1);
-  transform: translateY(-3px);
-  box-shadow: 0 12px 32px rgba(255, 255, 255, 0.4);
-}
-
-.btn-submit:hover:not(:disabled)::before {
-  width: 400px;
-  height: 400px;
+  background: #FF8C00;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
 }
 
 .btn-submit:active:not(:disabled) {
@@ -403,8 +365,8 @@ const handleSubmit = async () => {
 .spinner {
   width: 18px;
   height: 18px;
-  border: 3px solid rgba(102, 126, 234, 0.2);
-  border-top-color: #667eea;
+  border: 3px solid rgba(26, 26, 26, 0.2);
+  border-top-color: #1A1A1A;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -420,14 +382,12 @@ const handleSubmit = async () => {
   align-items: center;
   gap: 10px;
   padding: 12px 16px;
-  background: rgba(255, 107, 107, 0.2);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 107, 107, 0.4);
-  border-radius: 10px;
-  color: #ffffff;
+  background: rgba(255, 68, 68, 0.2);
+  border: 2px solid rgba(255, 68, 68, 0.4);
+  border-radius: 8px;
+  color: #ffaaaa;
   font-size: 0.9rem;
   font-weight: 500;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   animation: shake 0.5s ease;
 }
 
@@ -456,33 +416,37 @@ const handleSubmit = async () => {
 
 .hint {
   margin: 0;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.8);
   font-size: 0.95rem;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .auth-link {
-  color: #ffffff;
+  color: #FFD700;
   font-weight: 700;
   text-decoration: none;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
   border-bottom: 2px solid transparent;
 }
 
 .auth-link:hover {
-  border-bottom-color: rgba(255, 255, 255, 0.8);
-  transform: translateY(-1px);
+  border-bottom-color: #FFD700;
+  color: #FF8C00;
 }
 
 @media (max-width: 768px) {
   .auth-page-content {
-    padding: 12px;
+    padding: 30px 16px;
+    min-height: calc(100vh - 60px);
+  }
+
+  .auth-container {
+    max-width: 100%;
   }
 
   .auth-card {
     padding: 28px 24px;
-    border-radius: 20px;
+    border-radius: 12px;
+    width: 100%;
   }
 
   .auth-header {
@@ -504,6 +468,7 @@ const handleSubmit = async () => {
 
   .auth-form {
     gap: 14px;
+    width: 100%;
   }
 
   .form-label {
@@ -513,11 +478,13 @@ const handleSubmit = async () => {
   .form-input {
     padding: 12px 14px;
     font-size: 0.9rem;
+    width: 100%;
   }
 
   .btn-submit {
     padding: 14px 20px;
     font-size: 0.95rem;
+    width: 100%;
   }
 
   .auth-footer {

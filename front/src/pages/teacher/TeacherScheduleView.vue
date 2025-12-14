@@ -157,8 +157,9 @@ onMounted(() => {
 <style scoped>
 .teacher-schedule-page {
   min-height: 100vh;
-  background: #202124;
-  color: #e8eaed;
+  background: #1A1A1A;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  color: #FFFFFF;
   padding: 0;
   width: 100%;
   max-width: 100%;
@@ -176,15 +177,16 @@ onMounted(() => {
 
 .title-block h1 {
   font-size: 22px;
-  font-weight: 400;
-  color: #e8eaed;
+  font-weight: 900;
+  color: #FFFFFF;
   margin: 0;
+  letter-spacing: -1px;
 }
 
 .subtitle {
   margin-top: 4px;
   font-size: 13px;
-  color: #9aa0a6;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .teacher-info {
@@ -207,12 +209,12 @@ onMounted(() => {
 .role-badge {
   padding: 4px 12px;
   border-radius: 16px;
-  border: none;
+  border: 1px solid #FFD700;
   font-size: 11px;
   text-transform: uppercase;
-  background: #8ab4f8;
-  color: #202124;
-  font-weight: 500;
+  background: rgba(255, 215, 0, 0.2);
+  color: #FFD700;
+  font-weight: 700;
 }
 
 .teacher-actions {
@@ -222,25 +224,27 @@ onMounted(() => {
 
 .btn {
   padding: 8px 16px;
-  border-radius: 4px;
-  border: 1px solid #5f6368;
+  border-radius: 8px;
+  border: 1px solid #FFD700;
   cursor: pointer;
   background: transparent;
-  color: #e8eaed;
+  color: #FFD700;
   font-size: 14px;
-  font-weight: 500;
-  transition: background-color 0.2s, border-color 0.2s;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-family: inherit;
 }
 
 .btn.secondary {
   background: transparent;
-  color: #e8eaed;
-  border-color: #5f6368;
+  border-color: #FFD700;
+  color: #FFD700;
 }
 
 .btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: #8ab4f8;
+  background: rgba(255, 215, 0, 0.1);
+  border-color: #FF8C00;
+  color: #FF8C00;
 }
 
 .btn:disabled {

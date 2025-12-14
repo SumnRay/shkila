@@ -205,17 +205,16 @@ const formatPrice = (price) => {
 
 .page-title {
   font-size: 1.5rem;
-  font-weight: 800;
-  color: #ffffff;
+  font-weight: 900;
+  color: #FFFFFF;
   margin: 0 0 4px 0;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  letter-spacing: -1px;
 }
 
 .page-subtitle {
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.8);
   margin: 0;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .main-layout {
@@ -228,13 +227,11 @@ const formatPrice = (price) => {
 }
 
 .card {
-  background: rgba(76, 68, 118, 0.85);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(102, 126, 234, 0.4);
+  background: rgba(40, 40, 40, 0.8);
+  border: 3px solid #FFD700;
   border-radius: 12px;
   padding: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
   height: 100%;
   display: flex;
@@ -243,10 +240,9 @@ const formatPrice = (price) => {
 }
 
 .card:hover {
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-  background: rgba(76, 68, 118, 0.95);
+  box-shadow: 0 12px 30px rgba(255, 215, 0, 0.3);
+  border-color: #FF8C00;
   transform: translateY(-2px);
-  border-color: rgba(102, 126, 234, 0.6);
 }
 
 .card-title {
@@ -302,9 +298,8 @@ const formatPrice = (price) => {
 }
 
 .package-btn {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(40, 45, 60, 0.8);
+  border: 2px solid rgba(255, 215, 0, 0.3);
   border-radius: 8px;
   padding: 8px 4px;
   cursor: pointer;
@@ -317,16 +312,16 @@ const formatPrice = (price) => {
 }
 
 .package-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(40, 45, 60, 1);
+  border-color: #FFD700;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
 }
 
 .package-btn.active {
-  background: rgba(102, 126, 234, 0.6);
-  border-color: rgba(102, 126, 234, 0.8);
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+  background: rgba(255, 215, 0, 0.2);
+  border-color: #FFD700;
+  box-shadow: 0 4px 16px rgba(255, 215, 0, 0.4);
 }
 
 .package-lessons {
@@ -424,17 +419,16 @@ const formatPrice = (price) => {
   flex-shrink: 0;
   width: 28px;
   height: 28px;
-  background: rgba(102, 126, 234, 0.6);
-  border: 2px solid rgba(102, 126, 234, 0.8);
+  background: rgba(255, 215, 0, 0.2);
+  border: 2px solid #FFD700;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.85rem;
   font-weight: 700;
-  color: #ffffff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  color: #FFD700;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
 }
 
 .step-content {
@@ -445,8 +439,7 @@ const formatPrice = (price) => {
   margin: 0 0 4px 0;
   font-size: 0.85rem;
   font-weight: 700;
-  color: #ffffff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  color: #FFFFFF;
 }
 
 .step-content p {

@@ -330,41 +330,15 @@ onMounted(() => {
   min-height: 100vh;
   height: 100vh;
   width: 100vw;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
+  background: #1A1A1A;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  color: #FFFFFF;
   padding: 0;
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-}
-
-.manager-balance-page::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-  pointer-events: none;
-}
-
-@keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
 }
 
 .page-header {
@@ -378,19 +352,17 @@ onMounted(() => {
 
 .page-title {
   font-size: 2.5rem;
-  font-weight: 800;
+  font-weight: 900;
   margin: 0 0 8px 0;
-  color: #e8eaf6;
+  color: #FFFFFF;
   letter-spacing: -1px;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .subtitle {
   margin: 0;
   font-size: 1rem;
-  color: #c5cae9;
-  font-weight: 500;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 400;
 }
 
 .balance-main {
@@ -407,14 +379,18 @@ onMounted(() => {
 }
 
 .balance-card {
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 20px;
+  background: rgba(40, 40, 40, 0.8);
+  border: 3px solid #FFD700;
+  border-radius: 12px;
   padding: 24px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-  animation: fadeInUp 0.4s ease-out;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.balance-card:hover {
+  box-shadow: 0 12px 30px rgba(255, 215, 0, 0.3);
+  border-color: #FF8C00;
+  transform: translateY(-2px);
 }
 
 @keyframes fadeInUp {
@@ -434,20 +410,18 @@ onMounted(() => {
   gap: 12px;
   margin-bottom: 24px;
   padding-bottom: 20px;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 2px solid rgba(255, 215, 0, 0.3);
 }
 
 .card-icon {
   font-size: 2rem;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
 }
 
 .card-title {
   font-size: 1.75rem;
-  font-weight: 800;
+  font-weight: 900;
   margin: 0;
-  color: #ffffff;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  color: #FFFFFF;
   flex: 1;
 }
 
@@ -464,26 +438,27 @@ onMounted(() => {
 .search-input,
 .search-select {
   padding: 12px 16px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  color: #ffffff;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  background: rgba(40, 45, 60, 0.8);
+  color: #FFFFFF;
   font-size: 1rem;
   font-weight: 500;
   transition: all 0.3s ease;
+  font-family: inherit;
 }
 
 .search-input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .search-input:focus,
 .search-select:focus {
   outline: none;
-  border-color: rgba(255, 255, 255, 0.5);
-  background: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: #FFD700;
+  background: rgba(40, 45, 60, 1);
+  box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.2);
+  transform: translateY(-2px);
 }
 
 .search-select option {
@@ -501,10 +476,9 @@ onMounted(() => {
   gap: 16px;
   margin-bottom: 24px;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(50, 50, 50, 0.6);
+  border-radius: 8px;
+  border: 2px solid rgba(255, 215, 0, 0.3);
 }
 
 .balance-item {
@@ -524,21 +498,18 @@ onMounted(() => {
   color: rgba(255, 255, 255, 0.9);
   font-size: 1rem;
   font-weight: 600;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .balance-item .value {
   font-weight: 700;
   font-size: 1rem;
-  color: #ffffff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  color: #FFD700;
 }
 
 .balance-item .value.large {
   font-size: 2.5rem;
-  color: #ffffff;
-  font-weight: 800;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  color: #FFD700;
+  font-weight: 900;
 }
 
 .balance-actions {
@@ -576,25 +547,26 @@ onMounted(() => {
 
 .form-input {
   padding: 12px 16px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  color: #ffffff;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  background: rgba(40, 45, 60, 0.8);
+  color: #FFFFFF;
   font-size: 1rem;
   font-weight: 500;
   transition: all 0.3s ease;
+  font-family: inherit;
 }
 
 .form-input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .form-input:focus {
   outline: none;
-  border-color: rgba(255, 255, 255, 0.5);
-  background: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: #FFD700;
+  background: rgba(40, 45, 60, 1);
+  box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.2);
+  transform: translateY(-2px);
 }
 
 .or-divider {
@@ -623,16 +595,15 @@ onMounted(() => {
 }
 
 .btn.primary {
-  background: rgba(255, 255, 255, 0.95);
-  color: #667eea;
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+  background: #FFD700;
+  color: #1A1A1A;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
 }
 
 .btn.secondary {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: #FFD700;
+  border: 1px solid #FFD700;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -646,9 +617,15 @@ onMounted(() => {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
+.btn.primary:hover:not(:disabled) {
+  background: #FF8C00;
+  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
+}
+
 .btn.secondary:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 215, 0, 0.1);
+  border-color: #FF8C00;
+  color: #FF8C00;
 }
 
 .btn:disabled {
@@ -670,19 +647,15 @@ onMounted(() => {
 }
 
 .error-message {
-  background: rgba(239, 68, 68, 0.2);
-  backdrop-filter: blur(10px);
-  color: #ffffff;
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  background: rgba(255, 68, 68, 0.2);
+  color: #ffaaaa;
+  border: 2px solid rgba(255, 68, 68, 0.4);
 }
 
 .success-message {
-  background: rgba(34, 197, 94, 0.2);
-  backdrop-filter: blur(10px);
-  color: #ffffff;
-  border: 1px solid rgba(34, 197, 94, 0.4);
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  background: rgba(76, 175, 80, 0.2);
+  color: #a5d6a7;
+  border: 2px solid rgba(76, 175, 80, 0.4);
 }
 
 .error-icon,
@@ -742,17 +715,25 @@ onMounted(() => {
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+.students-table thead {
+  background: rgba(255, 215, 0, 0.1);
+}
+
 .students-table th {
   font-weight: 700;
-  color: #ffffff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  color: #FFFFFF;
+  border-bottom: 2px solid rgba(255, 215, 0, 0.3);
   font-size: 1rem;
 }
 
 .students-table td {
-  color: rgba(255, 255, 255, 0.95);
+  color: rgba(255, 255, 255, 0.9);
   font-weight: 500;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+}
+
+.students-table tbody tr:hover {
+  background: rgba(255, 215, 0, 0.1);
 }
 
 .balance-cell {

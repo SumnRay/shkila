@@ -216,7 +216,7 @@ onMounted(async () => {
   z-index: 100;
   background: rgba(26, 26, 26, 0.95);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 215, 0, 0.3);
   padding: 12px 32px;
   display: flex;
   justify-content: space-between;
@@ -241,6 +241,7 @@ onMounted(async () => {
 
 .nav-link:hover {
   color: #FFD700;
+  transform: translateY(-1px);
 }
 
 .logout-btn {
@@ -259,6 +260,8 @@ onMounted(async () => {
 .logout-btn:hover {
   background: #FFD700;
   color: #1A1A1A;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
 }
 
 .dashboard-content {

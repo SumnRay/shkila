@@ -102,41 +102,15 @@ onMounted(() => {
   width: 100vw;
   height: 100vh;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
+  background: #1A1A1A;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  color: #FFFFFF;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   margin: 0;
   padding: 0;
   position: relative;
-}
-
-.manager-admin-page::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-  pointer-events: none;
-}
-
-@keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
 }
 
 /* Основной контент - 100% ширины и высоты */
@@ -209,61 +183,25 @@ onMounted(() => {
 }
 
 .admin-section-card {
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 0;
+  background: rgba(40, 40, 40, 0.8);
+  border: 3px solid #FFD700;
+  border-radius: 12px;
   padding: 0;
   margin: 0;
   position: relative;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
   overflow: hidden;
   min-height: 360px;
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
-.admin-section-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 5px;
-  background: linear-gradient(90deg, #ffffff 0%, rgba(255, 255, 255, 0.5) 100%);
-  transform: scaleX(0);
-  transition: transform 0.4s ease;
-  z-index: 2;
-}
-
-.admin-section-card::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-  opacity: 0;
-  transition: opacity 0.4s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .admin-section-card:hover {
-  background: rgba(255, 255, 255, 0.35);
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-  border-color: rgba(255, 255, 255, 0.5);
-}
-
-.admin-section-card:hover::before {
-  transform: scaleX(1);
-}
-
-.admin-section-card:hover::after {
-  opacity: 1;
+  box-shadow: 0 12px 30px rgba(255, 215, 0, 0.3);
+  transform: translateY(-2px);
+  border-color: #FF8C00;
 }
 
 .section-card-content {
@@ -283,11 +221,10 @@ onMounted(() => {
 
 .section-title {
   font-size: 2rem;
-  font-weight: 800;
+  font-weight: 900;
   margin: 0 0 16px 0;
   padding: 0;
-  color: #ffffff;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  color: #FFFFFF;
   line-height: 1.2;
   letter-spacing: -0.5px;
 }
@@ -296,29 +233,34 @@ onMounted(() => {
   margin: 0;
   padding: 0;
   font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.95);
+  color: rgba(255, 255, 255, 0.9);
   line-height: 1.5;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .section-btn {
   width: 100%;
   padding: 20px 24px;
   margin: 0;
-  background: rgba(255, 255, 255, 0.95);
-  color: #667eea;
+  background: #FFD700;
+  color: #1A1A1A;
   border: none;
   border-radius: 0;
   font-weight: 700;
   font-size: 1rem;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
   position: relative;
   overflow: hidden;
   text-transform: uppercase;
   letter-spacing: 1px;
   z-index: 2;
+  font-family: inherit;
+}
+
+.section-btn:hover {
+  background: #FF8C00;
+  box-shadow: 0 -8px 30px rgba(255, 215, 0, 0.4);
 }
 
 .section-btn::before {

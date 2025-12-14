@@ -170,35 +170,10 @@ onMounted(() => {
 <style scoped>
 .manager-requests-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
+  background: #1A1A1A;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  color: #FFFFFF;
   position: relative;
-}
-
-.manager-requests-page::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-  pointer-events: none;
-}
-
-@keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
 }
 
 .main-container {
@@ -216,9 +191,9 @@ onMounted(() => {
 .page-header h1 {
   font-size: 3rem;
   font-weight: 900;
-  color: #ffffff;
+  color: #FFFFFF;
   margin: 0 0 24px 0;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  letter-spacing: -1px;
 }
 
 .tabs {
@@ -228,25 +203,27 @@ onMounted(() => {
 
 .tab {
   padding: 12px 24px;
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  border: 1px solid #FFD700;
   border-radius: 8px;
-  color: #ffffff;
+  color: #FFD700;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 0.95rem;
+  font-family: inherit;
 }
 
 .tab:hover {
-  background: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 215, 0, 0.1);
+  border-color: #FF8C00;
+  color: #FF8C00;
 }
 
 .tab.active {
-  background: rgba(255, 255, 255, 0.95);
-  color: #667eea;
-  border-color: rgba(255, 255, 255, 0.8);
+  background: #FFD700;
+  color: #1A1A1A;
+  border-color: #FFD700;
 }
 
 .content-section {
@@ -300,19 +277,18 @@ onMounted(() => {
 }
 
 .request-card {
-  background: rgba(76, 68, 118, 0.85);
-  backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(102, 126, 234, 0.4);
-  border-radius: 16px;
+  background: rgba(40, 40, 40, 0.8);
+  border: 3px solid #FFD700;
+  border-radius: 12px;
   padding: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
 }
 
 .request-card:hover {
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 12px 30px rgba(255, 215, 0, 0.3);
   transform: translateY(-2px);
-  border-color: rgba(102, 126, 234, 0.6);
+  border-color: #FF8C00;
 }
 
 .request-header {
@@ -321,7 +297,7 @@ onMounted(() => {
   align-items: flex-start;
   margin-bottom: 16px;
   padding-bottom: 16px;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 2px solid rgba(255, 215, 0, 0.3);
 }
 
 .request-client {
@@ -331,14 +307,13 @@ onMounted(() => {
 .client-email {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #ffffff;
+  color: #FFFFFF;
   margin-bottom: 4px;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .request-date {
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .request-status {
@@ -364,11 +339,10 @@ onMounted(() => {
 .request-comment {
   margin-bottom: 16px;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  color: #ffffff;
+  background: rgba(50, 50, 50, 0.6);
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.9);
   line-height: 1.6;
   white-space: pre-wrap;
 }
@@ -405,20 +379,22 @@ onMounted(() => {
 
 .btn-respond {
   padding: 10px 20px;
-  background: rgba(76, 175, 80, 0.9);
-  color: #ffffff;
-  border: 1px solid rgba(76, 175, 80, 0.6);
+  background: #FFD700;
+  color: #1A1A1A;
+  border: 1px solid #FFD700;
   border-radius: 8px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 0.9rem;
+  font-family: inherit;
 }
 
 .btn-respond:hover:not(:disabled) {
-  background: rgba(76, 175, 80, 1);
+  background: #FF8C00;
+  border-color: #FF8C00;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
 }
 
 .btn-respond:disabled {

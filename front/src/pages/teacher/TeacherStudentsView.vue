@@ -160,41 +160,15 @@ onMounted(() => {
   min-height: 100vh;
   height: 100vh;
   width: 100vw;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
+  background: #1A1A1A;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  color: #FFFFFF;
   padding: 0;
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-}
-
-.teacher-students-page::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-  pointer-events: none;
-}
-
-@keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
 }
 
 .page-header {
@@ -237,14 +211,18 @@ onMounted(() => {
 }
 
 .students-card {
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 20px;
+  background: rgba(40, 40, 40, 0.8);
+  border: 3px solid #FFD700;
+  border-radius: 12px;
   padding: 24px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-  animation: fadeInUp 0.4s ease-out;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.students-card:hover {
+  box-shadow: 0 12px 30px rgba(255, 215, 0, 0.3);
+  border-color: #FF8C00;
+  transform: translateY(-2px);
 }
 
 @keyframes fadeInUp {
@@ -264,20 +242,18 @@ onMounted(() => {
   gap: 12px;
   margin-bottom: 24px;
   padding-bottom: 20px;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 2px solid rgba(255, 215, 0, 0.3);
 }
 
 .card-icon {
   font-size: 2rem;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
 }
 
 .card-title {
   font-size: 1.75rem;
-  font-weight: 800;
+  font-weight: 900;
   margin: 0;
-  color: #ffffff;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  color: #FFFFFF;
   flex: 1;
 }
 
@@ -294,25 +270,26 @@ onMounted(() => {
 .search-input {
   flex: 1;
   padding: 12px 16px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  color: #ffffff;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  background: rgba(40, 45, 60, 0.8);
+  color: #FFFFFF;
   font-size: 1rem;
   font-weight: 500;
   transition: all 0.3s ease;
+  font-family: inherit;
 }
 
 .search-input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .search-input:focus {
   outline: none;
-  border-color: rgba(255, 255, 255, 0.5);
-  background: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: #FFD700;
+  background: rgba(40, 45, 60, 1);
+  box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.2);
+  transform: translateY(-2px);
 }
 
 .btn {
@@ -332,10 +309,9 @@ onMounted(() => {
 }
 
 .btn.secondary {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: #FFD700;
+  border: 1px solid #FFD700;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -350,8 +326,9 @@ onMounted(() => {
 }
 
 .btn.secondary:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 215, 0, 0.1);
+  border-color: #FF8C00;
+  color: #FF8C00;
 }
 
 .btn:disabled {

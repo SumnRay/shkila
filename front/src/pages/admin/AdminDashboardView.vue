@@ -314,41 +314,15 @@ onMounted(() => {
   min-height: 100vh;
   height: 100vh;
   width: 100vw;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
+  background: #1A1A1A;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  color: #FFFFFF;
   padding: 0;
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-}
-
-.admin-page::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-  pointer-events: none;
-}
-
-@keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
 }
 
 .page-header {
@@ -362,17 +336,17 @@ onMounted(() => {
 
 .page-title {
   font-size: 2.5rem;
-  font-weight: 800;
+  font-weight: 900;
   margin: 0 0 8px 0;
-  color: #e8eaf6;
+  color: #FFFFFF;
   letter-spacing: -1px;
 }
 
 .subtitle {
   margin: 0;
   font-size: 1rem;
-  color: #c5cae9;
-  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 400;
 }
 
 .btn {
@@ -392,24 +366,22 @@ onMounted(() => {
 }
 
 .btn.primary {
-  background: rgba(255, 255, 255, 0.95);
-  color: #667eea;
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+  background: #FFD700;
+  color: #1A1A1A;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
 }
 
 .btn.secondary {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: #FFD700;
+  border: 1px solid #FFD700;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .btn.danger {
-  background: rgba(255, 107, 107, 0.2);
-  backdrop-filter: blur(10px);
-  color: #ffffff;
-  border: 1px solid rgba(255, 107, 107, 0.4);
+  background: rgba(255, 68, 68, 0.2);
+  color: #ffaaaa;
+  border: 1px solid rgba(255, 68, 68, 0.4);
 }
 
 .btn.small {
@@ -422,14 +394,20 @@ onMounted(() => {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
+.btn.primary:hover:not(:disabled) {
+  background: #FF8C00;
+  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
+}
+
 .btn.secondary:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 215, 0, 0.1);
+  border-color: #FF8C00;
+  color: #FF8C00;
 }
 
 .btn.danger:hover:not(:disabled) {
-  background: rgba(255, 107, 107, 0.3);
-  border-color: rgba(255, 107, 107, 0.6);
+  background: rgba(255, 68, 68, 0.3);
+  border-color: rgba(255, 68, 68, 0.6);
 }
 
 .btn:disabled {
@@ -452,11 +430,9 @@ onMounted(() => {
 }
 
 .admin-card {
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 20px;
+  background: rgba(40, 40, 40, 0.8);
+  border: 3px solid #FFD700;
+  border-radius: 12px;
   padding: 24px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
   animation: fadeInUp 0.4s ease-out;
@@ -479,20 +455,18 @@ onMounted(() => {
   gap: 12px;
   margin-bottom: 24px;
   padding-bottom: 20px;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 2px solid rgba(255, 215, 0, 0.3);
 }
 
 .card-icon {
   font-size: 2rem;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
 }
 
 .card-title {
   font-size: 1.75rem;
-  font-weight: 800;
+  font-weight: 900;
   margin: 0;
-  color: #ffffff;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  color: #FFFFFF;
   letter-spacing: -0.5px;
 }
 
@@ -503,8 +477,8 @@ onMounted(() => {
 }
 
 .quick-link {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
+  background: rgba(40, 45, 60, 0.8);
+  border: 2px solid rgba(255, 215, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 16px;
   padding: 24px;
@@ -536,15 +510,13 @@ onMounted(() => {
   font-weight: 700;
   font-size: 1.1rem;
   margin-bottom: 8px;
-  color: #ffffff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  color: #FFFFFF;
 }
 
 .ql-desc {
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.8);
   line-height: 1.5;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
 }
 
 .section-header {
@@ -567,11 +539,10 @@ onMounted(() => {
 .filter-select {
   width: 100%;
   padding: 12px 16px;
-  border-radius: 10px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  color: #ffffff;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  background: rgba(40, 45, 60, 0.8);
+  color: #FFFFFF;
   font-size: 0.9rem;
   font-weight: 500;
   transition: all 0.3s ease;
@@ -579,15 +550,16 @@ onMounted(() => {
 }
 
 .filter-input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .filter-input:focus,
 .filter-select:focus {
   outline: none;
-  border-color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+  border-color: #FFD700;
+  background: rgba(40, 45, 60, 1);
+  box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.2);
+  transform: translateY(-2px);
 }
 
 .filter-select {
@@ -658,16 +630,15 @@ onMounted(() => {
 }
 
 .users-table thead {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 215, 0, 0.1);
 }
 
 .users-table th {
   padding: 14px 16px;
   text-align: left;
   font-weight: 700;
-  color: #ffffff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
+  border-bottom: 2px solid rgba(255, 215, 0, 0.3);
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -675,9 +646,8 @@ onMounted(() => {
 
 .users-table td {
   padding: 14px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.95);
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .users-table tbody tr {
@@ -685,21 +655,27 @@ onMounted(() => {
 }
 
 .users-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 215, 0, 0.1);
 }
 
 .role-select {
   padding: 8px 12px;
   border-radius: 8px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  color: #ffffff;
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  background: rgba(40, 45, 60, 0.8);
+  color: #FFFFFF;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   font-family: inherit;
+}
+
+.role-select:focus {
+  outline: none;
+  border-color: #FFD700;
+  background: rgba(40, 45, 60, 1);
+  box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.2);
 }
 
 .role-select:focus {

@@ -252,6 +252,9 @@ onMounted(() => {
   padding: 0;
   overflow-x: hidden;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 }
 
 /* Навигация */
@@ -266,6 +269,9 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .nav-right {
@@ -307,18 +313,25 @@ onMounted(() => {
 
 /* Hero секция */
 .hero-section {
-  padding: 60px 32px;
+  padding: 80px 32px;
   max-width: 1400px;
+  width: 100%;
   margin: 0 auto;
   min-height: auto;
+  position: relative;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .hero-content {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
-  gap: 40px;
+  gap: 60px;
   align-items: center;
   min-height: auto;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .hero-text {
@@ -326,6 +339,8 @@ onMounted(() => {
   flex-direction: column;
   gap: 16px;
   max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .hero-title {
@@ -398,6 +413,7 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   min-height: 300px;
+  box-sizing: border-box;
 }
 
 .circuit-board {
@@ -416,9 +432,14 @@ onMounted(() => {
 
 /* Секция курсов */
 .courses-section {
-  padding: 80px 32px;
+  padding: 100px 32px;
   max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
+  margin: 60px auto 0 auto;
+  position: relative;
+  border-top: 2px solid rgba(255, 215, 0, 0.2);
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .courses-title {
@@ -429,6 +450,8 @@ onMounted(() => {
   padding: 0;
   color: #FFFFFF;
   letter-spacing: -1px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Состояния загрузки */
@@ -466,7 +489,9 @@ onMounted(() => {
   grid-template-columns: repeat(3, 1fr);
   gap: 32px;
   margin-bottom: 40px;
+  width: 100%;
   max-width: 100%;
+  box-sizing: border-box;
 }
 
 .course-card {
@@ -478,8 +503,13 @@ onMounted(() => {
   flex-direction: column;
   gap: 20px;
   transition: all 0.3s ease;
-  min-height: 400px;
-  height: 100%;
+  min-height: 350px;
+  height: auto;
+  width: 100%;
+  max-width: 100%;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .course-card:hover {
@@ -535,6 +565,8 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
   margin-top: 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .more-courses-btn {
@@ -557,15 +589,28 @@ onMounted(() => {
 
 /* Адаптивность */
 @media (max-width: 1200px) {
+  .hero-section {
+    padding: 60px 32px;
+    width: 100%;
+  }
+
+  .courses-section {
+    padding: 80px 32px;
+    margin-top: 40px;
+    width: 100%;
+  }
+
   .hero-content {
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 50px;
     min-height: auto;
+    width: 100%;
   }
 
   .hero-graphic {
     order: -1;
     min-height: 250px;
+    width: 100%;
   }
 
   .circuit-board {
@@ -578,17 +623,31 @@ onMounted(() => {
 
   .courses-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
+    gap: 28px;
+    width: 100%;
+  }
+
+  .course-card {
+    min-height: 320px;
+    width: 100%;
   }
 }
 
 @media (max-width: 768px) {
   .hero-section {
-    padding: 40px 20px;
+    padding: 50px 20px;
+    width: 100%;
+  }
+
+  .courses-section {
+    padding: 60px 20px;
+    margin-top: 30px;
+    width: 100%;
   }
 
   .hero-content {
-    gap: 32px;
+    gap: 40px;
+    width: 100%;
   }
 
   .hero-title {
@@ -605,37 +664,50 @@ onMounted(() => {
 
   .hero-graphic {
     min-height: 200px;
+    width: 100%;
   }
 
   .circuit-board {
     max-width: 200px;
   }
 
-  .courses-section {
-    padding: 50px 20px;
-  }
-
   .courses-title {
     font-size: 2.5rem;
+    margin-bottom: 40px;
   }
 
   .courses-grid {
     grid-template-columns: 1fr;
     gap: 24px;
+    width: 100%;
   }
 
   .course-card {
     min-height: auto;
+    padding: 28px;
+    width: 100%;
   }
 
   .top-nav {
     padding: 12px 20px;
+    width: 100%;
   }
 }
 
 @media (max-width: 480px) {
   .hero-section {
-    padding: 30px 16px;
+    padding: 40px 16px;
+    width: 100%;
+  }
+
+  .courses-section {
+    padding: 50px 16px;
+    margin-top: 20px;
+    width: 100%;
+  }
+
+  .hero-content {
+    width: 100%;
   }
 
   .hero-title {
@@ -650,6 +722,7 @@ onMounted(() => {
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
+    width: 100%;
   }
 
   .cta-button {
@@ -663,6 +736,7 @@ onMounted(() => {
 
   .hero-graphic {
     min-height: 180px;
+    width: 100%;
   }
 
   .circuit-board {
@@ -671,6 +745,16 @@ onMounted(() => {
 
   .courses-title {
     font-size: 2rem;
+    margin-bottom: 30px;
+  }
+
+  .courses-grid {
+    width: 100%;
+  }
+
+  .course-card {
+    padding: 24px;
+    width: 100%;
   }
 }
 </style>

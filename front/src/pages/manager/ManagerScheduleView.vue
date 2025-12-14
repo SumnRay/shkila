@@ -154,8 +154,9 @@ onMounted(() => {
 <style scoped>
 .manager-page {
   min-height: 100vh;
-  background: #202124;
-  color: #e8eaed;
+  background: #1A1A1A;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  color: #FFFFFF;
   padding: 0;
   width: 100%;
   max-width: 100%;
@@ -169,14 +170,14 @@ onMounted(() => {
   align-items: center;
   margin-bottom: 0;
   padding: 16px 24px;
-  background: #202124;
-  border-bottom: 1px solid #3c4043;
+  background: rgba(26, 26, 26, 0.95);
+  border-bottom: 1px solid rgba(255, 215, 0, 0.3);
 }
 
 .manager-header h1 {
   font-size: 22px;
-  font-weight: 400;
-  color: #e8eaed;
+  font-weight: 700;
+  color: #FFFFFF;
   margin: 0;
 }
 
@@ -189,30 +190,32 @@ onMounted(() => {
 .role-badge {
   padding: 4px 12px;
   border-radius: 16px;
-  border: none;
-  background: #81c995;
-  color: #202124;
+  border: 1px solid #FFD700;
+  background: rgba(255, 215, 0, 0.2);
+  color: #FFD700;
   font-size: 11px;
   text-transform: uppercase;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .btn {
   padding: 8px 16px;
-  color: #e8eaed;
   background: transparent;
-  border: 1px solid #5f6368;
-  border-radius: 4px;
+  border: 1px solid #FFD700;
+  border-radius: 8px;
   cursor: pointer;
   text-decoration: none;
   font-size: 14px;
-  font-weight: 500;
-  transition: background-color 0.2s, border-color 0.2s;
+  font-weight: 600;
+  color: #FFD700;
+  transition: all 0.3s ease;
+  font-family: inherit;
 }
 
 .btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: #8ab4f8;
+  background: rgba(255, 215, 0, 0.1);
+  border-color: #FF8C00;
+  color: #FF8C00;
 }
 
 .manager-main {

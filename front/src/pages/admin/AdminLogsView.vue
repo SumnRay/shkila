@@ -244,10 +244,9 @@ onMounted(() => {
   min-height: 100vh;
   height: 100vh;
   width: 100vw;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
+  background: #1A1A1A;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  color: #FFFFFF;
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
@@ -255,36 +254,9 @@ onMounted(() => {
   flex-direction: column;
 }
 
-.admin-page::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-  pointer-events: none;
-}
-
-@keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
 .admin-header {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(30px) saturate(180%);
-  -webkit-backdrop-filter: blur(30px) saturate(180%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(40, 40, 40, 0.8);
+  border-bottom: 1px solid rgba(255, 215, 0, 0.3);
   padding: 20px 24px;
   margin-bottom: 24px;
   display: flex;
@@ -373,24 +345,22 @@ onMounted(() => {
 }
 
 .btn.primary {
-  background: rgba(255, 255, 255, 0.95);
-  color: #667eea;
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+  background: #FFD700;
+  color: #1A1A1A;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
 }
 
 .btn.secondary {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: #FFD700;
+  border: 1px solid #FFD700;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .btn.danger {
-  background: rgba(255, 107, 107, 0.2);
-  backdrop-filter: blur(10px);
-  color: #ffffff;
-  border: 1px solid rgba(255, 107, 107, 0.4);
+  background: rgba(255, 68, 68, 0.2);
+  color: #ffaaaa;
+  border: 1px solid rgba(255, 68, 68, 0.4);
 }
 
 .btn:hover:not(:disabled) {
@@ -398,14 +368,20 @@ onMounted(() => {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
+.btn.primary:hover:not(:disabled) {
+  background: #FF8C00;
+  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
+}
+
 .btn.secondary:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 215, 0, 0.1);
+  border-color: #FF8C00;
+  color: #FF8C00;
 }
 
 .btn.danger:hover:not(:disabled) {
-  background: rgba(255, 107, 107, 0.3);
-  border-color: rgba(255, 107, 107, 0.6);
+  background: rgba(255, 68, 68, 0.3);
+  border-color: rgba(255, 68, 68, 0.6);
 }
 
 .btn:disabled {
