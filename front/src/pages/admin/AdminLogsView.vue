@@ -10,67 +10,70 @@
           <p class="subtitle">История всех действий в системе</p>
         </div>
       </div>
+
       <section class="admin-card filters-card">
         <div class="card-header">
           <div class="card-icon">🔍</div>
           <h2 class="card-title">Фильтры</h2>
         </div>
 
-        <div class="filters-row">
-          <div class="filter-item">
-            <label class="form-label">
-              <span class="label-icon">🔎</span>
-              <span>Поиск</span>
-            </label>
-            <input
-              v-model="search"
-              type="text"
-              placeholder="Email пользователя, тип действия..."
-              class="filter-input"
-            />
+        <div class="filters-section">
+          <div class="filters-grid">
+            <div class="filter-group">
+              <label class="form-label">
+                <span class="label-icon">🔎</span>
+                <span>Поиск</span>
+              </label>
+              <input
+                v-model="search"
+                type="text"
+                placeholder="Email пользователя, тип действия..."
+                class="filter-input"
+              />
+            </div>
+
+            <div class="filter-group">
+              <label class="form-label">
+                <span class="label-icon">⚡</span>
+                <span>Тип действия</span>
+              </label>
+              <select v-model="actionFilter" class="filter-select">
+                <option value="">Все действия</option>
+                <option
+                  v-for="act in availableActions"
+                  :key="act"
+                  :value="act"
+                >
+                  {{ act }}
+                </option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="form-label">
+                <span class="label-icon">📊</span>
+                <span>Сортировка</span>
+              </label>
+              <select v-model="ordering" @change="loadLogs" class="filter-select">
+                <option value="-created_at">Новые сверху</option>
+                <option value="created_at">Старые сверху</option>
+              </select>
+            </div>
+
+            <div class="filter-group filter-actions">
+              <button class="btn primary" @click="loadLogs" :disabled="loading">
+                {{ loading ? '⏳ Обновляем...' : '🔄 Обновить' }}
+              </button>
+            </div>
           </div>
 
-          <div class="filter-item">
-            <label class="form-label">
-              <span class="label-icon">⚡</span>
-              <span>Тип действия</span>
-            </label>
-            <select v-model="actionFilter" class="filter-select">
-              <option value="">Все действия</option>
-              <option
-                v-for="act in availableActions"
-                :key="act"
-                :value="act"
-              >
-                {{ act }}
-              </option>
-            </select>
+          <div class="hint-box">
+            <p class="hint">
+              <strong>💡 Подсказка:</strong> Лог фиксирует: создание/изменение/удаление пользователей, уроков,
+              подтверждение оплат и другие важные действия. Поле
+              <strong>actor_email</strong> — это кто именно сделал действие.
+            </p>
           </div>
-
-          <div class="filter-item">
-            <label class="form-label">
-              <span class="label-icon">📊</span>
-              <span>Сортировка</span>
-            </label>
-            <select v-model="ordering" @change="loadLogs" class="filter-select">
-              <option value="-created_at">Новые сверху</option>
-              <option value="created_at">Старые сверху</option>
-            </select>
-          </div>
-
-          <div class="filter-item buttons">
-            <button class="btn primary" @click="loadLogs" :disabled="loading">
-              {{ loading ? '⏳ Обновляем...' : '🔄 Обновить' }}
-            </button>
-          </div>
-        </div>
-
-        <div class="hint-box">
-          <p class="hint">
-            <strong>💡 Подсказка:</strong> Лог фиксирует: создание/изменение/удаление пользователей, уроков,
-            подтверждение оплат и другие важные действия. Поле
-            <strong>actor_email</strong> — это кто именно сделал действие.
-          </p>
         </div>
       </section>
 
@@ -247,6 +250,7 @@ onMounted(() => {
   background: #1A1A1A;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   color: #FFFFFF;
+  padding: 0;
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
@@ -254,19 +258,9 @@ onMounted(() => {
   flex-direction: column;
 }
 
-.admin-header {
-  background: rgba(40, 40, 40, 0.8);
-  border-bottom: 1px solid rgba(255, 215, 0, 0.3);
-  padding: 20px 24px;
+.page-header {
+  padding: 20px 24px 0;
   margin-bottom: 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  position: relative;
-  z-index: 1;
-  flex-shrink: 0;
 }
 
 .title-block {
@@ -275,59 +269,17 @@ onMounted(() => {
 
 .page-title {
   font-size: 2.5rem;
-  font-weight: 800;
+  font-weight: 900;
   margin: 0 0 8px 0;
-  color: #ffffff;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  color: #FFFFFF;
   letter-spacing: -1px;
 }
 
 .subtitle {
   margin: 0;
   font-size: 1rem;
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 500;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-}
-
-.admin-info {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 12px;
-  flex-shrink: 0;
-}
-
-.admin-user {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.admin-email {
-  font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.95);
-  font-weight: 600;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.role-badge {
-  padding: 6px 14px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: #ffffff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  letter-spacing: 0.5px;
-}
-
-.admin-actions {
-  display: flex;
-  gap: 10px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 400;
 }
 
 .btn {
@@ -342,6 +294,8 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  position: relative;
+  overflow: hidden;
 }
 
 .btn.primary {
@@ -394,21 +348,19 @@ onMounted(() => {
   max-width: 1600px;
   margin: 0 auto;
   padding: 0 24px 32px;
-  display: grid;
-  grid-template-columns: minmax(300px, 1fr) 2.5fr;
-  gap: 20px;
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   flex: 1;
   overflow-y: auto;
 }
 
 .admin-card {
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 20px;
+  background: rgba(40, 40, 40, 0.8);
+  border: 3px solid #FFD700;
+  border-radius: 12px;
   padding: 24px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
   animation: fadeInUp 0.4s ease-out;
@@ -431,7 +383,7 @@ onMounted(() => {
   gap: 12px;
   margin-bottom: 24px;
   padding-bottom: 20px;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 2px solid rgba(255, 215, 0, 0.3);
 }
 
 .card-icon {
@@ -441,24 +393,35 @@ onMounted(() => {
 
 .card-title {
   font-size: 1.75rem;
-  font-weight: 800;
+  font-weight: 900;
   margin: 0;
-  color: #ffffff;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  color: #FFFFFF;
   letter-spacing: -0.5px;
 }
 
-.filters-row {
+.filters-section {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: 20px;
 }
 
-.filter-item {
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  align-items: end;
+}
+
+.filter-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.filter-group.filter-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
 }
 
 .form-label {
@@ -477,12 +440,12 @@ onMounted(() => {
 
 .filter-input,
 .filter-select {
+  width: 100%;
   padding: 12px 16px;
-  border-radius: 10px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  color: #ffffff;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  background: rgba(40, 45, 60, 0.8);
+  color: #FFFFFF;
   font-size: 0.9rem;
   font-weight: 500;
   transition: all 0.3s ease;
@@ -490,32 +453,28 @@ onMounted(() => {
 }
 
 .filter-input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .filter-input:focus,
 .filter-select:focus {
   outline: none;
-  border-color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+  border-color: #FFD700;
+  background: rgba(40, 45, 60, 1);
+  box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.2);
+  transform: translateY(-2px);
 }
 
 .filter-select {
   cursor: pointer;
 }
 
-.filter-item.buttons {
-  margin-top: 8px;
-}
-
 .hint-box {
-  margin-top: 20px;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 215, 0, 0.1);
   backdrop-filter: blur(10px);
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 215, 0, 0.2);
 }
 
 .hint {
@@ -527,7 +486,7 @@ onMounted(() => {
 }
 
 .hint strong {
-  color: #ffffff;
+  color: #FFD700;
   font-weight: 700;
 }
 
@@ -595,16 +554,15 @@ onMounted(() => {
 }
 
 .logs-table thead {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 215, 0, 0.1);
 }
 
 .logs-table th {
   padding: 14px 16px;
   text-align: left;
   font-weight: 700;
-  color: #ffffff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
+  border-bottom: 2px solid rgba(255, 215, 0, 0.3);
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -612,9 +570,8 @@ onMounted(() => {
 
 .logs-table td {
   padding: 14px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.95);
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+  color: rgba(255, 255, 255, 0.9);
   vertical-align: top;
 }
 
@@ -623,25 +580,26 @@ onMounted(() => {
 }
 
 .logs-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 215, 0, 0.1);
 }
 
 .actor-email {
-  word-break: break-all;
+  word-break: break-word;
   font-weight: 500;
+  max-width: 250px;
 }
 
 .action-tag {
   display: inline-block;
   padding: 6px 12px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 215, 0, 0.2);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 215, 0, 0.3);
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
-  color: #ffffff;
+  color: #FFD700;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
   letter-spacing: 0.5px;
 }
@@ -655,10 +613,12 @@ onMounted(() => {
   backdrop-filter: blur(10px);
   border-radius: 8px;
   padding: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.2);
   color: rgba(255, 255, 255, 0.9);
   font-family: 'Courier New', monospace;
   line-height: 1.5;
+  max-width: 400px;
+  word-break: break-word;
 }
 
 .empty-state {
@@ -671,30 +631,21 @@ onMounted(() => {
 
 @media (max-width: 1200px) {
   .admin-main {
-    grid-template-columns: 1fr;
     padding: 0 24px 32px;
+  }
+
+  .filters-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
 }
 
 @media (max-width: 768px) {
-  .admin-header {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 20px 24px;
+  .page-header {
+    padding: 16px 16px 0;
   }
 
   .page-title {
     font-size: 2rem;
-  }
-
-  .admin-info {
-    align-items: flex-start;
-    width: 100%;
-  }
-
-  .admin-actions {
-    width: 100%;
-    flex-direction: column;
   }
 
   .btn {
@@ -710,12 +661,25 @@ onMounted(() => {
     padding: 24px 20px;
   }
 
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-group.filter-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
   .table-container {
     overflow-x: scroll;
   }
 
   .logs-table {
     min-width: 800px;
+  }
+
+  .meta-pre {
+    max-width: 200px;
   }
 }
 </style>
