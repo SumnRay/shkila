@@ -53,7 +53,7 @@ class TeacherLessonsListCreateAPI(generics.ListCreateAPIView):
         from django.utils import timezone
         
         user = self.request.user
-        qs = Lesson.objects.select_related("student", "teacher").all()
+        qs = Lesson.objects.select_related("student", "teacher", "course").all()
         # если не админ и не суперюзер — показываем только свои уроки
         if not (user.is_superuser or getattr(user, "role", None) == "ADMIN"):
             qs = qs.filter(teacher=user)
@@ -92,17 +92,6 @@ class TeacherLessonsListCreateAPI(generics.ListCreateAPIView):
         teacher = self.request.user
         student = serializer.validated_data.get('student')
         
-        # Проверяем, что учитель может создавать уроки только для своих учеников
-        if not (teacher.is_superuser or getattr(teacher, "role", None) == "ADMIN"):
-            # Проверяем, есть ли хотя бы один урок с этим учеником
-            has_existing_lesson = Lesson.objects.filter(
-                student=student,
-                teacher=teacher
-            ).exists()
-            if not has_existing_lesson:
-                from rest_framework.exceptions import PermissionDenied
-                raise PermissionDenied("You can only create lessons for your assigned students")
-        
         # Автоматически назначаем текущего пользователя как учителя
         lesson = serializer.save(teacher=teacher)
         # Автоматически заполняем parent_full_name из профиля ученика, если не указано
@@ -130,7 +119,7 @@ class TeacherLessonDetailAPI(generics.RetrieveAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        qs = Lesson.objects.select_related("student", "teacher").all()
+        qs = Lesson.objects.select_related("student", "teacher", "course").all()
         if not (user.is_superuser or getattr(user, "role", None) == "ADMIN"):
             qs = qs.filter(teacher=user)
         return qs
@@ -151,7 +140,7 @@ class TeacherLessonUpdateAPI(generics.UpdateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        qs = Lesson.objects.select_related("student", "teacher").all()
+        qs = Lesson.objects.select_related("student", "teacher", "course").all()
         if not (user.is_superuser or getattr(user, "role", None) == "ADMIN"):
             qs = qs.filter(teacher=user)
         return qs
@@ -301,7 +290,7 @@ class TeacherStudentLessonsAPI(generics.ListAPIView):
     def get_queryset(self):
         user = self.request.user
         student_id = self.kwargs["student_id"]
-        qs = Lesson.objects.select_related("student", "teacher").filter(
+        qs = Lesson.objects.select_related("student", "teacher", "course").filter(
             student_id=student_id
         )
         if not (user.is_superuser or getattr(user, "role", None) == "ADMIN"):

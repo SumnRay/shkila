@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Lesson, LessonBalance
+from .models import Lesson, LessonBalance, Course
 
 User = get_user_model()
 
@@ -15,6 +15,7 @@ class TeacherLessonSerializer(serializers.ModelSerializer):
     teacher_email = serializers.EmailField(source="teacher.email", read_only=True)
     
     # Используем SerializerMethodField для полей, которые могут отсутствовать в БД
+    course = serializers.SerializerMethodField()
     cancellation_reason = serializers.SerializerMethodField()
     feedback = serializers.SerializerMethodField()
     student_balance = serializers.SerializerMethodField()
@@ -26,6 +27,7 @@ class TeacherLessonSerializer(serializers.ModelSerializer):
             "student", "student_email", "student_name",
             "parent_full_name",
             "teacher", "teacher_email",
+            "course",
             "link",
             "scheduled_at",
             "status",
@@ -37,6 +39,12 @@ class TeacherLessonSerializer(serializers.ModelSerializer):
             "student_balance",
             "created_at",
         )
+    
+    def get_course(self, obj):
+        """Получение названия курса"""
+        if obj.course:
+            return obj.course.title
+        return None
     
     def get_cancellation_reason(self, obj):
         """Безопасное получение причины отмены"""
@@ -135,13 +143,14 @@ class TeacherLessonCreateSerializer(serializers.ModelSerializer):
     """
     student_email = serializers.EmailField(write_only=True, required=False, allow_blank=True)
     student = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
+    course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all(), required=False, allow_null=True)
     link = serializers.CharField(required=False, allow_blank=True, max_length=300)
     comment = serializers.CharField(required=False, allow_blank=True)
     scheduled_at = serializers.DateTimeField(required=True)
 
     class Meta:
         model = Lesson
-        fields = ("student", "student_email", "scheduled_at", "link", "comment")
+        fields = ("student", "student_email", "course", "scheduled_at", "link", "comment")
 
     def validate(self, attrs):
         import logging
@@ -169,14 +178,21 @@ class TeacherLessonCreateSerializer(serializers.ModelSerializer):
             logger.error("Student is required but not provided")
             raise serializers.ValidationError({"student": "Either student or student_email is required"})
         
-        # Валидация баланса: учитель не может создавать уроки для учеников с нулевым балансом
-        # (пробные занятия может создавать только менеджер)
+        # Валидация: учитель может создавать уроки только для учеников (STUDENT) с положительным балансом
         student = attrs.get('student')
         if student:
+            # Проверяем роль: учитель может ставить занятия только ученикам
+            student_role = getattr(student, 'role', None)
+            if student_role != 'STUDENT':
+                raise serializers.ValidationError({
+                    "student": "Учитель может создавать занятия только для учеников (не для абитуриентов). Для создания пробного занятия обратитесь к менеджеру."
+                })
+            
+            # Проверяем баланс: должен быть положительным
             lb, _ = LessonBalance.objects.get_or_create(student=student)
             if lb.lessons_available <= 0:
                 raise serializers.ValidationError({
-                    "student": "Нельзя создать урок для ученика с нулевым балансом. Обратитесь к менеджеру для пополнения баланса или создания пробного занятия."
+                    "student": "Нельзя создать урок для ученика с нулевым балансом. Обратитесь к менеджеру для пополнения баланса."
                 })
         
         logger.info(f"Validation successful. Final attrs: student={attrs.get('student')}")

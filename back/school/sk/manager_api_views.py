@@ -143,7 +143,7 @@ class ManagerLessonsListCreateAPI(generics.ListCreateAPIView):
         return ManagerLessonSerializer
 
     def get_queryset(self):
-        return Lesson.objects.select_related("student", "teacher").all().order_by(
+        return Lesson.objects.select_related("student", "teacher", "course").all().order_by(
             "-created_at"
         )
 
@@ -179,7 +179,7 @@ class ManagerLessonUpdateAPI(generics.UpdateAPIView):
     """
     permission_classes = [IsManagerOrAdmin]
     serializer_class = ManagerLessonUpdateSerializer
-    queryset = Lesson.objects.select_related("student", "teacher").all()
+    queryset = Lesson.objects.select_related("student", "teacher", "course").all()
     http_method_names = ["patch", "options", "head"]
     
     def get_serializer_class(self):

@@ -82,6 +82,15 @@ class Lesson(models.Model):
         related_name="lessons_as_teacher",
     )
 
+    course = models.ForeignKey(
+        'Course',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="lessons",
+        help_text="Курс, по которому проводится занятие",
+    )
+
     link = models.CharField(
         max_length=300,
         blank=True,

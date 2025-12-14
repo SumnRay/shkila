@@ -239,7 +239,7 @@ class AdminLessonListAPI(generics.ListCreateAPIView):
         return LessonSerializer
 
     def get_queryset(self):
-        return Lesson.objects.select_related("student", "teacher").all().order_by(
+        return Lesson.objects.select_related("student", "teacher", "course").all().order_by(
             "-created_at"
         )
 
@@ -270,7 +270,7 @@ class AdminLessonUpdateAPI(generics.UpdateAPIView):
     """
     permission_classes = [IsAuthenticated, IsAdminRole]
     serializer_class = AdminLessonUpdateSerializer
-    queryset = Lesson.objects.select_related("student", "teacher").all()
+    queryset = Lesson.objects.select_related("student", "teacher", "course").all()
     http_method_names = ["patch", "options", "head"]
 
     def perform_update(self, serializer):

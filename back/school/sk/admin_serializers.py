@@ -79,6 +79,7 @@ class LessonBalanceSerializer(serializers.ModelSerializer):
 class LessonSerializer(serializers.ModelSerializer):
     student_email = serializers.EmailField(source="student.email", read_only=True)
     teacher_email = serializers.EmailField(source="teacher.email", read_only=True)
+    course = serializers.SerializerMethodField()
 
     class Meta:
         model = Lesson
@@ -89,6 +90,7 @@ class LessonSerializer(serializers.ModelSerializer):
             "parent_full_name",
             "teacher",
             "teacher_email",
+            "course",
             "link",
             "scheduled_at",
             "status",
@@ -96,6 +98,12 @@ class LessonSerializer(serializers.ModelSerializer):
             "debited_from_balance",
             "created_at",
         )
+    
+    def get_course(self, obj):
+        """Получение названия курса"""
+        if obj.course:
+            return obj.course.title
+        return None
 
 
 class AdminLessonCreateSerializer(serializers.ModelSerializer):
@@ -105,14 +113,16 @@ class AdminLessonCreateSerializer(serializers.ModelSerializer):
     """
     student = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
     teacher = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False, allow_null=True)
+    course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all(), required=False, allow_null=True)
     student_email = serializers.EmailField(write_only=True, required=False)
     teacher_email = serializers.EmailField(write_only=True, required=False)
     link = serializers.CharField(required=False, allow_blank=True, max_length=300)
     comment = serializers.CharField(required=False, allow_blank=True)
+    is_trial = serializers.BooleanField(required=False, default=False, help_text="Пробное занятие (не списывается с баланса)")
 
     class Meta:
         model = Lesson
-        fields = ("student", "student_email", "teacher", "teacher_email", "scheduled_at", "link", "comment")
+        fields = ("student", "student_email", "teacher", "teacher_email", "course", "scheduled_at", "link", "comment", "is_trial")
 
     def validate(self, attrs):
         # Если передан email, находим пользователя по email
@@ -144,6 +154,32 @@ class AdminLessonCreateSerializer(serializers.ModelSerializer):
         
         if not attrs.get('teacher'):
             raise serializers.ValidationError({"teacher": "Either teacher or teacher_email is required"})
+        
+        # Валидация баланса и пробных занятий (аналогично менеджеру)
+        is_trial = attrs.get('is_trial', False)
+        student = attrs.get('student')
+        
+        if student:
+            from .models import LessonBalance
+            student_role = getattr(student, 'role', None)
+            lb, _ = LessonBalance.objects.get_or_create(student=student)
+            
+            if is_trial:
+                # Пробные занятия можно создавать для абитуриентов или учеников с нулевым балансом
+                if student_role == 'STUDENT' and lb.lessons_available > 0:
+                    raise serializers.ValidationError({
+                        "is_trial": "Пробные занятия можно создавать только для абитуриентов или учеников с нулевым балансом"
+                    })
+            else:
+                # Обычные занятия можно создавать только для учеников с положительным балансом
+                if student_role != 'STUDENT':
+                    raise serializers.ValidationError({
+                        "student": "Обычные занятия можно создавать только для учеников. Для абитуриентов создайте пробное занятие (is_trial=true)."
+                    })
+                if lb.lessons_available <= 0:
+                    raise serializers.ValidationError({
+                        "student": "Нельзя создать урок для ученика с нулевым балансом. Создайте пробное занятие (is_trial=true) или пополните баланс ученика."
+                    })
         
         return attrs
 

@@ -48,7 +48,11 @@
                 <div
                   v-for="lesson in lessonsBySlot[day.iso + '-' + hour] || []"
                   :key="lesson.id"
-                  :class="['lesson-card', `lesson-card--${lesson.status?.toLowerCase() || 'planned'}`]"
+                  :class="[
+                    'lesson-card', 
+                    `lesson-card--${lesson.status?.toLowerCase() || 'planned'}`,
+                    { 'lesson-card--trial': lesson.is_trial }
+                  ]"
                   @click.stop="selectLesson(lesson)"
                 >
                   <div class="lesson-time">
@@ -57,6 +61,7 @@
                   <div class="lesson-student">
                     {{ lesson.student_email || ('Уч. ID ' + lesson.student) }}
                   </div>
+                  <div v-if="lesson.is_trial" class="lesson-trial-badge">Пробное</div>
                 </div>
               </div>
               <!-- Пустое место для добавления еще одного урока (20% ширины, справа) -->
@@ -216,6 +221,16 @@
             <textarea v-model="formComment" rows="2"></textarea>
           </label>
 
+          <!-- Пробное занятие (только для менеджера и админа) -->
+          <label v-if="isManager || isAdmin" class="field" style="flex-direction: row; align-items: center; gap: 8px;">
+            <input
+              v-model="formIsTrial"
+              type="checkbox"
+              style="width: auto; margin: 0;"
+            />
+            <span style="margin: 0;">Пробное занятие (не списывается с баланса)</span>
+          </label>
+
           <div class="modal-actions">
             <button type="submit" :disabled="createLoading || !canCreateLesson">
               {{ createLoading ? 'Создаём...' : 'Создать' }}
@@ -349,7 +364,8 @@ const auth = useAuthStore()
 
 const isManager = computed(() => props.userRole === 'manager')
 const isTeacher = computed(() => props.userRole === 'teacher')
-const canEditTime = computed(() => isManager.value)
+const isAdmin = computed(() => props.userRole === 'admin' || auth.user?.role === 'ADMIN')
+const canEditTime = computed(() => isManager.value || isAdmin.value)
 const canEditLesson = computed(() => props.onUpdateLesson !== null)
 
 // =====================================
@@ -462,6 +478,7 @@ const formStudentEmail = ref('')
 const formTeacherEmail = ref('')
 const formLink = ref('')
 const formComment = ref('')
+const formIsTrial = ref(false)
 
 const foundStudent = ref(null)
 const foundTeacher = ref(null)
@@ -487,6 +504,7 @@ const openCreate = (iso, hour) => {
   formTeacherEmail.value = ''
   formLink.value = ''
   formComment.value = ''
+  formIsTrial.value = false
   foundStudent.value = null
   foundTeacher.value = null
   studentError.value = ''
@@ -728,6 +746,11 @@ const handleCreate = async () => {
     payload.teacher_email = formTeacherEmail.value.trim()
   }
 
+  // Для менеджера и админа добавляем is_trial
+  if ((isManager.value || isAdmin.value) && formIsTrial.value) {
+    payload.is_trial = true
+  }
+
   console.log('Creating lesson with payload:', payload)
 
   createLoading.value = true
@@ -740,6 +763,7 @@ const handleCreate = async () => {
     formTeacherEmail.value = ''
     formLink.value = ''
     formComment.value = ''
+    formIsTrial.value = false
     foundStudent.value = null
     foundTeacher.value = null
   } catch (err) {
@@ -1365,6 +1389,60 @@ defineExpose({
 .lesson-card--cancelled {
   background: #ef4444;
   border-left-color: #dc2626;
+}
+
+/* Пробное занятие - ярче и с градиентом */
+.lesson-card--trial {
+  background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+  border-left-color: #ea580c;
+  box-shadow: 0 2px 12px rgba(245, 158, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  animation: trial-pulse 2s ease-in-out infinite;
+}
+
+.lesson-card--trial:hover {
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Комбинации пробного занятия со статусами */
+.lesson-card--trial.lesson-card--planned {
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #f59e0b 100%);
+  border-left-color: #2563eb;
+}
+
+.lesson-card--trial.lesson-card--done {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 50%, #f59e0b 100%);
+  border-left-color: #16a34a;
+}
+
+.lesson-card--trial.lesson-card--cancelled {
+  background: linear-gradient(135deg, #f87171 0%, #ef4444 50%, #f59e0b 100%);
+  border-left-color: #dc2626;
+}
+
+.lesson-trial-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #f59e0b;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 4px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+}
+
+@keyframes trial-pulse {
+  0%, 100% {
+    box-shadow: 0 2px 12px rgba(245, 158, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+  50% {
+    box-shadow: 0 2px 16px rgba(245, 158, 11, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
 }
 
 .lesson-time {
