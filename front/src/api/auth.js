@@ -22,3 +22,8 @@ export function getMeApi() {
 export function adminLoginApi({ email, password }) {
   return apiClient.post('/auth/admin-login/', { email, password })
 }
+
+// обновление профиля текущего пользователя
+export function updateMeApi(payload) {
+  return apiClient.patch('/auth/me/', payload)
+}

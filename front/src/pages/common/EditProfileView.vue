@@ -77,7 +77,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { useRouter } from 'vue-router'
 import TopNavigationBar from '../../components/TopNavigationBar.vue'
-import apiClient from '../../api/http'
+import { updateMeApi } from '../../api/auth'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -124,7 +124,7 @@ const handleSubmit = async () => {
   success.value = false
 
   try {
-    const { data } = await apiClient.patch('/api/auth/me/', formData.value)
+    const { data } = await updateMeApi(formData.value)
     
     // Обновляем данные в store
     await auth.fetchMe()

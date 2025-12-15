@@ -140,7 +140,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { useRouter } from 'vue-router'
 import TopNavigationBar from '../../components/TopNavigationBar.vue'
-import apiClient from '../../api/http'
+import { applicantGetPublicCourses } from '../../api/applicant'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -158,7 +158,7 @@ const displayedCourses = computed(() => {
 const fetchCourses = async () => {
   loading.value = true
   try {
-    const { data } = await apiClient.get('/api/applicant/courses/public/')
+    const { data } = await applicantGetPublicCourses()
     courses.value = data
   } catch (err) {
     if (err?.response?.status !== 401) {

@@ -97,8 +97,7 @@ import { useAuthStore } from '../../stores/auth'
 import TopNavigationBar from '../../components/TopNavigationBar.vue'
 import ManagerRequestForm from '../../components/ManagerRequestForm.vue'
 import { studentGetLessons } from '../../api/student'
-import { applicantCreateRequest } from '../../api/applicant'
-import apiClient from '../../api/http'
+import { applicantCreateRequest, applicantGetBalance } from '../../api/applicant'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -117,7 +116,7 @@ const loadBalance = async () => {
   balanceLoading.value = true
   balanceError.value = null
   try {
-    const { data } = await apiClient.get('/api/applicant/balance/')
+    const { data } = await applicantGetBalance()
     balanceData.value = data
   } catch (err) {
     console.error('load balance error:', err)
