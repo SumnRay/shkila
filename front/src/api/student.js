@@ -3,42 +3,42 @@ import apiClient from './http'
 
 // Получить данные личного кабинета ученика
 export function studentGetDashboard() {
-  return apiClient.get('/api/student/dashboard/')
+  return apiClient.get('/student/dashboard/')
 }
 
 // Получить список курсов
 export function studentGetCourses() {
-  return apiClient.get('/api/student/courses/')
+  return apiClient.get('/student/courses/')
 }
 
 // Получить список уроков
 export function studentGetLessons(params = {}) {
-  return apiClient.get('/api/student/lessons/', { params })
+  return apiClient.get('/student/lessons/', { params })
 }
 
 // Получить баланс
 export function studentGetBalance() {
-  return apiClient.get('/api/student/balance/')
+  return apiClient.get('/student/balance/')
 }
 
 // Получить историю платежей
 export function studentGetPayments() {
-  return apiClient.get('/api/student/payments/')
+  return apiClient.get('/student/payments/')
 }
 
 // Создать платеж
 export function studentCreatePayment(payload) {
-  return apiClient.post('/api/student/payments/create/', payload)
+  return apiClient.post('/student/payments/create/', payload)
 }
 
 // Получить краткую информацию о сезоне
 export function studentGetSeasonSummary() {
-  return apiClient.get('/api/student/season/summary/')
+  return apiClient.get('/student/season/summary/')
 }
 
 // Создать обращение к менеджеру
 export function studentCreateRequest(payload) {
-  return apiClient.post('/api/student/requests/create/', payload)
+  return apiClient.post('/student/requests/create/', payload)
 }
 
 

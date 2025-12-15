@@ -4,7 +4,7 @@ import apiClient from './http'
 // Получить список уроков для админ-панели
 // params может содержать: date_from, date_to, status, student, teacher и т.д.
 export function adminGetLessons(params = {}) {
-  return apiClient.get('/api/admin/lessons/', { params })
+  return apiClient.get('/admin/lessons/', { params })
 }
 
 // Создать новый урок
@@ -17,10 +17,10 @@ export function adminGetLessons(params = {}) {
 //   comment?: string
 // }
 export function adminCreateLesson(payload) {
-  return apiClient.post('/api/admin/lessons/', payload)
+  return apiClient.post('/admin/lessons/', payload)
 }
 
 // Обновить урок
 export function adminUpdateLesson(id, payload) {
-  return apiClient.patch(`/api/admin/lessons/${id}/`, payload)
+  return apiClient.patch(`/admin/lessons/${id}/`, payload)
 }

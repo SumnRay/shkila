@@ -5,49 +5,49 @@ import apiClient from './http'
 
 // Получить список уроков учителя
 export function teacherGetLessons(params = {}) {
-  return apiClient.get('/api/teacher/lessons/', { params })
+  return apiClient.get('/teacher/lessons/', { params })
 }
 
 // Создать урок для ученика
 export function teacherCreateLesson(payload) {
-  return apiClient.post('/api/teacher/lessons/', payload)
+  return apiClient.post('/teacher/lessons/', payload)
 }
 
 // Получить детали урока
 export function teacherGetLesson(id) {
-  return apiClient.get(`/api/teacher/lessons/${id}/`)
+  return apiClient.get(`/teacher/lessons/${id}/`)
 }
 
 // Обновить урок
 export function teacherUpdateLesson(id, payload) {
-  return apiClient.patch(`/api/teacher/lessons/${id}/update/`, payload)
+  return apiClient.patch(`/teacher/lessons/${id}/update/`, payload)
 }
 
 // ===== УЧЕНИКИ =====
 
 // Получить список учеников учителя
 export function teacherGetStudents(params = {}) {
-  return apiClient.get('/api/teacher/students/', { params })
+  return apiClient.get('/teacher/students/', { params })
 }
 
 // Получить уроки конкретного ученика
 export function teacherGetStudentLessons(studentId, params = {}) {
-  return apiClient.get(`/api/teacher/students/${studentId}/lessons/`, { params })
+  return apiClient.get(`/teacher/students/${studentId}/lessons/`, { params })
 }
 
 // Поиск ученика по email (с проверкой, что это ученик учителя)
 export function teacherSearchStudentByEmail(email) {
-  return apiClient.get('/api/teacher/students/by-email/', { params: { email } })
+  return apiClient.get('/teacher/students/by-email/', { params: { email } })
 }
 
 // Автодополнение учеников учителя
 export function teacherGetStudentsAutocomplete(search = '') {
-  return apiClient.get('/api/teacher/students/autocomplete/', { params: { search } })
+  return apiClient.get('/teacher/students/autocomplete/', { params: { search } })
 }
 
 // Получить список email учеников учителя для автодополнения
 export function teacherGetAutocomplete() {
-  return apiClient.get('/api/teacher/autocomplete/')
+  return apiClient.get('/teacher/autocomplete/')
 }
 
 

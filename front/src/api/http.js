@@ -2,13 +2,13 @@
 import axios from 'axios'
 
 // Используем переменную окружения или дефолтное значение для dev режима
-// В dev режиме: VITE_API_BASE_URL=http://127.0.0.1:8000 (или будет использован дефолт)
-// В prod: оставить пустым (будет использоваться относительный путь, проксируется через Nginx)
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://127.0.0.1:8000' : '')
+// В dev режиме: VITE_API_BASE_URL=http://127.0.0.1:8000/api (или будет использован дефолт)
+// В prod: /api (будет проксироваться через Nginx)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://127.0.0.1:8000/api' : '/api')
 
 // Для refresh токена используем тот же baseURL, что и для основного apiClient
 const getRefreshURL = () => {
-  return `${API_BASE_URL}/api/token/refresh/`
+  return `${API_BASE_URL}/token/refresh/`
 }
 
 const apiClient = axios.create({
