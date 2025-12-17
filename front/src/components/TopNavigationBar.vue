@@ -93,15 +93,6 @@
                 </div>
                 <div class="dropdown-divider"></div>
                 <router-link 
-                  v-if="isTeacher" 
-                  :to="{ name: 'teacher-schedule' }" 
-                  class="dropdown-item" 
-                  @click="closeUserMenu"
-                >
-                  <span class="item-icon">📅</span>
-                  <span>Мое расписание</span>
-                </router-link>
-                <router-link 
                   v-if="isStudent" 
                   :to="{ name: 'student-dashboard' }" 
                   class="dropdown-item" 
@@ -245,15 +236,26 @@ onUnmounted(() => {
   padding: 12px 24px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 20px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   min-height: 64px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: visible;
+  position: relative;
 }
 
 .nav-left {
+  position: absolute;
+  left: 24px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
+  flex-shrink: 0;
+  z-index: 1002;
 }
 
 .school-logo {
@@ -272,7 +274,7 @@ onUnmounted(() => {
 
 .school-logo:hover {
   color: #FFD700;
-  transform: translateY(-1px);
+  transform: translateY(-1px) translateX(0);
 }
 
 .logo-text {
@@ -283,11 +285,16 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 16px;
+  flex-shrink: 1;
+  min-width: 0;
+  justify-content: flex-end;
+  margin-left: auto;
 }
 
 /* Кнопка администрирования */
 .admin-section {
   position: relative;
+  flex-shrink: 0;
 }
 
 .admin-toggle-btn {
@@ -303,6 +310,8 @@ onUnmounted(() => {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  white-space: nowrap;
+  box-sizing: border-box;
 }
 
 .admin-toggle-btn:hover {
@@ -336,6 +345,7 @@ onUnmounted(() => {
   top: calc(100% + 8px);
   right: 0;
   min-width: 220px;
+  max-width: calc(100vw - 48px);
   background: rgba(40, 40, 40, 0.98);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 215, 0, 0.3);
@@ -343,6 +353,8 @@ onUnmounted(() => {
   padding: 8px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   z-index: 1001;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .dropdown-item {
@@ -361,6 +373,10 @@ onUnmounted(() => {
   background: none;
   width: 100%;
   text-align: left;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .dropdown-item:hover {
@@ -377,10 +393,12 @@ onUnmounted(() => {
 /* Меню пользователя */
 .auth-section {
   position: relative;
+  flex-shrink: 0;
 }
 
 .user-menu-wrapper {
   position: relative;
+  flex-shrink: 0;
 }
 
 .user-menu-btn {
@@ -396,6 +414,9 @@ onUnmounted(() => {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
+  white-space: nowrap;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 .user-menu-btn:hover {
@@ -407,6 +428,10 @@ onUnmounted(() => {
 .user-email {
   color: #FFFFFF;
   font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
 }
 
 .user-role-badge {
@@ -416,6 +441,9 @@ onUnmounted(() => {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  white-space: nowrap;
 }
 
 .user-role-badge.role-admin {
@@ -459,6 +487,7 @@ onUnmounted(() => {
   top: calc(100% + 8px);
   right: 0;
   min-width: 240px;
+  max-width: calc(100vw - 48px);
   background: rgba(40, 40, 40, 0.98);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 215, 0, 0.3);
@@ -466,6 +495,8 @@ onUnmounted(() => {
   padding: 8px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   z-index: 1001;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .user-info {
@@ -484,6 +515,10 @@ onUnmounted(() => {
   color: #FFFFFF;
   font-weight: 600;
   font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
 }
 
 .user-info-role {
@@ -512,6 +547,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
 }
 
 .auth-btn {
@@ -522,6 +558,9 @@ onUnmounted(() => {
   font-weight: 600;
   transition: all 0.3s ease;
   border: 1px solid transparent;
+  white-space: nowrap;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .login-btn {
@@ -591,7 +630,13 @@ onUnmounted(() => {
   .top-navigation-bar {
     padding: 10px 16px;
     gap: 12px;
+    flex-wrap: nowrap;
   }
+
+  .nav-left {
+    left: 16px;
+  }
+
 
   .logo-text {
     display: none;
@@ -617,9 +662,25 @@ onUnmounted(() => {
   .register-btn .auth-btn-text {
     display: none;
   }
+
+  .admin-dropdown,
+  .user-dropdown {
+    right: 0;
+    max-width: calc(100vw - 32px);
+  }
 }
 
 @media (max-width: 480px) {
+  .top-navigation-bar {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .nav-left {
+    left: 12px;
+  }
+
+
   .school-logo {
     padding: 6px;
   }
@@ -633,6 +694,17 @@ onUnmounted(() => {
   .user-role-badge {
     font-size: 0.7rem;
     padding: 3px 8px;
+  }
+
+  .admin-dropdown,
+  .user-dropdown {
+    right: 0;
+    max-width: calc(100vw - 24px);
+    min-width: 200px;
+  }
+
+  .nav-right {
+    gap: 8px;
   }
 }
 </style>
