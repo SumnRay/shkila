@@ -261,6 +261,63 @@ const handleSubmit = async () => {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 16px;
+  }
+
+  .modal-content {
+    max-width: 100%;
+    border-radius: 12px;
+  }
+
+  .modal-header {
+    padding: 20px;
+  }
+
+  .modal-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .request-form {
+    padding: 20px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn-cancel,
+  .btn-submit {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-overlay {
+    padding: 12px;
+  }
+
+  .modal-header {
+    padding: 16px;
+  }
+
+  .modal-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .request-form {
+    padding: 16px;
+  }
+
+  .form-textarea {
+    font-size: 0.9rem;
+    padding: 10px;
+  }
+}
 </style>
 
 

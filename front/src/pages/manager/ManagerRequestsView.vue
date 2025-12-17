@@ -416,6 +416,38 @@ onMounted(() => {
     align-self: flex-start;
   }
 }
+
+@media (max-width: 480px) {
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .request-card {
+    padding: 12px;
+  }
+
+  .request-header {
+    gap: 8px;
+  }
+
+  .request-email {
+    font-size: 0.9rem;
+  }
+
+  .request-date {
+    font-size: 0.8rem;
+  }
+
+  .request-comment {
+    font-size: 0.85rem;
+    padding: 10px;
+  }
+
+  .btn-respond {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
+}
 </style>
 
 

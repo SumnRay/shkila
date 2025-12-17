@@ -158,22 +158,27 @@ onMounted(() => {
 
 .teacher-students-page {
   min-height: 100vh;
-  height: 100vh;
-  width: 100vw;
+  width: 100%;
+  max-width: 100%;
   background: #1A1A1A;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   color: #FFFFFF;
   padding: 0;
+  margin: 0;
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 }
 
 .page-header {
   padding: 20px 24px 0;
   margin-bottom: 24px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .title-block {
@@ -199,6 +204,7 @@ onMounted(() => {
 
 .students-main {
   max-width: 1400px;
+  width: 100%;
   margin: 0 auto;
   padding: 0 24px 32px;
   position: relative;
@@ -207,7 +213,9 @@ onMounted(() => {
   flex-direction: column;
   gap: 20px;
   flex: 1;
-  overflow-y: auto;
+  overflow-y: visible;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .students-card {
@@ -217,6 +225,10 @@ onMounted(() => {
   padding: 24px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .students-card:hover {
@@ -265,10 +277,14 @@ onMounted(() => {
   display: flex;
   gap: 16px;
   align-items: center;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .search-input {
   flex: 1;
+  min-width: 0;
   padding: 12px 16px;
   border-radius: 8px;
   border: 2px solid rgba(255, 215, 0, 0.3);
@@ -278,6 +294,8 @@ onMounted(() => {
   font-weight: 500;
   transition: all 0.3s ease;
   font-family: inherit;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .search-input::placeholder {
@@ -306,6 +324,9 @@ onMounted(() => {
   gap: 6px;
   position: relative;
   overflow: hidden;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .btn.secondary {
@@ -393,13 +414,38 @@ onMounted(() => {
 
 .table-container {
   overflow-x: auto;
+  overflow-y: visible;
   margin-top: 16px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: rgba(40, 40, 40, 0.5);
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 215, 0, 0.5);
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 215, 0, 0.7);
 }
 
 .students-table {
   width: 100%;
+  min-width: 600px;
   border-collapse: collapse;
   font-size: 0.95rem;
+  table-layout: auto;
 }
 
 .students-table th,
@@ -407,6 +453,19 @@ onMounted(() => {
   padding: 12px 16px;
   text-align: left;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.students-table th {
+  white-space: nowrap;
+}
+
+.students-table td {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .students-table th {
@@ -425,19 +484,53 @@ onMounted(() => {
 .actions {
   display: flex;
   gap: 8px;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+}
+
+.actions .btn {
+  flex-shrink: 0;
 }
 
 @media (max-width: 1200px) {
   .students-main {
-    display: grid;
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 20px;
+    padding: 0 20px 28px;
   }
 }
 
 @media (max-width: 768px) {
+  .page-header {
+    padding: 16px 16px 0;
+    margin-bottom: 20px;
+  }
+
   .page-title {
     font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+
+  .students-main {
+    padding: 0 16px 24px;
+    gap: 16px;
+  }
+
+  .students-card {
+    padding: 20px;
+  }
+
+  .card-header {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+  }
+
+  .card-icon {
+    font-size: 1.5rem;
   }
 
   .card-title {
@@ -447,15 +540,145 @@ onMounted(() => {
   .search-form {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
+  }
+
+  .search-input {
+    width: 100%;
+    font-size: 0.95rem;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .table-container {
+    margin-top: 12px;
   }
 
   .students-table {
     font-size: 0.85rem;
+    min-width: 700px;
   }
 
   .students-table th,
   .students-table td {
-    padding: 8px 12px;
+    padding: 10px 12px;
+  }
+
+  .students-table th {
+    font-size: 0.9rem;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .actions .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-header {
+    padding: 12px 12px 0;
+    margin-bottom: 16px;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+  }
+
+  .students-main {
+    padding: 0 12px 20px;
+    gap: 12px;
+  }
+
+  .students-card {
+    padding: 16px;
+    border-width: 2px;
+  }
+
+  .card-header {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    gap: 8px;
+  }
+
+  .card-icon {
+    font-size: 1.3rem;
+  }
+
+  .card-title {
+    font-size: 1.2rem;
+  }
+
+  .search-form {
+    gap: 10px;
+  }
+
+  .search-input {
+    font-size: 0.9rem;
+    padding: 10px 12px;
+  }
+
+  .btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+
+  .btn.small {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+  }
+
+  .table-container {
+    margin-top: 10px;
+    margin-left: -16px;
+    margin-right: -16px;
+    padding: 0 16px;
+  }
+
+  .students-table {
+    font-size: 0.8rem;
+    min-width: 650px;
+  }
+
+  .students-table th,
+  .students-table td {
+    padding: 8px 10px;
+  }
+
+  .students-table th {
+    font-size: 0.85rem;
+  }
+
+  .students-table td {
+    max-width: 150px;
+    font-size: 0.75rem;
+  }
+
+  .error-message {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+  }
+
+  .loading-state,
+  .empty-state {
+    padding: 30px 20px;
+    font-size: 1rem;
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border-width: 3px;
   }
 }
 </style>

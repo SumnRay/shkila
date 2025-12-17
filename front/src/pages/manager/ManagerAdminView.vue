@@ -371,6 +371,36 @@ onMounted(() => {
     font-size: 1.5rem;
   }
 }
+
+@media (max-width: 480px) {
+  .content-header {
+    padding: 12px 12px 8px;
+  }
+
+  .page-title {
+    font-size: 1.8rem;
+  }
+
+  .admin-sections-grid {
+    gap: 12px;
+  }
+
+  .admin-section-card {
+    min-height: 240px;
+  }
+
+  .section-card-content {
+    padding: 16px;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+  }
+
+  .section-description {
+    font-size: 0.85rem;
+  }
+}
 </style>
 
 

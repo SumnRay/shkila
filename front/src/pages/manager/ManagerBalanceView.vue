@@ -328,22 +328,27 @@ onMounted(() => {
 
 .manager-balance-page {
   min-height: 100vh;
-  height: 100vh;
-  width: 100vw;
+  width: 100%;
+  max-width: 100%;
   background: #1A1A1A;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   color: #FFFFFF;
   padding: 0;
+  margin: 0;
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 }
 
 .page-header {
   padding: 20px 24px 0;
   margin-bottom: 24px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .title-block {
@@ -367,6 +372,7 @@ onMounted(() => {
 
 .balance-main {
   max-width: 1400px;
+  width: 100%;
   margin: 0 auto;
   padding: 0 24px 32px;
   position: relative;
@@ -375,7 +381,9 @@ onMounted(() => {
   flex-direction: column;
   gap: 20px;
   flex: 1;
-  overflow-y: auto;
+  overflow-y: visible;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .balance-card {
@@ -385,6 +393,10 @@ onMounted(() => {
   padding: 24px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .balance-card:hover {
@@ -411,6 +423,10 @@ onMounted(() => {
   margin-bottom: 24px;
   padding-bottom: 20px;
   border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  flex-wrap: wrap;
 }
 
 .card-icon {
@@ -433,10 +449,15 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .search-input,
 .search-select {
+  width: 100%;
+  min-width: 0;
   padding: 12px 16px;
   border-radius: 8px;
   border: 2px solid rgba(255, 215, 0, 0.3);
@@ -446,6 +467,7 @@ onMounted(() => {
   font-weight: 500;
   transition: all 0.3s ease;
   font-family: inherit;
+  box-sizing: border-box;
 }
 
 .search-input::placeholder {
@@ -479,6 +501,9 @@ onMounted(() => {
   background: rgba(50, 50, 50, 0.6);
   border-radius: 8px;
   border: 2px solid rgba(255, 215, 0, 0.3);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .balance-item {
@@ -486,6 +511,20 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 12px 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  gap: 12px;
+}
+
+.balance-item .label {
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.balance-item .value {
+  flex-shrink: 0;
+  text-align: right;
 }
 
 .balance-item.highlight {
@@ -498,12 +537,9 @@ onMounted(() => {
   color: rgba(255, 255, 255, 0.9);
   font-size: 1rem;
   font-weight: 600;
-}
-
-.balance-item .value {
-  font-weight: 700;
-  font-size: 1rem;
-  color: #FFD700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .balance-item .value.large {
@@ -530,12 +566,18 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .form-label {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .label-text {
@@ -546,6 +588,8 @@ onMounted(() => {
 }
 
 .form-input {
+  width: 100%;
+  min-width: 0;
   padding: 12px 16px;
   border-radius: 8px;
   border: 2px solid rgba(255, 215, 0, 0.3);
@@ -555,6 +599,7 @@ onMounted(() => {
   font-weight: 500;
   transition: all 0.3s ease;
   font-family: inherit;
+  box-sizing: border-box;
 }
 
 .form-input::placeholder {
@@ -592,6 +637,9 @@ onMounted(() => {
   gap: 6px;
   position: relative;
   overflow: hidden;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .btn.primary {
@@ -699,13 +747,38 @@ onMounted(() => {
 
 .table-container {
   overflow-x: auto;
+  overflow-y: visible;
   margin-top: 16px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: rgba(40, 40, 40, 0.5);
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 215, 0, 0.5);
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 215, 0, 0.7);
 }
 
 .students-table {
   width: 100%;
+  min-width: 600px;
   border-collapse: collapse;
   font-size: 0.95rem;
+  table-layout: auto;
 }
 
 .students-table th,
@@ -713,6 +786,19 @@ onMounted(() => {
   padding: 12px 16px;
   text-align: left;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.students-table th {
+  white-space: nowrap;
+}
+
+.students-table td {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .students-table thead {
@@ -745,32 +831,309 @@ onMounted(() => {
 .actions {
   display: flex;
   gap: 8px;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.actions .btn {
+  flex-shrink: 0;
 }
 
 @media (max-width: 1200px) {
   .balance-main {
-    display: grid;
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 20px;
-  }
-
-  .balance-info-card,
-  .students-list-card {
-    grid-column: 1 / -1;
+    padding: 0 20px 28px;
   }
 }
 
 @media (max-width: 768px) {
+  .page-header {
+    padding: 16px 16px 0;
+    margin-bottom: 20px;
+  }
+
   .page-title {
     font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+
+  .balance-main {
+    padding: 0 16px 24px;
+    gap: 16px;
+  }
+
+  .balance-card {
+    padding: 20px;
+  }
+
+  .card-header {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    gap: 10px;
+  }
+
+  .card-icon {
+    font-size: 1.5rem;
   }
 
   .card-title {
     font-size: 1.5rem;
   }
 
+  .card-header .btn {
+    width: 100%;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  .search-form {
+    gap: 12px;
+  }
+
+  .search-input,
+  .search-select {
+    font-size: 0.95rem;
+  }
+
+  .balance-info {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .balance-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 0;
+  }
+
+  .balance-item .label {
+    font-size: 0.9rem;
+  }
+
+  .balance-item .value {
+    text-align: left;
+    font-size: 0.95rem;
+  }
+
   .balance-item .value.large {
     font-size: 2rem;
+  }
+
+  .balance-actions {
+    margin-top: 20px;
+    padding-top: 20px;
+  }
+
+  .actions-title {
+    font-size: 1.3rem;
+  }
+
+  .balance-form {
+    gap: 12px;
+  }
+
+  .form-input {
+    font-size: 0.95rem;
+    padding: 10px 14px;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .table-container {
+    margin-top: 12px;
+    margin-left: -20px;
+    margin-right: -20px;
+    padding: 0 20px;
+  }
+
+  .students-table {
+    min-width: 700px;
+    font-size: 0.85rem;
+  }
+
+  .students-table th,
+  .students-table td {
+    padding: 10px 12px;
+  }
+
+  .students-table th {
+    font-size: 0.9rem;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .actions .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-header {
+    padding: 12px 12px 0;
+    margin-bottom: 16px;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+  }
+
+  .balance-main {
+    padding: 0 12px 20px;
+    gap: 12px;
+  }
+
+  .balance-card {
+    padding: 16px;
+    border-width: 2px;
+  }
+
+  .card-header {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    gap: 8px;
+  }
+
+  .card-icon {
+    font-size: 1.3rem;
+  }
+
+  .card-title {
+    font-size: 1.2rem;
+  }
+
+  .search-form {
+    gap: 10px;
+  }
+
+  .search-input,
+  .search-select {
+    font-size: 0.9rem;
+    padding: 10px 12px;
+  }
+
+  .balance-info {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .balance-item {
+    padding: 8px 0;
+  }
+
+  .balance-item .label {
+    font-size: 0.85rem;
+  }
+
+  .balance-item .value {
+    font-size: 0.9rem;
+  }
+
+  .balance-item .value.large {
+    font-size: 1.5rem;
+  }
+
+  .balance-actions {
+    margin-top: 16px;
+    padding-top: 16px;
+  }
+
+  .actions-title {
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+  }
+
+  .balance-form {
+    gap: 10px;
+  }
+
+  .label-text {
+    font-size: 0.85rem;
+  }
+
+  .form-input {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .or-divider {
+    font-size: 0.85rem;
+    margin: 2px 0;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+  }
+
+  .btn.small {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+  }
+
+  .table-container {
+    margin-top: 10px;
+    margin-left: -16px;
+    margin-right: -16px;
+    padding: 0 16px;
+  }
+
+  .students-table {
+    min-width: 600px;
+    font-size: 0.8rem;
+  }
+
+  .students-table th,
+  .students-table td {
+    padding: 8px 10px;
+  }
+
+  .students-table th {
+    font-size: 0.85rem;
+  }
+
+  .students-table td {
+    max-width: 150px;
+    font-size: 0.75rem;
+  }
+
+  .balance-cell {
+    font-size: 0.9rem;
+  }
+
+  .error-message,
+  .success-message {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+    margin-top: 12px;
+  }
+
+  .loading-state,
+  .empty-state {
+    padding: 30px 20px;
+    font-size: 1rem;
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border-width: 3px;
   }
 }
 </style>

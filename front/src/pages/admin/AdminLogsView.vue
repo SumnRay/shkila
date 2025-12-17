@@ -245,22 +245,27 @@ onMounted(() => {
 
 .admin-page {
   min-height: 100vh;
-  height: 100vh;
-  width: 100vw;
+  width: 100%;
+  max-width: 100%;
   background: #1A1A1A;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   color: #FFFFFF;
   padding: 0;
+  margin: 0;
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 }
 
 .page-header {
   padding: 20px 24px 0;
   margin-bottom: 24px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .title-block {
@@ -296,6 +301,9 @@ onMounted(() => {
   gap: 6px;
   position: relative;
   overflow: hidden;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .btn.primary {
@@ -346,6 +354,7 @@ onMounted(() => {
 
 .admin-main {
   max-width: 1600px;
+  width: 100%;
   margin: 0 auto;
   padding: 0 24px 32px;
   position: relative;
@@ -354,7 +363,9 @@ onMounted(() => {
   flex-direction: column;
   gap: 20px;
   flex: 1;
-  overflow-y: auto;
+  overflow-y: visible;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .admin-card {
@@ -364,6 +375,10 @@ onMounted(() => {
   padding: 24px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
   animation: fadeInUp 0.4s ease-out;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 @keyframes fadeInUp {
@@ -410,12 +425,18 @@ onMounted(() => {
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 20px;
   align-items: end;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .filter-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .filter-group.filter-actions {
@@ -441,6 +462,7 @@ onMounted(() => {
 .filter-input,
 .filter-select {
   width: 100%;
+  min-width: 0;
   padding: 12px 16px;
   border-radius: 8px;
   border: 2px solid rgba(255, 215, 0, 0.3);
@@ -450,6 +472,7 @@ onMounted(() => {
   font-weight: 500;
   transition: all 0.3s ease;
   font-family: inherit;
+  box-sizing: border-box;
 }
 
 .filter-input::placeholder {
@@ -542,15 +565,40 @@ onMounted(() => {
 
 .table-container {
   overflow-x: auto;
+  overflow-y: visible;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: rgba(40, 40, 40, 0.5);
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 215, 0, 0.5);
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 215, 0, 0.7);
 }
 
 .logs-table {
   width: 100%;
+  min-width: 900px;
   border-collapse: collapse;
   font-size: 0.9rem;
+  table-layout: auto;
 }
 
 .logs-table thead {
@@ -566,6 +614,8 @@ onMounted(() => {
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  white-space: nowrap;
+  box-sizing: border-box;
 }
 
 .logs-table td {
@@ -573,6 +623,9 @@ onMounted(() => {
   border-bottom: 1px solid rgba(255, 215, 0, 0.1);
   color: rgba(255, 255, 255, 0.9);
   vertical-align: top;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .logs-table tbody tr {
@@ -585,8 +638,11 @@ onMounted(() => {
 
 .actor-email {
   word-break: break-word;
+  overflow-wrap: break-word;
   font-weight: 500;
   max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .action-tag {
@@ -609,6 +665,7 @@ onMounted(() => {
   font-size: 0.75rem;
   max-height: 120px;
   overflow: auto;
+  overflow-x: auto;
   background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(10px);
   border-radius: 8px;
@@ -618,7 +675,30 @@ onMounted(() => {
   font-family: 'Courier New', monospace;
   line-height: 1.5;
   max-width: 400px;
+  min-width: 0;
   word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  box-sizing: border-box;
+}
+
+.meta-pre::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.meta-pre::-webkit-scrollbar-track {
+  background: rgba(40, 40, 40, 0.5);
+  border-radius: 3px;
+}
+
+.meta-pre::-webkit-scrollbar-thumb {
+  background: rgba(255, 215, 0, 0.5);
+  border-radius: 3px;
+}
+
+.meta-pre::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 215, 0, 0.7);
 }
 
 .empty-state {
@@ -642,10 +722,15 @@ onMounted(() => {
 @media (max-width: 768px) {
   .page-header {
     padding: 16px 16px 0;
+    margin-bottom: 20px;
   }
 
   .page-title {
     font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
   }
 
   .btn {
@@ -655,14 +740,33 @@ onMounted(() => {
 
   .admin-main {
     padding: 0 16px 24px;
+    gap: 16px;
   }
 
   .admin-card {
-    padding: 24px 20px;
+    padding: 20px;
+  }
+
+  .card-header {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+  }
+
+  .card-icon {
+    font-size: 1.5rem;
+  }
+
+  .card-title {
+    font-size: 1.5rem;
+  }
+
+  .filters-section {
+    gap: 16px;
   }
 
   .filters-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .filter-group.filter-actions {
@@ -670,16 +774,185 @@ onMounted(() => {
     align-items: stretch;
   }
 
+  .hint-box {
+    padding: 12px;
+  }
+
+  .hint {
+    font-size: 0.85rem;
+  }
+
   .table-container {
-    overflow-x: scroll;
+    overflow-x: auto;
+    margin-top: 12px;
+  }
+
+  .logs-table {
+    min-width: 900px;
+    font-size: 0.85rem;
+  }
+
+  .logs-table th,
+  .logs-table td {
+    padding: 10px 12px;
+  }
+
+  .logs-table th {
+    font-size: 0.8rem;
+  }
+
+  .actor-email {
+    max-width: 200px;
+  }
+
+  .meta-pre {
+    max-width: 250px;
+    max-height: 100px;
+    font-size: 0.7rem;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-header {
+    padding: 12px 12px 0;
+    margin-bottom: 16px;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+  }
+
+  .admin-main {
+    padding: 0 12px 20px;
+    gap: 12px;
+  }
+
+  .admin-card {
+    padding: 16px;
+    border-width: 2px;
+  }
+
+  .card-header {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    gap: 10px;
+  }
+
+  .card-icon {
+    font-size: 1.3rem;
+  }
+
+  .card-title {
+    font-size: 1.2rem;
+  }
+
+  .filters-section {
+    gap: 12px;
+  }
+
+  .filters-grid {
+    gap: 12px;
+  }
+
+  .filter-group {
+    gap: 6px;
+  }
+
+  .form-label {
+    font-size: 0.85rem;
+  }
+
+  .label-icon {
+    font-size: 1rem;
+  }
+
+  .filter-input,
+  .filter-select {
+    font-size: 0.9rem;
+    padding: 10px 12px;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+  }
+
+  .hint-box {
+    padding: 10px;
+  }
+
+  .hint {
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+
+  .table-container {
+    margin-top: 10px;
+    margin-left: -16px;
+    margin-right: -16px;
+    padding: 0 16px;
   }
 
   .logs-table {
     min-width: 800px;
+    font-size: 0.8rem;
+  }
+
+  .logs-table th,
+  .logs-table td {
+    padding: 8px 10px;
+  }
+
+  .logs-table th {
+    font-size: 0.75rem;
+  }
+
+  .logs-table td {
+    font-size: 0.75rem;
+  }
+
+  .actor-email {
+    max-width: 150px;
+    font-size: 0.75rem;
+  }
+
+  .action-tag {
+    font-size: 0.7rem;
+    padding: 4px 8px;
   }
 
   .meta-pre {
     max-width: 200px;
+    max-height: 80px;
+    font-size: 0.65rem;
+    padding: 8px;
+    line-height: 1.4;
+  }
+
+  .error-message {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+  }
+
+  .loading-state {
+    padding: 30px 20px;
+  }
+
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border-width: 3px;
+  }
+
+  .empty-state {
+    padding: 30px 20px;
+    font-size: 0.9rem;
   }
 }
 </style>

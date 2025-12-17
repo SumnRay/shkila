@@ -406,4 +406,36 @@ const handleSubmit = async () => {
     width: 100%;
   }
 }
+
+@media (max-width: 480px) {
+  .auth-page-content {
+    padding: 20px 12px;
+  }
+
+  .auth-card {
+    padding: 28px 20px;
+  }
+
+  .auth-icon {
+    font-size: 2.5rem;
+  }
+
+  .auth-title {
+    font-size: 1.75rem;
+  }
+
+  .auth-subtitle {
+    font-size: 0.85rem;
+  }
+
+  .form-input {
+    padding: 12px 14px;
+    font-size: 0.9rem;
+  }
+
+  .btn-submit {
+    padding: 14px 20px;
+    font-size: 0.95rem;
+  }
+}
 </style>

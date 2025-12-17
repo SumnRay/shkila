@@ -1820,4 +1820,253 @@ defineExpose({
   color: #ffffff;
   border: 1px solid #dc2626;
 }
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+  .schedule-view {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .lesson-info-card {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    max-width: 100%;
+  }
+
+  .calendar-card {
+    grid-column: 1 / -1;
+    height: auto;
+    min-height: 500px;
+    max-height: 70vh;
+  }
+}
+
+@media (max-width: 768px) {
+  .schedule-view {
+    padding: 0;
+    gap: 12px;
+  }
+
+  .admin-card {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .controls-card {
+    padding: 8px 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .controls-row {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .controls-row button {
+    flex: 1;
+    min-width: 100px;
+    font-size: 0.7rem;
+    padding: 6px 8px;
+  }
+
+  .week-label {
+    font-size: 0.85rem;
+  }
+
+  .hint {
+    font-size: 0.75rem;
+  }
+
+  .calendar-card {
+    min-height: 400px;
+    max-height: 60vh;
+  }
+
+  .calendar {
+    font-size: 11px;
+  }
+
+  .calendar-header-row,
+  .calendar-row {
+    grid-template-columns: 35px repeat(7, minmax(60px, 1fr));
+  }
+
+  .time-col {
+    font-size: 9px;
+    padding-right: 4px;
+    padding-left: 2px;
+    height: 36px;
+  }
+
+  .day-col {
+    padding: 6px 2px;
+  }
+
+  .day-name {
+    font-size: 9px;
+  }
+
+  .day-date {
+    font-size: 14px;
+  }
+
+  .calendar-row {
+    height: 36px;
+  }
+
+  .slot {
+    height: 36px;
+  }
+
+  .lesson-card {
+    font-size: 10px;
+    padding: 2px 4px;
+  }
+
+  .lesson-time {
+    font-size: 9px;
+  }
+
+  .lesson-student {
+    font-size: 11px;
+  }
+
+  .lesson-info-card {
+    padding: 16px;
+    max-height: 50vh;
+  }
+
+  .lesson-info-card h2 {
+    font-size: 1.2rem;
+  }
+
+  .lesson-info-card p {
+    font-size: 0.85rem;
+  }
+
+  .modal {
+    width: 90%;
+    max-width: 500px;
+    padding: 20px;
+    max-height: 85vh;
+  }
+
+  .modal h2 {
+    font-size: 1.2rem;
+  }
+
+  .field {
+    margin-bottom: 12px;
+  }
+
+  .field span {
+    font-size: 0.85rem;
+  }
+
+  .email-input-wrapper {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .btn-search {
+    width: 100%;
+  }
+
+  .field-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .field--half {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .schedule-view {
+    gap: 8px;
+  }
+
+  .admin-card {
+    padding: 12px;
+  }
+
+  .controls-card {
+    padding: 6px 10px;
+  }
+
+  .controls-row button {
+    font-size: 0.65rem;
+    padding: 5px 6px;
+    min-width: 80px;
+  }
+
+  .calendar-card {
+    min-height: 350px;
+    max-height: 55vh;
+  }
+
+  .calendar-header-row,
+  .calendar-row {
+    grid-template-columns: 30px repeat(7, minmax(50px, 1fr));
+  }
+
+  .time-col {
+    font-size: 8px;
+    height: 32px;
+  }
+
+  .day-col {
+    padding: 4px 1px;
+  }
+
+  .day-name {
+    font-size: 8px;
+  }
+
+  .day-date {
+    font-size: 12px;
+  }
+
+  .calendar-row {
+    height: 32px;
+  }
+
+  .slot {
+    height: 32px;
+  }
+
+  .lesson-card {
+    font-size: 9px;
+    padding: 1px 3px;
+  }
+
+  .lesson-time {
+    font-size: 8px;
+  }
+
+  .lesson-student {
+    font-size: 10px;
+  }
+
+  .modal {
+    width: 95%;
+    padding: 16px;
+  }
+
+  .modal h2 {
+    font-size: 1.1rem;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+}
 </style>

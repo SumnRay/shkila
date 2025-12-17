@@ -348,14 +348,57 @@ onMounted(() => {
     padding: 24px;
   }
 
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group input {
+    padding: 12px 16px;
+    font-size: 0.95rem;
+  }
+
   .form-actions {
     flex-direction: column;
+    gap: 10px;
   }
 
   .btn-save,
   .btn-cancel {
     width: 100%;
     text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-content {
+    padding: 20px 12px 24px;
+  }
+
+  .page-header h1 {
+    font-size: 1.3rem;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 18px;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+  }
+
+  .form-group input {
+    padding: 10px 14px;
+    font-size: 0.9rem;
+  }
+
+  .btn-save,
+  .btn-cancel {
+    padding: 10px 20px;
+    font-size: 0.95rem;
   }
 }
 </style>

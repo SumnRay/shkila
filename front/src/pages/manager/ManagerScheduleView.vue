@@ -222,5 +222,38 @@ onMounted(() => {
   width: 100%;
   max-width: 100%;
 }
+
+.page-header {
+  padding: 20px 24px 0;
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 0;
+  color: #e8eaf6;
+  letter-spacing: -1px;
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    padding: 16px 16px 0;
+  }
+
+  .page-header h1 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-header {
+    padding: 12px 12px 0;
+  }
+
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+}
 </style>
 

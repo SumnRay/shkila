@@ -181,4 +181,32 @@ onMounted(() => {
   padding: 0 20px 20px;
   box-sizing: border-box;
 }
+
+@media (max-width: 768px) {
+  .page-header {
+    padding: 16px 16px 0;
+  }
+
+  .page-header h1 {
+    font-size: 2rem;
+  }
+
+  .admin-main {
+    padding: 0 16px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-header {
+    padding: 12px 12px 0;
+  }
+
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .admin-main {
+    padding: 0 12px 12px;
+  }
+}
 </style>

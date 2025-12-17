@@ -524,4 +524,53 @@ onMounted(async () => {
     font-size: 0.9rem;
   }
 }
+
+@media (max-width: 480px) {
+  .dashboard-content {
+    padding: 16px 12px;
+  }
+
+  .top-nav-bar {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .nav-left {
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .nav-link {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+  }
+
+  .logout-btn {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .profile-card {
+    padding: 16px;
+  }
+
+  .profile-name {
+    font-size: 1.1rem;
+  }
+
+  .profile-email {
+    font-size: 0.85rem;
+  }
+
+  .floating-btn {
+    bottom: 16px;
+    right: 16px;
+    padding: 10px 16px;
+    font-size: 0.85rem;
+  }
+}
 </style>

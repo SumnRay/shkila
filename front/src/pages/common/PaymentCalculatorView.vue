@@ -608,6 +608,106 @@ const formatPrice = (price) => {
     font-size: 0.75rem;
   }
 }
+
+@media (max-width: 480px) {
+  .calculator-content {
+    padding: 10px;
+    height: calc(100vh - 60px);
+  }
+
+  .page-title {
+    font-size: 1.1rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.7rem;
+  }
+
+  .card {
+    padding: 8px;
+  }
+
+  .card-title h3 {
+    font-size: 0.85rem;
+  }
+
+  .packages-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+  }
+
+  .package-btn {
+    padding: 5px 3px;
+  }
+
+  .package-lessons {
+    font-size: 1rem;
+  }
+
+  .package-label {
+    font-size: 0.65rem;
+  }
+
+  .package-price {
+    font-size: 0.7rem;
+  }
+
+  .calculation-result {
+    padding: 8px;
+  }
+
+  .result-label {
+    font-size: 0.75rem;
+  }
+
+  .result-value {
+    font-size: 0.8rem;
+  }
+
+  .result-item.total .result-value {
+    font-size: 1rem;
+  }
+
+  .step-content h4 {
+    font-size: 0.8rem;
+  }
+
+  .step-content p {
+    font-size: 0.7rem;
+  }
+
+  .payment-details {
+    padding: 6px;
+  }
+
+  .payment-label {
+    font-size: 0.7rem;
+  }
+
+  .payment-value {
+    font-size: 0.75rem;
+  }
+
+  .contact-info {
+    padding: 6px;
+  }
+
+  .contact-info p {
+    font-size: 0.7rem;
+  }
+
+  .contact-info ul {
+    font-size: 0.65rem;
+  }
+
+  .important-note {
+    padding: 6px;
+  }
+
+  .note-text {
+    font-size: 0.65rem;
+  }
+}
 </style>
 
 

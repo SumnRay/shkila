@@ -312,22 +312,27 @@ onMounted(() => {
 
 .admin-page {
   min-height: 100vh;
-  height: 100vh;
-  width: 100vw;
+  width: 100%;
+  max-width: 100%;
   background: #1A1A1A;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   color: #FFFFFF;
   padding: 0;
+  margin: 0;
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 }
 
 .page-header {
   padding: 20px 24px 0;
   margin-bottom: 24px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .title-block {
@@ -363,6 +368,9 @@ onMounted(() => {
   gap: 6px;
   position: relative;
   overflow: hidden;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .btn.primary {
@@ -418,6 +426,7 @@ onMounted(() => {
 
 .admin-main {
   max-width: 1400px;
+  width: 100%;
   margin: 0 auto;
   padding: 0 24px 32px;
   position: relative;
@@ -426,7 +435,9 @@ onMounted(() => {
   flex-direction: column;
   gap: 20px;
   flex: 1;
-  overflow-y: auto;
+  overflow-y: visible;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .admin-card {
@@ -436,6 +447,10 @@ onMounted(() => {
   padding: 24px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
   animation: fadeInUp 0.4s ease-out;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 @keyframes fadeInUp {
@@ -528,16 +543,22 @@ onMounted(() => {
   flex-wrap: wrap;
   gap: 12px;
   align-items: center;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .filter-group {
   flex: 1;
   min-width: 200px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .filter-input,
 .filter-select {
   width: 100%;
+  min-width: 0;
   padding: 12px 16px;
   border-radius: 8px;
   border: 2px solid rgba(255, 215, 0, 0.3);
@@ -547,6 +568,7 @@ onMounted(() => {
   font-weight: 500;
   transition: all 0.3s ease;
   font-family: inherit;
+  box-sizing: border-box;
 }
 
 .filter-input::placeholder {
@@ -618,15 +640,40 @@ onMounted(() => {
 
 .table-container {
   overflow-x: auto;
+  overflow-y: visible;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: rgba(40, 40, 40, 0.5);
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 215, 0, 0.5);
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 215, 0, 0.7);
 }
 
 .users-table {
   width: 100%;
+  min-width: 800px;
   border-collapse: collapse;
   font-size: 0.9rem;
+  table-layout: auto;
 }
 
 .users-table thead {
@@ -642,12 +689,20 @@ onMounted(() => {
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  white-space: nowrap;
+  box-sizing: border-box;
 }
 
 .users-table td {
   padding: 14px 16px;
   border-bottom: 1px solid rgba(255, 215, 0, 0.1);
   color: rgba(255, 255, 255, 0.9);
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .users-table tbody tr {
@@ -669,6 +724,10 @@ onMounted(() => {
   cursor: pointer;
   transition: all 0.3s ease;
   font-family: inherit;
+  width: 100%;
+  min-width: 120px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .role-select:focus {
@@ -687,6 +746,13 @@ onMounted(() => {
 .actions {
   display: flex;
   gap: 8px;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.actions .btn-icon {
+  flex-shrink: 0;
 }
 
 .btn-icon {
@@ -734,12 +800,15 @@ onMounted(() => {
 
 .edit-panel {
   margin-top: 24px;
-  padding-top: 24px;
+  padding: 24px;
   border-top: 2px solid rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   border-radius: 16px;
-  padding: 24px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .edit-panel-header {
@@ -785,6 +854,9 @@ onMounted(() => {
   font-weight: 500;
   transition: all 0.3s ease;
   font-family: inherit;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .form-input::placeholder {
@@ -802,6 +874,13 @@ onMounted(() => {
   display: flex;
   gap: 12px;
   margin-top: 20px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.edit-actions .btn {
+  flex: 1;
+  min-width: 120px;
 }
 
 @media (max-width: 1200px) {
@@ -818,10 +897,15 @@ onMounted(() => {
 @media (max-width: 768px) {
   .page-header {
     padding: 16px 16px 0;
+    margin-bottom: 20px;
   }
 
   .page-title {
     font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
   }
 
   .btn {
@@ -831,22 +915,266 @@ onMounted(() => {
 
   .admin-main {
     padding: 0 16px 24px;
+    gap: 16px;
   }
 
   .admin-card {
-    padding: 24px 20px;
+    padding: 20px;
+  }
+
+  .card-header {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+  }
+
+  .card-icon {
+    font-size: 1.5rem;
+  }
+
+  .card-title {
+    font-size: 1.5rem;
   }
 
   .quick-links {
     grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .filter-group {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .section-header {
+    margin-bottom: 16px;
   }
 
   .table-container {
-    overflow-x: scroll;
+    overflow-x: auto;
+    margin-top: 12px;
   }
 
   .users-table {
     min-width: 800px;
+    font-size: 0.85rem;
+  }
+
+  .users-table th,
+  .users-table td {
+    padding: 10px 12px;
+  }
+
+  .users-table th {
+    font-size: 0.8rem;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .actions .btn-icon {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .edit-panel {
+    margin-top: 20px;
+    padding: 20px;
+  }
+
+  .edit-panel-header {
+    margin-bottom: 16px;
+  }
+
+  .edit-panel-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .edit-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .edit-actions .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-header {
+    padding: 12px 12px 0;
+    margin-bottom: 16px;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+  }
+
+  .admin-main {
+    padding: 0 12px 20px;
+    gap: 12px;
+  }
+
+  .admin-card {
+    padding: 16px;
+    border-width: 2px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+  }
+
+  .card-icon {
+    font-size: 1.3rem;
+  }
+
+  .card-title {
+    font-size: 1.1rem;
+  }
+
+  .filters {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .filter-group {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .filter-input,
+  .filter-select {
+    width: 100%;
+    font-size: 0.9rem;
+    padding: 10px 12px;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+  }
+
+  .btn.small {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+  }
+
+  .table-container {
+    margin-top: 10px;
+    margin-left: -16px;
+    margin-right: -16px;
+    padding: 0 16px;
+  }
+
+  .users-table {
+    min-width: 700px;
+    font-size: 0.8rem;
+  }
+
+  .users-table th,
+  .users-table td {
+    padding: 8px 10px;
+  }
+
+  .users-table th {
+    font-size: 0.75rem;
+  }
+
+  .users-table td {
+    max-width: 120px;
+    font-size: 0.75rem;
+  }
+
+  .role-select {
+    font-size: 0.75rem;
+    padding: 6px 8px;
+    min-width: 100px;
+  }
+
+  .btn-icon {
+    padding: 6px 10px;
+    font-size: 1rem;
+  }
+
+  .actions {
+    gap: 6px;
+  }
+
+  .edit-panel {
+    margin-top: 16px;
+    padding: 16px;
+  }
+
+  .edit-panel-header {
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .edit-panel-header h3 {
+    font-size: 1rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .form-row {
+    margin-bottom: 14px;
+  }
+
+  .form-input {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .label-text {
+    font-size: 0.85rem;
+  }
+
+  .edit-actions {
+    margin-top: 16px;
+    gap: 8px;
+  }
+
+  .edit-actions .btn {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+  }
+
+  .error-message {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+  }
+
+  .loading-state {
+    padding: 30px 20px;
+  }
+
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border-width: 3px;
+  }
+
+  .empty-state {
+    padding: 30px 20px;
+    font-size: 0.9rem;
   }
 }
 </style>

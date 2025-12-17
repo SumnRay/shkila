@@ -1193,4 +1193,63 @@ onMounted(() => {
     width: 100%;
   }
 }
+
+@media (max-width: 480px) {
+  .admin-header {
+    padding: 16px 20px;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .admin-main {
+    padding: 0 12px 20px;
+  }
+
+  .admin-card {
+    padding: 16px;
+  }
+
+  .section-header {
+    gap: 12px;
+  }
+
+  .btn {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
+
+  .courses-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .course-card {
+    padding: 20px;
+  }
+
+  .course-title {
+    font-size: 1.2rem;
+  }
+
+  .course-description {
+    font-size: 0.85rem;
+  }
+
+  .modal {
+    width: 95%;
+    padding: 16px;
+  }
+
+  .modal h2 {
+    font-size: 1.2rem;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+}
 </style>
