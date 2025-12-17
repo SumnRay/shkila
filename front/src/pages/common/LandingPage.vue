@@ -113,6 +113,7 @@
           v-for="course in displayedCourses" 
           :key="course.id" 
           class="course-card"
+          @click="openCourseDetails(course)"
         >
           <h3 class="course-card-title">{{ course.title }}</h3>
           <div class="course-card-description">
@@ -120,7 +121,7 @@
               {{ line }}
             </p>
           </div>
-          <button class="course-enroll-btn" @click="handleCourseEnroll(course)">
+          <button class="course-enroll-btn" @click.stop="handleCourseEnroll(course)">
             Записаться
           </button>
         </article>
@@ -132,6 +133,64 @@
         </button>
       </div>
     </section>
+
+    <!-- Модальное окно с деталями курса -->
+    <div v-if="selectedCourse" class="course-modal-backdrop" @click="closeCourseDetails">
+      <div class="course-modal" @click.stop>
+        <div class="course-modal-header">
+          <h2 class="course-modal-title">{{ selectedCourse.title }}</h2>
+          <button class="course-modal-close" @click="closeCourseDetails">×</button>
+        </div>
+        
+        <div class="course-modal-content">
+          <div v-if="selectedCourse.modules && selectedCourse.modules.length > 0" class="modules-list">
+            <div 
+              v-for="module in selectedCourse.modules" 
+              :key="module.id" 
+              class="module-item"
+            >
+              <div class="module-header">
+                <h3 class="module-title">
+                  <span class="module-icon">📦</span>
+                  {{ module.title }}
+                </h3>
+                <span class="module-topics-count">{{ module.topics_count || 0 }} тем</span>
+              </div>
+              
+              <p v-if="module.description" class="module-description">{{ module.description }}</p>
+              
+              <div v-if="module.topics && module.topics.length > 0" class="topics-list">
+                <div 
+                  v-for="topic in module.topics" 
+                  :key="topic.id" 
+                  class="topic-item"
+                >
+                  <span class="topic-icon">📝</span>
+                  <div class="topic-content">
+                    <h4 class="topic-title">{{ topic.title }}</h4>
+                    <p v-if="topic.description" class="topic-description">{{ topic.description }}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div v-else class="topics-empty">
+                <p>Темы пока не добавлены</p>
+              </div>
+            </div>
+          </div>
+          
+          <div v-else class="modules-empty">
+            <p>Модули пока не добавлены в этот курс</p>
+          </div>
+        </div>
+        
+        <div class="course-modal-footer">
+          <button class="course-modal-enroll-btn" @click="handleCourseEnroll(selectedCourse)">
+            Записаться на курс
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -147,6 +206,7 @@ const router = useRouter()
 const courses = ref([])
 const loading = ref(false)
 const showAllCourses = ref(false)
+const selectedCourse = ref(null)
 
 const displayedCourses = computed(() => {
   if (showAllCourses.value || courses.value.length <= 3) {
@@ -221,7 +281,16 @@ const handleEnroll = () => {
   }
 }
 
+const openCourseDetails = (course) => {
+  selectedCourse.value = course
+}
+
+const closeCourseDetails = () => {
+  selectedCourse.value = null
+}
+
 const handleCourseEnroll = (course) => {
+  closeCourseDetails()
   if (auth.isAuthenticated) {
     router.push({ name: 'applicant-dashboard' })
   } else {
@@ -510,6 +579,7 @@ onMounted(() => {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   box-sizing: border-box;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .course-card:hover {
@@ -755,6 +825,309 @@ onMounted(() => {
   .course-card {
     padding: 24px;
     width: 100%;
+  }
+}
+
+/* Модальное окно с деталями курса */
+.course-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.course-modal {
+  background: rgba(30, 35, 50, 0.98);
+  backdrop-filter: blur(20px);
+  border: 2px solid #FFD700;
+  border-radius: 20px;
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.course-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 32px;
+  border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+  background: rgba(40, 45, 60, 0.8);
+}
+
+.course-modal-title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0;
+  color: #FFFFFF;
+  letter-spacing: -1px;
+}
+
+.course-modal-close {
+  background: transparent;
+  border: none;
+  color: #FFD700;
+  font-size: 2.5rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.course-modal-close:hover {
+  background: rgba(255, 215, 0, 0.1);
+  transform: rotate(90deg);
+}
+
+.course-modal-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px;
+}
+
+.course-modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.course-modal-content::-webkit-scrollbar-track {
+  background: rgba(40, 45, 60, 0.5);
+  border-radius: 4px;
+}
+
+.course-modal-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 215, 0, 0.5);
+  border-radius: 4px;
+}
+
+.course-modal-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 215, 0, 0.7);
+}
+
+.modules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.module-item {
+  background: rgba(40, 45, 60, 0.6);
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s ease;
+}
+
+.module-item:hover {
+  border-color: #FFD700;
+  box-shadow: 0 8px 24px rgba(255, 215, 0, 0.2);
+}
+
+.module-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.module-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.module-icon {
+  font-size: 1.5rem;
+}
+
+.module-topics-count {
+  background: rgba(255, 215, 0, 0.2);
+  color: #FFD700;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid rgba(255, 215, 0, 0.4);
+}
+
+.module-description {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0 0 16px 0;
+}
+
+.topics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.topic-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(25, 30, 45, 0.8);
+  border-radius: 12px;
+  border-left: 3px solid #FFD700;
+  transition: all 0.3s ease;
+}
+
+.topic-item:hover {
+  background: rgba(35, 40, 55, 0.9);
+  transform: translateX(4px);
+}
+
+.topic-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.topic-content {
+  flex: 1;
+}
+
+.topic-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 6px 0;
+  color: #FFFFFF;
+}
+
+.topic-description {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.topics-empty,
+.modules-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1rem;
+}
+
+.course-modal-footer {
+  padding: 24px 32px;
+  border-top: 2px solid rgba(255, 215, 0, 0.3);
+  background: rgba(40, 45, 60, 0.8);
+  display: flex;
+  justify-content: center;
+}
+
+.course-modal-enroll-btn {
+  padding: 14px 36px;
+  border-radius: 8px;
+  border: none;
+  background: #FFD700;
+  color: #1A1A1A;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.course-modal-enroll-btn:hover {
+  background: #FF8C00;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
+}
+
+/* Адаптивность модального окна */
+@media (max-width: 768px) {
+  .course-modal {
+    max-width: 100%;
+    max-height: 95vh;
+    border-radius: 16px;
+  }
+
+  .course-modal-header {
+    padding: 20px 24px;
+  }
+
+  .course-modal-title {
+    font-size: 1.5rem;
+  }
+
+  .course-modal-content {
+    padding: 24px;
+  }
+
+  .module-item {
+    padding: 20px;
+  }
+
+  .module-title {
+    font-size: 1.3rem;
+  }
+
+  .course-modal-footer {
+    padding: 20px 24px;
+  }
+
+  .course-modal-enroll-btn {
+    width: 100%;
+    padding: 12px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .course-modal-backdrop {
+    padding: 10px;
+  }
+
+  .course-modal-header {
+    padding: 16px 20px;
+  }
+
+  .course-modal-title {
+    font-size: 1.3rem;
+  }
+
+  .course-modal-content {
+    padding: 20px;
+  }
+
+  .module-item {
+    padding: 16px;
+  }
+
+  .module-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .topic-item {
+    padding: 12px;
   }
 }
 </style>
