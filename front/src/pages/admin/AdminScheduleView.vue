@@ -14,7 +14,8 @@
         :on-create-lesson="handleCreateLesson"
         :on-update-lesson="handleUpdateLesson"
         :on-search-user="handleSearchUser"
-        user-role="manager"
+        :on-get-autocomplete="handleGetAutocomplete"
+        user-role="admin"
         :current-user-email="auth.user?.email || ''"
         @lesson-selected="selectLesson"
         @week-changed="handleWeekChanged"
@@ -31,7 +32,8 @@ import { useAuthStore } from '../../stores/auth'
 import ScheduleView from '../../components/ScheduleView.vue'
 import TopNavigationBar from '../../components/TopNavigationBar.vue'
 import { adminGetLessons, adminCreateLesson, adminUpdateLesson } from '../../api/lessons'
-import { adminSearchUserByEmail } from '../../api/admin'
+import { adminGetUsersAutocomplete } from '../../api/admin'
+import { managerSearchUserByEmail } from '../../api/manager'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -105,7 +107,8 @@ const handleUpdateLesson = async (lessonId, payload) => {
 
 const handleSearchUser = async (email, type) => {
   try {
-    const { data } = await adminSearchUserByEmail(email)
+    // Используем эндпоинт менеджера, так как он доступен для админа
+    const { data } = await managerSearchUserByEmail(email)
     return data
   } catch (err) {
     // Не логируем 404 как ошибку - это нормально, когда пользователь не найден
@@ -113,6 +116,16 @@ const handleSearchUser = async (email, type) => {
       console.error('search user error:', err)
     }
     throw err
+  }
+}
+
+const handleGetAutocomplete = async (role, search = '') => {
+  try {
+    const { data } = await adminGetUsersAutocomplete(role, search)
+    return data
+  } catch (err) {
+    console.error('get autocomplete error:', err)
+    return []
   }
 }
 

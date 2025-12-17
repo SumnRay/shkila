@@ -79,6 +79,7 @@ class LessonBalanceSerializer(serializers.ModelSerializer):
 class LessonSerializer(serializers.ModelSerializer):
     student_email = serializers.EmailField(source="student.email", read_only=True)
     teacher_email = serializers.EmailField(source="teacher.email", read_only=True)
+    student_balance = serializers.SerializerMethodField()
     course = serializers.SerializerMethodField()
 
     class Meta:
@@ -90,12 +91,14 @@ class LessonSerializer(serializers.ModelSerializer):
             "parent_full_name",
             "teacher",
             "teacher_email",
+            "student_balance",
             "course",
             "link",
             "scheduled_at",
             "status",
             "comment",
             "debited_from_balance",
+            "is_trial",
             "created_at",
         )
     
@@ -104,6 +107,14 @@ class LessonSerializer(serializers.ModelSerializer):
         if obj.course:
             return obj.course.title
         return None
+    
+    def get_student_balance(self, obj):
+        """Получение баланса ученика"""
+        try:
+            balance = LessonBalance.objects.get(student=obj.student)
+            return balance.lessons_available
+        except LessonBalance.DoesNotExist:
+            return 0
 
 
 class AdminLessonCreateSerializer(serializers.ModelSerializer):

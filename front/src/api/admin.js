@@ -13,6 +13,12 @@ export function adminSearchUserByEmail(email) {
   return apiClient.get('/admin/users/by-email/', { params: { email } })
 }
 
+// Автодополнение пользователей
+// Используем эндпоинт менеджера, так как он доступен для админа
+export function adminGetUsersAutocomplete(role, search = '') {
+  return apiClient.get('/manager/users/autocomplete/', { params: { role, search } })
+}
+
 // обновление данных пользователя (email, phone, ФИО и т.п.)
 export function adminUpdateUser(id, payload) {
   return apiClient.patch(`/admin/users/${id}/`, payload)

@@ -236,7 +236,7 @@ onUnmounted(() => {
   padding: 12px 24px;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 20px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   min-height: 64px;
@@ -256,6 +256,38 @@ onUnmounted(() => {
   align-items: center;
   flex-shrink: 0;
   z-index: 1002;
+  max-width: calc(100% - 200px);
+  overflow: hidden;
+}
+
+@media (max-width: 1024px) {
+  .nav-left {
+    max-width: calc(100% - 180px);
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-left {
+    max-width: calc(100% - 140px);
+  }
+}
+
+@media (max-width: 640px) {
+  .nav-left {
+    max-width: calc(100% - 120px);
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-left {
+    max-width: calc(100% - 100px);
+  }
+}
+
+@media (max-width: 360px) {
+  .nav-left {
+    max-width: calc(100% - 90px);
+  }
 }
 
 .school-logo {
@@ -270,6 +302,10 @@ onUnmounted(() => {
   padding: 8px 12px;
   border-radius: 8px;
   letter-spacing: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .school-logo:hover {
@@ -289,6 +325,39 @@ onUnmounted(() => {
   min-width: 0;
   justify-content: flex-end;
   margin-left: auto;
+  flex-wrap: nowrap;
+  overflow: visible;
+  padding-left: 180px;
+}
+
+@media (max-width: 1024px) {
+  .nav-right {
+    padding-left: 160px;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-right {
+    padding-left: 120px;
+  }
+}
+
+@media (max-width: 640px) {
+  .nav-right {
+    padding-left: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-right {
+    padding-left: 80px;
+  }
+}
+
+@media (max-width: 360px) {
+  .nav-right {
+    padding-left: 70px;
+  }
 }
 
 /* Кнопка администрирования */
@@ -355,6 +424,22 @@ onUnmounted(() => {
   z-index: 1001;
   box-sizing: border-box;
   overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .admin-dropdown {
+    right: auto;
+    left: 0;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-dropdown {
+    right: 0;
+    left: auto;
+    max-width: calc(100vw - 24px);
+  }
 }
 
 .dropdown-item {
@@ -499,6 +584,20 @@ onUnmounted(() => {
   overflow: hidden;
 }
 
+@media (max-width: 768px) {
+  .user-dropdown {
+    right: 0;
+    left: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-dropdown {
+    right: 0;
+    max-width: calc(100vw - 24px);
+  }
+}
+
 .user-info {
   flex-direction: column;
   align-items: flex-start;
@@ -626,69 +725,65 @@ onUnmounted(() => {
 }
 
 /* Адаптивность */
+
+/* Планшеты и средние экраны */
+@media (max-width: 1024px) {
+  .top-navigation-bar {
+    padding: 10px 20px;
+    gap: 16px;
+  }
+
+  .nav-left {
+    left: 20px;
+  }
+
+  .school-logo {
+    font-size: 1.3rem;
+  }
+
+  .user-email {
+    max-width: 150px;
+  }
+}
+
+/* Планшеты (портретная ориентация) */
 @media (max-width: 768px) {
   .top-navigation-bar {
     padding: 10px 16px;
     gap: 12px;
-    flex-wrap: nowrap;
+    min-height: 60px;
   }
 
   .nav-left {
     left: 16px;
   }
 
+  .school-logo {
+    font-size: 1.2rem;
+    padding: 6px 10px;
+  }
 
   .logo-text {
-    display: none;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+  }
+
+  .admin-toggle-btn {
+    padding: 7px 14px;
+    font-size: 0.85rem;
   }
 
   .admin-text {
     display: none;
   }
 
+  .user-menu-btn {
+    padding: 7px 14px;
+    font-size: 0.85rem;
+  }
+
   .user-email {
     display: none;
-  }
-
-  .auth-buttons {
-    gap: 8px;
-  }
-
-  .auth-btn {
-    padding: 8px 16px;
-    font-size: 0.85rem;
-  }
-
-  .register-btn .auth-btn-text {
-    display: none;
-  }
-
-  .admin-dropdown,
-  .user-dropdown {
-    right: 0;
-    max-width: calc(100vw - 32px);
-  }
-}
-
-@media (max-width: 480px) {
-  .top-navigation-bar {
-    padding: 8px 12px;
-    gap: 8px;
-  }
-
-  .nav-left {
-    left: 12px;
-  }
-
-
-  .school-logo {
-    padding: 6px;
-  }
-
-  .admin-toggle-btn,
-  .user-menu-btn {
-    padding: 6px 12px;
-    font-size: 0.85rem;
   }
 
   .user-role-badge {
@@ -696,15 +791,273 @@ onUnmounted(() => {
     padding: 3px 8px;
   }
 
+  .auth-buttons {
+    gap: 8px;
+  }
+
+  .auth-btn {
+    padding: 7px 14px;
+    font-size: 0.85rem;
+  }
+
   .admin-dropdown,
   .user-dropdown {
     right: 0;
-    max-width: calc(100vw - 24px);
+    max-width: calc(100vw - 32px);
     min-width: 200px;
   }
 
   .nav-right {
+    gap: 10px;
+  }
+}
+
+/* Мобильные устройства (большие) */
+@media (max-width: 640px) {
+  .top-navigation-bar {
+    padding: 8px 14px;
+    gap: 10px;
+    min-height: 56px;
+  }
+
+  .nav-left {
+    left: 14px;
+  }
+
+  .school-logo {
+    font-size: 1.1rem;
+    padding: 5px 8px;
+  }
+
+  .logo-text {
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+  }
+
+  .admin-toggle-btn,
+  .user-menu-btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    gap: 6px;
+  }
+
+  .admin-icon {
+    font-size: 1rem;
+  }
+
+  .user-role-badge {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+  }
+
+  .auth-btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+
+  .admin-dropdown,
+  .user-dropdown {
+    right: 0;
+    max-width: calc(100vw - 28px);
+    min-width: 180px;
+    padding: 6px;
+  }
+
+  .dropdown-item {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+    gap: 10px;
+  }
+
+  .item-icon {
+    font-size: 1rem;
+    width: 18px;
+  }
+
+  .nav-right {
     gap: 8px;
+  }
+}
+
+/* Мобильные устройства (малые) */
+@media (max-width: 480px) {
+  .top-navigation-bar {
+    padding: 8px 12px;
+    gap: 8px;
+    min-height: 52px;
+  }
+
+  .nav-left {
+    left: 12px;
+  }
+
+  .school-logo {
+    font-size: 1rem;
+    padding: 4px 6px;
+  }
+
+  .logo-text {
+    font-size: 0.95rem;
+    letter-spacing: 0;
+  }
+
+  .admin-toggle-btn,
+  .user-menu-btn {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+    gap: 5px;
+  }
+
+  .admin-icon {
+    font-size: 0.95rem;
+  }
+
+  .admin-arrow,
+  .user-arrow {
+    font-size: 0.6rem;
+  }
+
+  .user-role-badge {
+    font-size: 0.6rem;
+    padding: 2px 5px;
+    letter-spacing: 0.3px;
+  }
+
+  .auth-buttons {
+    gap: 6px;
+  }
+
+  .auth-btn {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+  }
+
+  .admin-dropdown,
+  .user-dropdown {
+    right: 0;
+    max-width: calc(100vw - 24px);
+    min-width: 160px;
+    padding: 5px;
+    top: calc(100% + 6px);
+  }
+
+  .dropdown-item {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+    gap: 8px;
+  }
+
+  .item-icon {
+    font-size: 0.95rem;
+    width: 16px;
+  }
+
+  .user-info {
+    padding: 10px 12px;
+  }
+
+  .user-info-email {
+    font-size: 0.85rem;
+  }
+
+  .user-info-role {
+    font-size: 0.75rem;
+  }
+
+  .nav-right {
+    gap: 6px;
+  }
+}
+
+/* Очень маленькие экраны */
+@media (max-width: 360px) {
+  .top-navigation-bar {
+    padding: 6px 10px;
+    gap: 6px;
+    min-height: 48px;
+  }
+
+  .nav-left {
+    left: 10px;
+  }
+
+  .school-logo {
+    font-size: 0.9rem;
+    padding: 3px 5px;
+  }
+
+  .logo-text {
+    font-size: 0.85rem;
+  }
+
+  .admin-toggle-btn,
+  .user-menu-btn {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    gap: 4px;
+  }
+
+  .admin-icon {
+    font-size: 0.9rem;
+  }
+
+  .user-role-badge {
+    font-size: 0.55rem;
+    padding: 2px 4px;
+  }
+
+  .auth-btn {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+
+  .admin-dropdown,
+  .user-dropdown {
+    max-width: calc(100vw - 20px);
+    min-width: 140px;
+  }
+
+  .dropdown-item {
+    padding: 6px 8px;
+    font-size: 0.75rem;
+  }
+
+  .nav-right {
+    gap: 4px;
+  }
+}
+
+/* Горизонтальная ориентация на мобильных */
+@media (max-width: 768px) and (orientation: landscape) {
+  .top-navigation-bar {
+    min-height: 50px;
+    padding: 6px 16px;
+  }
+
+  .school-logo {
+    font-size: 1.1rem;
+  }
+
+  .admin-toggle-btn,
+  .user-menu-btn {
+    padding: 5px 12px;
+  }
+}
+
+/* Очень большие экраны */
+@media (min-width: 1920px) {
+  .top-navigation-bar {
+    padding: 14px 32px;
+    max-width: 1920px;
+    margin: 0 auto;
+  }
+
+  .nav-left {
+    left: 32px;
+  }
+
+  .school-logo {
+    font-size: 1.6rem;
   }
 }
 </style>

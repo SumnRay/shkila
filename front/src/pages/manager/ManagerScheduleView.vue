@@ -154,14 +154,17 @@ onMounted(() => {
 <style scoped>
 .manager-page {
   min-height: 100vh;
+  height: 100vh;
+  width: 100vw;
   background: #1A1A1A;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   color: #FFFFFF;
   padding: 0;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
+  position: relative;
   overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .manager-header {
@@ -221,6 +224,11 @@ onMounted(() => {
 .manager-main {
   width: 100%;
   max-width: 100%;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 20px 20px;
+  box-sizing: border-box;
 }
 
 .page-header {
@@ -244,6 +252,10 @@ onMounted(() => {
   .page-header h1 {
     font-size: 2rem;
   }
+
+  .manager-main {
+    padding: 0 16px 16px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -253,6 +265,10 @@ onMounted(() => {
 
   .page-header h1 {
     font-size: 1.5rem;
+  }
+
+  .manager-main {
+    padding: 0 12px 12px;
   }
 }
 </style>

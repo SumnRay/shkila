@@ -126,14 +126,14 @@
               <input
                 v-model="formStudentEmail"
                 type="email"
-                :list="`student-email-list-${isManager ? 'manager' : 'teacher'}`"
+                :list="`student-email-list-${canSelectTeacher ? 'manager' : 'teacher'}`"
                 placeholder="student@example.com"
                 required
                 @blur="validateStudentEmail"
                 @input="handleStudentEmailInput"
                 autocomplete="off"
               />
-              <datalist :id="`student-email-list-${isManager ? 'manager' : 'teacher'}`">
+              <datalist :id="`student-email-list-${canSelectTeacher ? 'manager' : 'teacher'}`">
                 <option
                   v-for="student in studentAutocompleteList"
                   :key="student.id"
@@ -157,8 +157,8 @@
             <span v-if="studentError" class="error-text">{{ studentError }}</span>
           </label>
 
-          <!-- Поле для учителя (только для менеджера) -->
-          <label v-if="isManager" class="field">
+          <!-- Поле для учителя (для менеджера и админа) -->
+          <label v-if="canSelectTeacher" class="field">
             <span>Email учителя *</span>
             <div class="email-input-wrapper">
               <input
@@ -221,8 +221,8 @@
             <textarea v-model="formComment" rows="2"></textarea>
           </label>
 
-          <!-- Пробное занятие (только для менеджера и админа) -->
-          <label v-if="isManager || isAdmin" class="field" style="flex-direction: row; align-items: center; gap: 8px;">
+          <!-- Пробное занятие (для менеджера и админа) -->
+          <label v-if="canCreateTrial" class="field" style="flex-direction: row; align-items: center; gap: 8px;">
             <input
               v-model="formIsTrial"
               type="checkbox"
@@ -365,6 +365,9 @@ const auth = useAuthStore()
 const isManager = computed(() => props.userRole === 'manager')
 const isTeacher = computed(() => props.userRole === 'teacher')
 const isAdmin = computed(() => props.userRole === 'admin' || auth.user?.role === 'ADMIN')
+// Админ имеет те же возможности, что и менеджер
+const canSelectTeacher = computed(() => isManager.value || isAdmin.value)
+const canCreateTrial = computed(() => isManager.value || isAdmin.value)
 const canEditTime = computed(() => isManager.value || isAdmin.value)
 const canEditLesson = computed(() => props.onUpdateLesson !== null)
 
@@ -515,7 +518,7 @@ const openCreate = (iso, hour) => {
   // Загружаем начальные списки для автодополнения
   if (props.onGetAutocomplete) {
     loadStudentAutocomplete('')
-    if (isManager.value) {
+    if (canSelectTeacher.value) {
       loadTeacherAutocomplete('')
     }
   }
@@ -619,7 +622,7 @@ const loadStudentAutocomplete = async (search = '') => {
 }
 
 const loadTeacherAutocomplete = async (search = '') => {
-  if (!props.onGetAutocomplete || !isManager.value) return
+  if (!props.onGetAutocomplete || !canSelectTeacher.value) return
   
   try {
     autocompleteLoading.value = true
@@ -673,10 +676,15 @@ const handleTeacherEmailInput = (event) => {
 }
 
 const canCreateLesson = computed(() => {
-  if (isManager.value) {
+  if (canSelectTeacher.value) {
     return foundStudent.value && foundTeacher.value
   } else if (isTeacher.value) {
-    return foundStudent.value
+    // Для учителя дополнительно проверяем, что ученик не абитуриент и имеет баланс
+    if (!foundStudent.value) return false
+    if (foundStudent.value.role === 'APPLICANT') return false
+    const balance = foundStudent.value.lessons_available || 0
+    if (balance === 0) return false
+    return true
   }
   return false
 })
@@ -690,7 +698,7 @@ const handleCreate = async () => {
     return
   }
 
-  if (isManager.value && !foundTeacher.value) {
+  if (canSelectTeacher.value && !foundTeacher.value) {
     createError.value = 'Сначала найдите учителя по email и нажмите кнопку "Найти"'
     return
   }
@@ -701,9 +709,25 @@ const handleCreate = async () => {
     return
   }
 
-  if (isManager.value && !formTeacherEmail.value?.trim()) {
+  if (canSelectTeacher.value && !formTeacherEmail.value?.trim()) {
     createError.value = 'Введите email учителя'
     return
+  }
+
+  // Валидация для учителя: нельзя создать урок для ученика с нулевым балансом или абитуриента
+  if (isTeacher.value && foundStudent.value) {
+    // Проверяем роль ученика
+    if (foundStudent.value.role === 'APPLICANT') {
+      createError.value = 'Нельзя создать урок для абитуриента. Обратитесь к менеджеру.'
+      return
+    }
+    
+    // Проверяем баланс
+    const balance = foundStudent.value.lessons_available || 0
+    if (balance === 0) {
+      createError.value = 'Нельзя создать урок для ученика с нулевым балансом. Обратитесь к менеджеру.'
+      return
+    }
   }
 
   // Формируем правильный формат даты и времени (ISO 8601 с секундами и часовым поясом)
@@ -741,13 +765,13 @@ const handleCreate = async () => {
     payload.link = formLink.value.trim()
   }
 
-  // Для менеджера добавляем teacher_email
-  if (isManager.value) {
+  // Для менеджера и админа добавляем teacher_email
+  if (canSelectTeacher.value) {
     payload.teacher_email = formTeacherEmail.value.trim()
   }
 
   // Для менеджера и админа добавляем is_trial
-  if ((isManager.value || isAdmin.value) && formIsTrial.value) {
+  if (canCreateTrial.value && formIsTrial.value) {
     payload.is_trial = true
   }
 
