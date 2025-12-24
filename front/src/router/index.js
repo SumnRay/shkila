@@ -185,10 +185,14 @@ router.afterEach((to) => {
   document.title = title
   
   // Обновление favicon (можно менять для разных страниц, но пока оставим один)
-  const favicon = document.querySelector("link[rel='icon']")
-  if (favicon) {
-    favicon.href = '/favicon.svg'
+  let favicon = document.querySelector("link[rel='icon']")
+  if (!favicon) {
+    favicon = document.createElement('link')
+    favicon.rel = 'icon'
+    favicon.type = 'image/png'
+    document.head.appendChild(favicon)
   }
+  favicon.href = '/logo.png'
 })
 
 export default router

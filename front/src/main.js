@@ -6,6 +6,25 @@ import router from './router'
 import './style.css'
 import { useAuthStore } from './stores/auth'
 
+// Установка favicon при загрузке приложения
+const setFavicon = () => {
+  let favicon = document.querySelector("link[rel='icon']")
+  if (!favicon) {
+    favicon = document.createElement('link')
+    favicon.rel = 'icon'
+    favicon.type = 'image/png'
+    document.head.appendChild(favicon)
+  }
+  // Добавляем версию для обхода кэша
+  favicon.href = '/logo.png?' + Date.now()
+  // Удаляем версию после первой загрузки
+  setTimeout(() => {
+    favicon.href = '/logo.png'
+  }, 100)
+}
+
+setFavicon()
+
 const app = createApp(App)
 const pinia = createPinia()
 
