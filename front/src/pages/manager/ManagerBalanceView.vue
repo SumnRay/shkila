@@ -126,6 +126,7 @@
                 <th>ID</th>
                 <th>Email</th>
                 <th>ФИО</th>
+                <th>Роль</th>
                 <th>Баланс</th>
                 <th>Действия</th>
               </tr>
@@ -135,6 +136,7 @@
                 <td>{{ student.id }}</td>
                 <td>{{ student.email }}</td>
                 <td>{{ student.student_full_name || '—' }}</td>
+                <td>{{ student.role === 'STUDENT' ? 'Ученик' : student.role === 'APPLICANT' ? 'Абитуриент' : student.role }}</td>
                 <td class="balance-cell">{{ student.balance || 0 }}</td>
                 <td class="actions">
                   <button class="btn small secondary" @click="selectStudent(student.id)">
@@ -192,11 +194,23 @@ const searchStudents = async () => {
   }
 
   try {
-    const { data } = await managerGetClients({
-      search: searchQuery.value,
-      role: 'STUDENT'
-    })
-    searchResults.value = Array.isArray(data) ? data : data.results || []
+    // Ищем и студентов, и абитуриентов
+    const [studentsResponse, applicantsResponse] = await Promise.all([
+      managerGetClients({
+        search: searchQuery.value,
+        role: 'STUDENT'
+      }),
+      managerGetClients({
+        search: searchQuery.value,
+        role: 'APPLICANT'
+      })
+    ])
+    
+    const students = Array.isArray(studentsResponse.data) ? studentsResponse.data : studentsResponse.data.results || []
+    const applicants = Array.isArray(applicantsResponse.data) ? applicantsResponse.data : applicantsResponse.data.results || []
+    
+    // Объединяем результаты поиска
+    searchResults.value = [...students, ...applicants]
   } catch (err) {
     console.error('search students error:', err)
   }
@@ -261,12 +275,21 @@ const loadAllStudents = async () => {
   studentsError.value = null
 
   try {
-    const { data } = await managerGetClients({ role: 'STUDENT' })
-    const students = Array.isArray(data) ? data : data.results || []
+    // Загружаем и студентов, и абитуриентов
+    const [studentsResponse, applicantsResponse] = await Promise.all([
+      managerGetClients({ role: 'STUDENT' }),
+      managerGetClients({ role: 'APPLICANT' })
+    ])
+    
+    const students = Array.isArray(studentsResponse.data) ? studentsResponse.data : studentsResponse.data.results || []
+    const applicants = Array.isArray(applicantsResponse.data) ? applicantsResponse.data : applicantsResponse.data.results || []
+    
+    // Объединяем студентов и абитуриентов
+    const allClients = [...students, ...applicants]
     
     // Загружаем баланс для каждого ученика
     const studentsWithBalance = await Promise.all(
-      students.map(async (student) => {
+      allClients.map(async (student) => {
         try {
           const { data: balanceData } = await managerGetStudentBalance(student.id)
           return { ...student, balance: balanceData.lessons_available }
