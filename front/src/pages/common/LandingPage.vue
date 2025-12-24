@@ -2,18 +2,15 @@
 <template>
   <div class="home-page">
     <!-- Навигация -->
-    <div class="top-nav">
+    <TopNavigationBar v-if="auth.isAuthenticated" />
+    <div v-else class="top-nav">
       <div class="nav-right">
         <router-link 
-          v-if="!auth.isAuthenticated" 
           :to="{ name: 'login' }" 
           class="nav-btn auth-btn"
         >
           Вход/Регистрация
         </router-link>
-        <div v-else class="nav-auth-wrapper">
-          <TopNavigationBar />
-        </div>
       </div>
     </div>
 
@@ -290,19 +287,6 @@ onMounted(() => {
 .nav-right {
   display: flex;
   align-items: center;
-}
-
-.nav-auth-wrapper {
-  display: flex;
-  align-items: center;
-}
-
-.nav-auth-wrapper :deep(.top-navigation-bar) {
-  background: transparent;
-  border: none;
-  padding: 0;
-  box-shadow: none;
-  position: static;
 }
 
 .auth-btn {
