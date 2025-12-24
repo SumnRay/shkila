@@ -32,64 +32,8 @@
           </div>
         </div>
         <div class="hero-graphic">
-          <div class="circuit-board">
-            <svg viewBox="0 0 200 200" class="power-icon">
-              <defs>
-                <linearGradient id="powerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
-                  <stop offset="50%" style="stop-color:#FFA500;stop-opacity:1" />
-                  <stop offset="100%" style="stop-color:#FF8C00;stop-opacity:1" />
-                </linearGradient>
-                <filter id="glow">
-                  <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-                  <feMerge>
-                    <feMergeNode in="coloredBlur"/>
-                    <feMergeNode in="SourceGraphic"/>
-                  </feMerge>
-                </filter>
-                <filter id="strongGlow">
-                  <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
-                  <feMerge>
-                    <feMergeNode in="coloredBlur"/>
-                    <feMergeNode in="SourceGraphic"/>
-                  </feMerge>
-                </filter>
-              </defs>
-              <!-- Main circuit traces (thicker, more prominent) -->
-              <path d="M 10 100 L 70 100" stroke="url(#powerGradient)" stroke-width="3" fill="none" filter="url(#glow)"/>
-              <path d="M 130 100 L 190 100" stroke="url(#powerGradient)" stroke-width="3" fill="none" filter="url(#glow)"/>
-              <path d="M 100 10 L 100 70" stroke="url(#powerGradient)" stroke-width="3" fill="none" filter="url(#glow)"/>
-              <path d="M 100 130 L 100 190" stroke="url(#powerGradient)" stroke-width="3" fill="none" filter="url(#glow)"/>
-              
-              <!-- Diagonal traces -->
-              <path d="M 30 30 L 50 50" stroke="url(#powerGradient)" stroke-width="2" fill="none" filter="url(#glow)"/>
-              <path d="M 170 30 L 150 50" stroke="url(#powerGradient)" stroke-width="2" fill="none" filter="url(#glow)"/>
-              <path d="M 30 170 L 50 150" stroke="url(#powerGradient)" stroke-width="2" fill="none" filter="url(#glow)"/>
-              <path d="M 170 170 L 150 150" stroke="url(#powerGradient)" stroke-width="2" fill="none" filter="url(#glow)"/>
-              
-              <!-- Additional circuit connections -->
-              <path d="M 70 100 L 70 80 L 50 80" stroke="url(#powerGradient)" stroke-width="2" fill="none" filter="url(#glow)"/>
-              <path d="M 130 100 L 130 80 L 150 80" stroke="url(#powerGradient)" stroke-width="2" fill="none" filter="url(#glow)"/>
-              <path d="M 70 100 L 70 120 L 50 120" stroke="url(#powerGradient)" stroke-width="2" fill="none" filter="url(#glow)"/>
-              <path d="M 130 100 L 130 120 L 150 120" stroke="url(#powerGradient)" stroke-width="2" fill="none" filter="url(#glow)"/>
-              
-              <!-- Circuit nodes (small circles at intersections) -->
-              <circle cx="70" cy="100" r="3" fill="url(#powerGradient)" filter="url(#glow)"/>
-              <circle cx="130" cy="100" r="3" fill="url(#powerGradient)" filter="url(#glow)"/>
-              <circle cx="100" cy="70" r="3" fill="url(#powerGradient)" filter="url(#glow)"/>
-              <circle cx="100" cy="130" r="3" fill="url(#powerGradient)" filter="url(#glow)"/>
-              
-              <!-- Power button circle (main element) -->
-              <circle cx="100" cy="100" r="40" stroke="url(#powerGradient)" stroke-width="5" fill="none" filter="url(#strongGlow)"/>
-              <circle cx="100" cy="100" r="35" stroke="url(#powerGradient)" stroke-width="3" fill="none" filter="url(#glow)"/>
-              
-              <!-- Power symbol (more prominent) -->
-              <path d="M 100 70 L 100 130" stroke="url(#powerGradient)" stroke-width="5" stroke-linecap="round" filter="url(#strongGlow)"/>
-              <path d="M 100 100 L 82 82" stroke="url(#powerGradient)" stroke-width="5" stroke-linecap="round" filter="url(#strongGlow)"/>
-              
-              <!-- Inner glow effect -->
-              <circle cx="100" cy="100" r="30" fill="none" stroke="url(#powerGradient)" stroke-width="1" opacity="0.3" filter="url(#glow)"/>
-            </svg>
+          <div class="logo-wrapper">
+            <img src="/logo.png" alt="F.L.A.R.E. Logo" class="main-logo" />
           </div>
         </div>
       </div>
@@ -485,18 +429,38 @@ onMounted(() => {
   box-sizing: border-box;
 }
 
-.circuit-board {
+.logo-wrapper {
   width: 100%;
   max-width: 280px;
   height: auto;
   aspect-ratio: 1;
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.power-icon {
+.main-logo {
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.5));
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6)) 
+          drop-shadow(0 0 40px rgba(255, 215, 0, 0.4))
+          drop-shadow(0 0 60px rgba(255, 165, 0, 0.3));
+  animation: logo-glow 3s ease-in-out infinite alternate;
+}
+
+@keyframes logo-glow {
+  0% {
+    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.5)) 
+            drop-shadow(0 0 30px rgba(255, 215, 0, 0.3))
+            drop-shadow(0 0 45px rgba(255, 165, 0, 0.2));
+  }
+  100% {
+    filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.7)) 
+            drop-shadow(0 0 50px rgba(255, 215, 0, 0.5))
+            drop-shadow(0 0 75px rgba(255, 165, 0, 0.4));
+  }
 }
 
 /* Секция курсов */
@@ -683,7 +647,7 @@ onMounted(() => {
     width: 100%;
   }
 
-  .circuit-board {
+  .logo-wrapper {
     max-width: 240px;
   }
 
@@ -737,7 +701,7 @@ onMounted(() => {
     width: 100%;
   }
 
-  .circuit-board {
+  .logo-wrapper {
     max-width: 200px;
   }
 
@@ -809,7 +773,7 @@ onMounted(() => {
     width: 100%;
   }
 
-  .circuit-board {
+  .logo-wrapper {
     max-width: 180px;
   }
 
