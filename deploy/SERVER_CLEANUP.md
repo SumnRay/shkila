@@ -10,18 +10,37 @@
 ```bash
 cd /var/www/shkila
 
-# Отменить все изменения в отслеживаемых файлах (включая __pycache__)
-git restore .
-
 # Удалить странные файлы, которые случайно появились
 rm -f back/school/tall
 rm -f "back/school/ystemctl reload nginx"
 
-# Очистить все __pycache__ директории (опционально, но рекомендуется)
-find back/school -type d -name __pycache__ -exec rm -r {} + 2>/dev/null || true
+# Восстановить удаленные __pycache__ файлы (чтобы git не видел их как deleted)
+# Это нормально - они будут в .gitignore и не будут мешать
+git restore .
 
-# Проверить статус - должен быть чистым
-git status
+# Если после этого все еще видишь deleted файлы, просто игнорируй их:
+# Эти файлы должны быть удалены из git (лучше сделать это локально в отдельном коммите)
+# Пока просто проверь что нет других изменений
+git status --ignored
+```
+
+## Если видишь deleted файлы __pycache__:
+
+Это означает, что эти файлы когда-то были добавлены в git (ошибка). Нужно удалить их из репозитория локально:
+
+**Локально (на твоем компьютере):**
+```bash
+cd c:\shkila
+git rm -r --cached back/school/**/__pycache__
+git commit -m "Удалены __pycache__ файлы из репозитория (должны быть в .gitignore)"
+git push origin alpha3
+```
+
+**Затем на сервере:**
+```bash
+cd /var/www/shkila
+git pull origin alpha3
+git status  # Теперь должно быть чисто
 ```
 
 ## Если package-lock.json изменился:
