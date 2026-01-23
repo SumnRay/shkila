@@ -17,7 +17,7 @@
     </section>
 
     <!-- КАЛЕНДАРЬ -->
-    <section class="admin-card calendar-card">
+    <section class="calendar-wrapper">
       <div class="calendar">
         <!-- Заголовки дней -->
         <div class="calendar-header-row">
@@ -1019,18 +1019,23 @@ defineExpose({
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
-.calendar-card {
+.calendar-wrapper {
   width: 100%;
-  height: calc(100vh - 180px);
-  min-height: 600px;
-  max-height: calc(100vh - 180px);
+  max-width: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
 }
 
+.calendar-wrapper .status-text,
+.calendar-wrapper .error {
+  padding: 12px 16px;
+  margin-top: 12px;
+}
+
 .controls-card {
   background: rgba(40, 40, 40, 0.8);
-  border: 3px solid #FFD700;
+  border: none;
   border-radius: 12px;
   padding: 16px 24px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
@@ -1084,19 +1089,20 @@ defineExpose({
 }
 
 .calendar {
-  border: 3px solid #FFD700;
+  border: none;
   border-radius: 12px;
   overflow: hidden;
   font-size: 13px;
   width: 100%;
+  max-width: 100%;
   min-width: 0;
   background: rgba(40, 40, 40, 0.8);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  height: 100%;
+  height: calc(100vh - 180px);
+  min-height: 600px;
+  max-height: calc(100vh - 180px);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
@@ -1718,7 +1724,7 @@ defineExpose({
     gap: 16px;
   }
 
-  .calendar-card {
+  .calendar {
     height: auto;
     min-height: 500px;
     max-height: 70vh;
@@ -1764,7 +1770,7 @@ defineExpose({
     font-size: 0.75rem;
   }
 
-  .calendar-card {
+  .calendar {
     min-height: 400px;
     max-height: 60vh;
   }
@@ -1876,7 +1882,7 @@ defineExpose({
     min-width: 80px;
   }
 
-  .calendar-card {
+  .calendar {
     min-height: 350px;
     max-height: 55vh;
   }
