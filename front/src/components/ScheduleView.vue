@@ -1124,12 +1124,14 @@ defineExpose({
   grid-template-columns: 45px repeat(7, 1fr);
   width: 100%;
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .calendar-row {
   display: grid;
   grid-template-columns: 45px repeat(7, 1fr);
   width: 100%;
+  box-sizing: border-box;
 }
 
 .time-col {
@@ -1145,6 +1147,7 @@ defineExpose({
   height: 42px;
   font-weight: 700;
   border-right: 2px solid rgba(255, 215, 0, 0.3);
+  box-sizing: border-box;
 }
 
 .day-col {
@@ -1158,6 +1161,7 @@ defineExpose({
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  box-sizing: border-box;
 }
 
 .day-name {
@@ -1185,6 +1189,9 @@ defineExpose({
   overflow-x: hidden;
   background: rgba(35, 35, 35, 0.8);
   position: relative;
+  box-sizing: border-box;
+  /* Резервируем место под скроллбар для точного выравнивания колонок */
+  scrollbar-gutter: stable;
 }
 
 .calendar-body::-webkit-scrollbar {
@@ -1215,7 +1222,7 @@ defineExpose({
 .slot {
   position: relative;
   height: 42px;
-  border-right: 2px solid rgba(255, 215, 0, 0.2);
+  border-right: 2px solid rgba(255, 215, 0, 0.3);
   border-bottom: 2px solid rgba(255, 215, 0, 0.2);
   padding: 1px;
   display: flex;
