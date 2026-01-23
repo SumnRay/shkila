@@ -45,7 +45,12 @@
               @click="handleSlotClick($event, day.iso, hour)"
             >
               <!-- Контейнер для всех карточек уроков (80% ширины) -->
-              <div class="slot-lessons-container">
+              <div 
+                :class="[
+                  'slot-lessons-container',
+                  { 'slot-lessons-container--scrollable': (lessonsBySlot[day.iso + '-' + hour] || []).length > 5 }
+                ]"
+              >
                 <div
                   v-for="lesson in lessonsBySlot[day.iso + '-' + hour] || []"
                   :key="lesson.id"
@@ -1250,6 +1255,29 @@ defineExpose({
   z-index: 2;
 }
 
+.slot-lessons-container--scrollable {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.slot-lessons-container--scrollable::-webkit-scrollbar {
+  height: 4px;
+}
+
+.slot-lessons-container--scrollable::-webkit-scrollbar-track {
+  background: rgba(50, 50, 50, 0.3);
+  border-radius: 2px;
+}
+
+.slot-lessons-container--scrollable::-webkit-scrollbar-thumb {
+  background: rgba(255, 215, 0, 0.5);
+  border-radius: 2px;
+}
+
+.slot-lessons-container--scrollable::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 215, 0, 0.7);
+}
+
 .slot:hover {
   background: rgba(60, 60, 60, 0.8);
   z-index: 2;
@@ -1316,6 +1344,22 @@ defineExpose({
   z-index: 2;
   isolation: isolate;
   box-sizing: border-box;
+}
+
+/* При ≤5 уроках: карточки адаптивно уменьшаются, занимая всю доступную ширину */
+.slot-lessons-container:not(.slot-lessons-container--scrollable) .lesson-card {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* При >5 уроках: карточки фиксируются на размере, который был при 5 уроках */
+/* calc((100% - 8px) / 5) = ширина одной карточки при 5 уроках (100% контейнера минус 4 промежутка по 2px) */
+.slot-lessons-container--scrollable .lesson-card {
+  flex: 0 0 calc((100% - 8px) / 5);
+  width: calc((100% - 8px) / 5);
+  min-width: calc((100% - 8px) / 5);
+  max-width: calc((100% - 8px) / 5);
+  flex-shrink: 0;
 }
 
 .lesson-card:hover {
