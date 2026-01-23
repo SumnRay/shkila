@@ -1,18 +1,6 @@
 <!-- src/pages/common/PaymentCalculatorView.vue -->
 <template>
   <div class="payment-page">
-    <!-- Верхняя навигация -->
-    <nav class="top-nav-bar">
-      <div class="nav-left">
-        <router-link :to="{ name: 'home' }" class="nav-link">На главную</router-link>
-        <router-link v-if="auth.isAuthenticated" :to="dashboardRoute" class="nav-link">Личный кабинет</router-link>
-      </div>
-      <div class="nav-right">
-        <button v-if="auth.isAuthenticated" class="logout-btn" @click="handleLogout">Выход</button>
-        <router-link v-else :to="{ name: 'login' }" class="nav-link">Войти</router-link>
-      </div>
-    </nav>
-
     <div class="payment-content">
       <h1 class="page-title">Оплата занятий</h1>
 
@@ -110,28 +98,6 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '../../stores/auth'
-
-const auth = useAuthStore()
-const router = useRouter()
-
-const dashboardRoute = computed(() => {
-  if (!auth.user) return { name: 'login' }
-  const role = auth.user.role
-  if (role === 'STUDENT') return { name: 'student-dashboard' }
-  if (role === 'APPLICANT') return { name: 'applicant-dashboard' }
-  if (role === 'TEACHER') return { name: 'teacher-dashboard' }
-  if (role === 'MANAGER') return { name: 'manager-dashboard' }
-  if (role === 'ADMIN') return { name: 'admin-dashboard' }
-  return { name: 'home' }
-})
-
-const handleLogout = () => {
-  auth.logout()
-  router.push({ name: 'home' })
-}
 </script>
 
 <style scoped>
@@ -141,61 +107,6 @@ const handleLogout = () => {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   color: #FFFFFF;
   padding-bottom: 60px;
-}
-
-/* Верхняя навигация */
-.top-nav-bar {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: rgba(26, 26, 26, 0.95);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 215, 0, 0.3);
-  padding: 12px 32px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-}
-
-.nav-left {
-  display: flex;
-  gap: 24px;
-  align-items: center;
-}
-
-.nav-link {
-  color: #FFFFFF;
-  text-decoration: none;
-  font-size: 0.95rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  padding: 4px 0;
-}
-
-.nav-link:hover {
-  color: #FFD700;
-  transform: translateY(-1px);
-}
-
-.logout-btn {
-  padding: 8px 20px;
-  border-radius: 8px;
-  border: 1px solid #FFD700;
-  background: transparent;
-  color: #FFFFFF;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: inherit;
-}
-
-.logout-btn:hover {
-  background: #FFD700;
-  color: #1A1A1A;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
 }
 
 /* Контент */
@@ -445,20 +356,6 @@ const handleLogout = () => {
 
   .price-label {
     font-size: 1rem;
-  }
-
-  .top-nav-bar {
-    padding: 10px 16px;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .nav-left {
-    gap: 16px;
-  }
-
-  .nav-link {
-    font-size: 0.85rem;
   }
 }
 
