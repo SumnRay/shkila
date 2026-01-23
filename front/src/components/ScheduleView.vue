@@ -42,7 +42,7 @@
               v-for="day in weekDays"
               :key="day.iso + '-' + hour"
               class="calendar-cell slot"
-              @click="openCreate(day.iso, hour)"
+              @click="handleSlotClick($event, day.iso, hour)"
             >
               <!-- Контейнер для всех карточек уроков (80% ширины) -->
               <div class="slot-lessons-container">
@@ -400,7 +400,10 @@ const lessonsBySlot = computed(() => {
   for (const L of props.lessons) {
     if (!L.scheduled_at) continue
     const dt = new Date(L.scheduled_at)
-    const key = `${toISO(dt)}-${dt.getHours()}`
+    const hour = dt.getHours()
+    const minutes = dt.getMinutes()
+    // Группируем по часам (уроки в :00 и :30 попадают в один слот для отображения)
+    const key = `${toISO(dt)}-${hour}`
     if (!map[key]) map[key] = []
     map[key].push(L)
   }
@@ -461,9 +464,19 @@ let teacherAutocompleteTimeout = null
 const createLoading = ref(false)
 const createError = ref('')
 
-const openCreate = (iso, hour) => {
+const handleSlotClick = (event, iso, hour) => {
+  // Определяем, в какую половину ячейки кликнули (верхняя = :00, нижняя = :30)
+  const rect = event.currentTarget.getBoundingClientRect()
+  const clickY = event.clientY - rect.top
+  const slotHeight = rect.height
+  const minutes = clickY < slotHeight / 2 ? 0 : 30
+  
+  openCreate(iso, hour, minutes)
+}
+
+const openCreate = (iso, hour, minutes = 0) => {
   formDate.value = iso
-  formTime.value = `${String(hour).padStart(2, '0')}:00`
+  formTime.value = `${String(hour).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`
   formStudentEmail.value = ''
   formTeacherEmail.value = ''
   formLink.value = ''
@@ -1207,6 +1220,18 @@ defineExpose({
   overflow: hidden;
   box-sizing: border-box;
   background: rgba(45, 45, 45, 0.6);
+  z-index: 1;
+}
+
+.slot::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: rgba(255, 215, 0, 0.1);
+  pointer-events: none;
   z-index: 1;
 }
 
