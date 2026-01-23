@@ -1,118 +1,107 @@
 <!-- src/pages/common/PaymentCalculatorView.vue -->
 <template>
-  <div class="payment-calculator">
-    <TopNavigationBar />
-
-    <div class="calculator-content">
-      <div class="page-header">
-        <h1 class="page-title">💳 Оплата занятий</h1>
-        <p class="page-subtitle">Выберите пакет занятий и следуйте инструкциям</p>
+  <div class="payment-page">
+    <!-- Верхняя навигация -->
+    <nav class="top-nav-bar">
+      <div class="nav-left">
+        <router-link :to="{ name: 'home' }" class="nav-link">На главную</router-link>
+        <router-link v-if="auth.isAuthenticated" :to="dashboardRoute" class="nav-link">Личный кабинет</router-link>
       </div>
+      <div class="nav-right">
+        <button v-if="auth.isAuthenticated" class="logout-btn" @click="handleLogout">Выход</button>
+        <router-link v-else :to="{ name: 'login' }" class="nav-link">Войти</router-link>
+      </div>
+    </nav>
 
-      <div class="main-layout">
-        <!-- Левая колонка - Калькулятор -->
-        <div class="calculator-section">
-          <div class="card calculator-card">
-            <div class="card-title">
-              <span>🧮</span>
-              <h3>Калькулятор стоимости</h3>
+    <div class="payment-content">
+      <h1 class="page-title">Оплата занятий</h1>
+
+      <div class="cards-grid">
+        <!-- Карточка с ценой -->
+        <div class="card price-card">
+          <h2 class="card-title">Стоимость</h2>
+          <div class="price-block">
+            <div class="price-value">800 ₽</div>
+            <div class="price-label">за 1 урок</div>
+          </div>
+        </div>
+
+        <!-- Карточка с реквизитами -->
+        <div class="card payment-card">
+          <h2 class="card-title">Реквизиты для оплаты</h2>
+          <div class="payment-info">
+            <div class="payment-row">
+              <span class="payment-label">Способ оплаты:</span>
+              <span class="payment-value">СБП (Система быстрых платежей)</span>
             </div>
-            <div class="calculator-form">
-              <div class="form-group">
-                <label class="form-label">Выберите пакет занятий</label>
-                <div class="packages-grid">
-                  <button
-                    v-for="pkg in packages"
-                    :key="pkg.id"
-                    @click="selectPackage(pkg)"
-                    :class="['package-btn', { active: selectedPackage?.id === pkg.id }]"
-                  >
-                    <div class="package-lessons">{{ pkg.lessons }}</div>
-                    <div class="package-label">занятий</div>
-                    <div class="package-price">{{ formatPrice(pkg.price) }} ₽</div>
-                  </button>
-                </div>
-              </div>
-              <div v-if="selectedPackage" class="calculation-result">
-                <div class="result-item">
-                  <span class="result-label">Количество занятий:</span>
-                  <span class="result-value">{{ selectedPackage.lessons }}</span>
-                </div>
-                <div class="result-item">
-                  <span class="result-label">Стоимость за занятие:</span>
-                  <span class="result-value">{{ formatPrice(selectedPackage.pricePerLesson) }} ₽</span>
-                </div>
-                <div class="result-item total">
-                  <span class="result-label">Итого к оплате:</span>
-                  <span class="result-value">{{ formatPrice(selectedPackage.price) }} ₽</span>
-                </div>
-              </div>
+            <div class="payment-row">
+              <span class="payment-label">Банк:</span>
+              <span class="payment-value">ВТБ</span>
+            </div>
+            <div class="payment-row">
+              <span class="payment-label">Номер телефона:</span>
+              <span class="payment-value phone-number">+7 978 474 13 26</span>
+            </div>
+            <div class="payment-row">
+              <span class="payment-label">Получатель:</span>
+              <span class="payment-value">Семененко Никита Сергеевич</span>
             </div>
           </div>
         </div>
 
-        <!-- Правая колонка - Инструкции -->
-        <div class="instructions-section">
-          <div class="card instructions-card">
-            <div class="card-title">
-              <span>📋</span>
-              <h3>Инструкция по оплате</h3>
+        <!-- Информационная карточка -->
+        <div class="card info-card">
+          <h2 class="card-title">Важная информация</h2>
+          <div class="info-block warning">
+            <div class="info-icon">⚠️</div>
+            <div class="info-text">
+              На данный момент на платформе нет менеджеров. Чек об оплате необходимо отправлять лично преподавателю, по совместительству менеджеру и администратору.
             </div>
-            <div class="instructions-content">
-              <div class="instruction-step">
-                <div class="step-number">1</div>
-                <div class="step-content">
-                  <h4>Выберите пакет занятий</h4>
-                  <p>Выберите подходящий пакет занятий в калькуляторе слева</p>
-                </div>
-              </div>
-              <div class="instruction-step">
-                <div class="step-number">2</div>
-                <div class="step-content">
-                  <h4>Оплатите через СБП</h4>
-                  <p>Переведите сумму на наш номер телефона через систему быстрых платежей (СБП)</p>
-                  <div class="payment-details">
-                    <div class="payment-item">
-                      <span class="payment-label">Номер телефона:</span>
-                      <span class="payment-value">{{ paymentPhone }}</span>
-                    </div>
-                    <div class="payment-item">
-                      <span class="payment-label">Сумма к оплате:</span>
-                      <span class="payment-value" v-if="selectedPackage">{{ formatPrice(selectedPackage.price) }} ₽</span>
-                      <span class="payment-value" v-else>—</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="instruction-step">
-                <div class="step-number">3</div>
-                <div class="step-content">
-                  <h4>Отправьте чек менеджеру</h4>
-                  <p>После оплаты обязательно отправьте скриншот или фото чека менеджеру для подтверждения оплаты и начисления занятий на ваш баланс</p>
-                  <div class="contact-info">
-                    <p><strong>Способы связи с менеджером:</strong></p>
-                    <ul>
-                      <li>Email: {{ managerEmail }}</li>
-                      <li>Телефон: {{ managerPhone }}</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div class="instruction-step">
-                <div class="step-number">4</div>
-                <div class="step-content">
-                  <h4>Получите занятия на баланс</h4>
-                  <p>После подтверждения оплаты менеджером занятия будут начислены на ваш баланс в личном кабинете</p>
-                </div>
-              </div>
+          </div>
+        </div>
+
+        <!-- Карточка с контактами -->
+        <div class="card contact-card">
+          <h2 class="card-title">Отправка чека</h2>
+          <p class="contact-description">
+            После оплаты отправьте скриншот или фото чека преподавателю для подтверждения и начисления занятий на ваш баланс.
+          </p>
+          <div class="contact-info">
+            <div class="contact-row">
+              <span class="contact-label">Telegram:</span>
+              <a href="https://t.me/nikiticko" target="_blank" class="contact-link">@nikiticko</a>
             </div>
-            <div class="important-note">
-              <div class="note-icon">⚠️</div>
-              <div class="note-text">
-                <strong>Важно:</strong> Занятия будут начислены только после подтверждения оплаты менеджером. 
-                Пожалуйста, сохраните чек об оплате до получения подтверждения.
-              </div>
+            <div class="contact-row">
+              <span class="contact-label">Телефон:</span>
+              <span class="contact-value">+7 978 474 13 26</span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Инструкция -->
+      <div class="card instructions-card">
+        <h2 class="card-title">Как оплатить</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-text">Откройте приложение вашего банка и выберите оплату по СБП</div>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-text">Введите номер телефона <strong>+7 978 474 13 26</strong> и выберите банк <strong>ВТБ</strong></div>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-text">Укажите сумму (800₽ × количество уроков) и выполните перевод</div>
+          </div>
+          <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-text">Отправьте скриншот чека в Telegram <strong>@nikiticko</strong></div>
+          </div>
+          <div class="step">
+            <div class="step-number">5</div>
+            <div class="step-text">После подтверждения занятия будут начислены на ваш баланс</div>
           </div>
         </div>
       </div>
@@ -121,596 +110,387 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
-import TopNavigationBar from '../../components/TopNavigationBar.vue'
 
 const auth = useAuthStore()
+const router = useRouter()
 
-// Пакеты занятий (можно будет получать с бэкенда в будущем)
-const packages = ref([
-  { id: 1, lessons: 4, price: 4000, pricePerLesson: 1000 },
-  { id: 2, lessons: 8, price: 7200, pricePerLesson: 900 },
-  { id: 3, lessons: 12, price: 10200, pricePerLesson: 850 },
-  { id: 4, lessons: 16, price: 12800, pricePerLesson: 800 },
-  { id: 5, lessons: 20, price: 15000, pricePerLesson: 750 },
-])
+const dashboardRoute = computed(() => {
+  if (!auth.user) return { name: 'login' }
+  const role = auth.user.role
+  if (role === 'STUDENT') return { name: 'student-dashboard' }
+  if (role === 'APPLICANT') return { name: 'applicant-dashboard' }
+  if (role === 'TEACHER') return { name: 'teacher-dashboard' }
+  if (role === 'MANAGER') return { name: 'manager-dashboard' }
+  if (role === 'ADMIN') return { name: 'admin-dashboard' }
+  return { name: 'home' }
+})
 
-const selectedPackage = ref(null)
-
-// Реквизиты для оплаты (можно вынести в конфиг или получать с бэкенда)
-const paymentPhone = ref('+7 (999) 123-45-67')
-const managerEmail = ref('manager@school.ru')
-const managerPhone = ref('+7 (999) 123-45-68')
-
-const selectPackage = (packageOption) => {
-  selectedPackage.value = packageOption
-}
-
-const formatPrice = (price) => {
-  return new Intl.NumberFormat('ru-RU').format(price)
+const handleLogout = () => {
+  auth.logout()
+  router.push({ name: 'home' })
 }
 </script>
 
 <style scoped>
-.payment-calculator {
+.payment-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
-  position: relative;
+  background: #1A1A1A;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  color: #FFFFFF;
+  padding-bottom: 60px;
 }
 
-.payment-calculator::before {
-  content: '';
-  position: absolute;
+/* Верхняя навигация */
+.top-nav-bar {
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-  pointer-events: none;
-}
-
-@keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.calculator-content {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 16px;
-  position: relative;
-  z-index: 1;
-  height: calc(100vh - 60px);
+  z-index: 100;
+  background: rgba(26, 26, 26, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+  padding: 12px 32px;
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
-.page-header {
-  text-align: center;
-  margin-bottom: 16px;
-  flex-shrink: 0;
+.nav-left {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.nav-link {
+  color: #FFFFFF;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  padding: 4px 0;
+}
+
+.nav-link:hover {
+  color: #FFD700;
+  transform: translateY(-1px);
+}
+
+.logout-btn {
+  padding: 8px 20px;
+  border-radius: 8px;
+  border: 1px solid #FFD700;
+  background: transparent;
+  color: #FFFFFF;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.logout-btn:hover {
+  background: #FFD700;
+  color: #1A1A1A;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+}
+
+/* Контент */
+.payment-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 32px;
 }
 
 .page-title {
-  font-size: 1.5rem;
+  font-size: 2.5rem;
   font-weight: 900;
   color: #FFFFFF;
-  margin: 0 0 4px 0;
-  letter-spacing: -1px;
+  text-align: center;
+  margin: 0 0 32px 0;
 }
 
-.page-subtitle {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.8);
-  margin: 0;
-}
-
-.main-layout {
+/* Сетка карточек */
+.cards-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  align-items: start;
-  flex: 1;
-  overflow: hidden;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-bottom: 24px;
 }
 
+/* Карточки */
 .card {
   background: rgba(40, 40, 40, 0.8);
   border: 3px solid #FFD700;
   border-radius: 12px;
-  padding: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  transition: all 0.3s ease;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-}
-
-.card:hover {
-  box-shadow: 0 12px 30px rgba(255, 215, 0, 0.3);
-  border-color: #FF8C00;
-  transform: translateY(-2px);
+  padding: 24px;
 }
 
 .card-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-  flex-shrink: 0;
-}
-
-.card-title span {
-  font-size: 1.2rem;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-}
-
-.card-title h3 {
-  margin: 0;
-  font-size: 1rem;
-  color: #ffffff;
-  flex: 1;
+  font-size: 1.3rem;
   font-weight: 800;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  color: #FFFFFF;
+  margin: 0 0 20px 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(255, 215, 0, 0.3);
 }
 
-/* Калькулятор */
-.calculator-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  flex: 1;
-  overflow-y: auto;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.form-label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.packages-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-  gap: 6px;
-}
-
-.package-btn {
-  background: rgba(40, 45, 60, 0.8);
-  border: 2px solid rgba(255, 215, 0, 0.3);
-  border-radius: 8px;
-  padding: 8px 4px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+/* Карточка с ценой */
+.price-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
   text-align: center;
 }
 
-.package-btn:hover {
-  background: rgba(40, 45, 60, 1);
-  border-color: #FFD700;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
-}
-
-.package-btn.active {
-  background: rgba(255, 215, 0, 0.2);
-  border-color: #FFD700;
-  box-shadow: 0 4px 16px rgba(255, 215, 0, 0.4);
-}
-
-.package-lessons {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #ffffff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.package-label {
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.8);
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.package-price {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.95);
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  margin-top: 2px;
-}
-
-.calculation-result {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  padding: 10px;
+.price-block {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  gap: 8px;
 }
 
-.result-item {
+.price-value {
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: #FFD700;
+  text-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);
+}
+
+.price-label {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Карточка с реквизитами */
+.payment-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.payment-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.payment-label {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.payment-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+.phone-number {
+  font-size: 1.3rem;
+  color: #FFD700;
+  font-weight: 700;
+}
+
+/* Информационная карточка */
+.info-block {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.info-block.warning {
+  background: rgba(255, 193, 7, 0.15);
+  border: 1px solid rgba(255, 193, 7, 0.4);
+}
+
+.info-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.info-text {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Карточка с контактами */
+.contact-description {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.5;
+  margin: 0 0 16px 0;
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(50, 50, 50, 0.6);
+  border: 2px solid #FFD700;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.contact-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 4px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.result-item:last-child {
-  border-bottom: none;
-}
-
-.result-item.total {
-  margin-top: 4px;
-  padding-top: 8px;
-  border-top: 2px solid rgba(255, 255, 255, 0.3);
-  border-bottom: none;
-}
-
-.result-label {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.85);
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.result-item.total .result-label {
+.contact-label {
   font-size: 0.9rem;
-  font-weight: 700;
-  color: #ffffff;
+  color: rgba(255, 255, 255, 0.7);
 }
 
-.result-value {
-  font-size: 0.85rem;
+.contact-value {
+  font-size: 1rem;
   font-weight: 600;
-  color: #ffffff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  color: #FFFFFF;
 }
 
-.result-item.total .result-value {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: #ffffff;
+.contact-link {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #FFD700;
+  text-decoration: none;
+  transition: all 0.3s ease;
 }
 
-/* Инструкции */
-.instructions-content {
+.contact-link:hover {
+  color: #FF8C00;
+  text-decoration: underline;
+}
+
+/* Карточка с инструкцией */
+.instructions-card {
+  grid-column: 1 / -1;
+}
+
+.steps {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  flex: 1;
-  overflow-y: auto;
+  gap: 16px;
 }
 
-.instruction-step {
+.step {
   display: flex;
-  gap: 8px;
+  gap: 16px;
   align-items: flex-start;
 }
 
 .step-number {
   flex-shrink: 0;
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   background: rgba(255, 215, 0, 0.2);
   border: 2px solid #FFD700;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.85rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #FFD700;
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
 }
 
-.step-content {
-  flex: 1;
-}
-
-.step-content h4 {
-  margin: 0 0 4px 0;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #FFFFFF;
-}
-
-.step-content p {
-  margin: 0 0 6px 0;
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.85);
-  line-height: 1.4;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.payment-details {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  padding: 8px;
-  margin-top: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.payment-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 4px 0;
-}
-
-.payment-label {
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.8);
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.payment-value {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #ffffff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.contact-info {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  padding: 8px;
-  margin-top: 6px;
-}
-
-.contact-info p {
-  margin: 0 0 4px 0;
-  font-weight: 600;
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.95);
-}
-
-.contact-info ul {
-  margin: 0;
-  padding-left: 16px;
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 0.7rem;
-}
-
-.contact-info li {
-  margin: 2px 0;
-  line-height: 1.4;
-}
-
-.important-note {
-  margin-top: 10px;
-  padding: 8px;
-  background: rgba(255, 193, 7, 0.2);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 193, 7, 0.4);
-  border-radius: 8px;
-  border-left: 3px solid rgba(255, 193, 7, 0.6);
-  display: flex;
-  gap: 6px;
-  align-items: flex-start;
-  flex-shrink: 0;
-}
-
-.note-icon {
+.step-text {
   font-size: 1rem;
-  flex-shrink: 0;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.9);
+  padding-top: 6px;
 }
 
-.note-text {
-  flex: 1;
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.95);
-  line-height: 1.4;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.note-text strong {
-  color: #ffffff;
+.step-text strong {
+  color: #FFD700;
 }
 
 /* Адаптивность */
-@media (max-width: 1024px) {
-  .main-layout {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-  
-  .calculator-content {
-    height: calc(100vh - 60px);
-  }
-}
-
 @media (max-width: 768px) {
-  .calculator-content {
-    padding: 12px;
-    height: calc(100vh - 60px);
-  }
-
-  .page-header {
-    margin-bottom: 12px;
+  .payment-content {
+    padding: 20px 16px;
   }
 
   .page-title {
-    font-size: 1.25rem;
+    font-size: 1.8rem;
+    margin-bottom: 24px;
   }
 
-  .page-subtitle {
-    font-size: 0.75rem;
-  }
-
-  .main-layout {
-    gap: 10px;
+  .cards-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .card {
-    padding: 10px;
+    padding: 20px;
   }
 
   .card-title {
-    margin-bottom: 8px;
-    padding-bottom: 6px;
+    font-size: 1.1rem;
+    margin-bottom: 16px;
   }
 
-  .card-title h3 {
-    font-size: 0.9rem;
+  .price-value {
+    font-size: 2.5rem;
   }
 
-  .packages-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 6px;
+  .price-label {
+    font-size: 1rem;
   }
 
-  .package-btn {
-    padding: 6px 4px;
+  .top-nav-bar {
+    padding: 10px 16px;
+    flex-wrap: wrap;
+    gap: 12px;
   }
 
-  .instruction-step {
-    flex-direction: row;
-    gap: 6px;
+  .nav-left {
+    gap: 16px;
   }
 
-  .step-number {
-    width: 24px;
-    height: 24px;
-    font-size: 0.75rem;
+  .nav-link {
+    font-size: 0.85rem;
   }
 }
 
 @media (max-width: 480px) {
-  .calculator-content {
-    padding: 10px;
-    height: calc(100vh - 60px);
+  .payment-content {
+    padding: 16px 12px;
   }
 
   .page-title {
-    font-size: 1.1rem;
-  }
-
-  .page-subtitle {
-    font-size: 0.7rem;
+    font-size: 1.5rem;
   }
 
   .card {
-    padding: 8px;
+    padding: 16px;
   }
 
-  .card-title h3 {
-    font-size: 0.85rem;
+  .price-value {
+    font-size: 2rem;
   }
 
-  .packages-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 4px;
+  .step {
+    gap: 12px;
   }
 
-  .package-btn {
-    padding: 5px 3px;
+  .step-number {
+    width: 30px;
+    height: 30px;
+    font-size: 0.9rem;
   }
 
-  .package-lessons {
-    font-size: 1rem;
-  }
-
-  .package-label {
-    font-size: 0.65rem;
-  }
-
-  .package-price {
-    font-size: 0.7rem;
-  }
-
-  .calculation-result {
-    padding: 8px;
-  }
-
-  .result-label {
-    font-size: 0.75rem;
-  }
-
-  .result-value {
-    font-size: 0.8rem;
-  }
-
-  .result-item.total .result-value {
-    font-size: 1rem;
-  }
-
-  .step-content h4 {
-    font-size: 0.8rem;
-  }
-
-  .step-content p {
-    font-size: 0.7rem;
-  }
-
-  .payment-details {
-    padding: 6px;
-  }
-
-  .payment-label {
-    font-size: 0.7rem;
-  }
-
-  .payment-value {
-    font-size: 0.75rem;
-  }
-
-  .contact-info {
-    padding: 6px;
-  }
-
-  .contact-info p {
-    font-size: 0.7rem;
-  }
-
-  .contact-info ul {
-    font-size: 0.65rem;
-  }
-
-  .important-note {
-    padding: 6px;
-  }
-
-  .note-text {
-    font-size: 0.65rem;
+  .step-text {
+    font-size: 0.9rem;
   }
 }
 </style>
-
-
-
-
-
