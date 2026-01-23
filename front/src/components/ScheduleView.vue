@@ -79,40 +79,6 @@
       <p v-if="lessonsError" class="error">{{ lessonsError }}</p>
     </section>
 
-    <!-- ДЕТАЛИ УРОКА -->
-    <section v-if="activeLesson" class="admin-card lesson-info-card">
-      <h2>Информация об уроке</h2>
-      <p><strong>Ученик:</strong> {{ activeLesson.student_email }}</p>
-      <p v-if="activeLesson.parent_full_name"><strong>Родитель:</strong> {{ activeLesson.parent_full_name }}</p>
-      <p><strong>Преподаватель:</strong> {{ activeLesson.teacher_email }}</p>
-      <p>
-        <strong>Баланс занятий:</strong> 
-        <span :class="{'balance-zero': activeLesson.student_balance === 0, 'balance-positive': activeLesson.student_balance > 0}">
-          {{ activeLesson.student_balance || 0 }}
-        </span>
-      </p>
-      <p>
-        <strong>Статус:</strong> 
-        <span :class="['status-badge', `status-badge--${activeLesson.status?.toLowerCase() || 'planned'}`]">
-          {{ activeLesson.status }}
-        </span>
-      </p>
-      <p v-if="activeLesson.is_trial" class="trial-badge">
-        <strong>Пробное занятие</strong>
-      </p>
-      <p><strong>Время:</strong> {{ formatDateTime(activeLesson.scheduled_at) }}</p>
-      <p>
-        <strong>Ссылка:</strong>
-        <span v-if="activeLesson.link">
-          <a :href="activeLesson.link" target="_blank">{{ activeLesson.link }}</a>
-        </span>
-        <span v-else>—</span>
-      </p>
-      <p><strong>Комментарий:</strong> {{ activeLesson.comment || '—' }}</p>
-      <div v-if="canEditLesson" class="lesson-actions">
-        <button class="btn small" @click="openEditLesson">Редактировать</button>
-      </div>
-    </section>
 
     <!-- Модальное окно создания урока -->
     <div v-if="showCreateModal" class="modal-backdrop" @click="closeCreate">
@@ -842,6 +808,10 @@ const handleCreate = async () => {
 const selectLesson = (lesson) => {
   activeLesson.value = lesson
   emit('lesson-selected', lesson)
+  // Сразу открываем форму редактирования
+  if (canEditLesson.value) {
+    openEditLesson()
+  }
 }
 
 // =====================================
@@ -884,6 +854,7 @@ const openEditLesson = () => {
 
 const closeEdit = () => {
   showEditModal.value = false
+  activeLesson.value = null
 }
 
 const handleUpdate = async () => {
@@ -960,6 +931,7 @@ const handleUpdate = async () => {
     }
     
     showEditModal.value = false
+    activeLesson.value = null
   } catch (err) {
     console.error('update lesson error:', err)
     console.error('error response:', err?.response?.data)
@@ -1027,8 +999,8 @@ defineExpose({
 
 <style scoped>
 .schedule-view {
-  display: grid;
-  grid-template-columns: 1fr 280px;
+  display: flex;
+  flex-direction: column;
   gap: 20px;
   width: 100%;
   max-width: 100%;
@@ -1040,37 +1012,28 @@ defineExpose({
 }
 
 .admin-card {
-  background: rgba(30, 35, 50, 0.95);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  background: rgba(40, 40, 40, 0.8);
+  border: 3px solid #FFD700;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .calendar-card {
-  grid-column: 1 / 2;
-  grid-row: 2;
-  min-width: 0;
-  overflow: visible;
   width: 100%;
-  height: calc(100vh - 100px);
+  height: calc(100vh - 180px);
   min-height: 600px;
-  max-height: calc(100vh - 100px);
+  max-height: calc(100vh - 180px);
   display: flex;
   flex-direction: column;
 }
 
 .controls-card {
-  grid-column: 1 / -1;
-  background: rgba(30, 30, 40, 0.95);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(40, 40, 40, 0.8);
+  border: 3px solid #FFD700;
   border-radius: 12px;
-  padding: 6px 12px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  padding: 16px 24px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -1078,41 +1041,6 @@ defineExpose({
   flex-wrap: wrap;
 }
 
-.lesson-info-card {
-  grid-column: 2 / 3;
-  grid-row: 2;
-  max-width: 280px;
-  min-width: 0;
-  background: rgba(30, 35, 50, 0.95);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-  overflow-y: auto;
-  overflow-x: hidden;
-  max-height: calc(100vh - 200px);
-  align-self: start;
-}
-
-.lesson-info-card::-webkit-scrollbar {
-  width: 6px;
-}
-
-.lesson-info-card::-webkit-scrollbar-track {
-  background: rgba(40, 45, 60, 0.5);
-  border-radius: 3px;
-}
-
-.lesson-info-card::-webkit-scrollbar-thumb {
-  background: rgba(200, 205, 233, 0.5);
-  border-radius: 3px;
-}
-
-.lesson-info-card::-webkit-scrollbar-thumb:hover {
-  background: rgba(200, 205, 233, 0.7);
-}
 
 .controls-row {
   display: flex;
@@ -1124,59 +1052,52 @@ defineExpose({
 
 .controls-row button {
   margin-right: 0;
-  padding: 4px 10px;
-  background: rgba(102, 126, 234, 0.9);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(102, 126, 234, 1);
-  border-radius: 6px;
+  padding: 8px 16px;
+  background: transparent;
+  border: 2px solid #FFD700;
+  border-radius: 8px;
   cursor: pointer;
-  color: #ffffff;
-  font-size: 0.75rem;
+  color: #FFD700;
+  font-size: 0.9rem;
   font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  transition: all 0.2s ease;
   white-space: nowrap;
 }
 
 .controls-row button:hover {
-  background: rgba(102, 126, 234, 1);
-  border-color: rgba(102, 126, 234, 1);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  background: #FFD700;
+  color: #1A1A1A;
 }
 
 .week-label {
   margin: 6px 0;
-  color: #e8eaf6;
-  font-size: 0.9rem;
+  color: #FFFFFF;
+  font-size: 1rem;
   font-weight: 700;
 }
 
 .hint {
-  color: #c5cae9;
-  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
   margin-top: 4px;
   font-weight: 500;
 }
 
 .calendar {
-  border: none;
-  border-radius: 16px;
+  border: 3px solid #FFD700;
+  border-radius: 12px;
   overflow: hidden;
   font-size: 13px;
   width: 100%;
   min-width: 0;
-  background: rgba(30, 35, 50, 0.95);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(40, 40, 40, 0.8);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
   height: 100%;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .calendar-header-row {
@@ -1193,29 +1114,27 @@ defineExpose({
 }
 
 .time-col {
-  background: rgba(40, 45, 60, 0.9);
-  backdrop-filter: blur(10px);
+  background: rgba(50, 50, 50, 0.9);
   text-align: right;
-  padding-right: 6px;
-  padding-left: 4px;
-  color: #e8eaf6;
-  font-size: 11px;
+  padding-right: 8px;
+  padding-left: 6px;
+  color: #FFFFFF;
+  font-size: 12px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   height: 42px;
   font-weight: 700;
-  border-right: 1px solid rgba(255, 255, 255, 0.15);
+  border-right: 2px solid rgba(255, 215, 0, 0.3);
 }
 
 .day-col {
-  background: rgba(40, 45, 60, 0.9);
-  backdrop-filter: blur(10px);
+  background: rgba(50, 50, 50, 0.9);
   text-align: center;
-  border-right: 1px solid rgba(255, 255, 255, 0.15);
+  border-right: 2px solid rgba(255, 215, 0, 0.3);
   padding: 10px 4px;
   min-width: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  border-bottom: 2px solid rgba(255, 215, 0, 0.3);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1224,8 +1143,8 @@ defineExpose({
 
 .day-name {
   font-weight: 700;
-  color: #c5cae9;
-  font-size: 10px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   line-height: 1.2;
@@ -1234,7 +1153,7 @@ defineExpose({
 
 .day-date {
   font-size: 18px;
-  color: #e8eaf6;
+  color: #FFFFFF;
   margin-top: 0;
   font-weight: 800;
   line-height: 1.2;
@@ -1245,8 +1164,7 @@ defineExpose({
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  background: rgba(25, 30, 45, 0.8);
-  backdrop-filter: blur(10px);
+  background: rgba(35, 35, 35, 0.8);
   position: relative;
 }
 
@@ -1255,21 +1173,19 @@ defineExpose({
 }
 
 .calendar-body::-webkit-scrollbar-track {
-  background: rgba(30, 35, 50, 0.6);
+  background: rgba(50, 50, 50, 0.6);
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.2);
 }
 
 .calendar-body::-webkit-scrollbar-thumb {
-  background: rgba(200, 205, 233, 0.5);
+  background: rgba(255, 215, 0, 0.5);
   border-radius: 6px;
-  border: 2px solid rgba(30, 35, 50, 0.5);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(50, 50, 50, 0.5);
 }
 
 .calendar-body::-webkit-scrollbar-thumb:hover {
-  background: rgba(200, 205, 233, 0.7);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  background: rgba(255, 215, 0, 0.7);
 }
 
 
@@ -1280,8 +1196,8 @@ defineExpose({
 .slot {
   position: relative;
   height: 42px;
-  border-right: 1px solid rgba(255, 255, 255, 0.12);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-right: 2px solid rgba(255, 215, 0, 0.2);
+  border-bottom: 2px solid rgba(255, 215, 0, 0.2);
   padding: 1px;
   display: flex;
   flex-direction: row;
@@ -1289,7 +1205,7 @@ defineExpose({
   gap: 2px;
   overflow: hidden;
   box-sizing: border-box;
-  background: rgba(35, 40, 55, 0.6);
+  background: rgba(45, 45, 45, 0.6);
   z-index: 1;
 }
 
@@ -1309,7 +1225,7 @@ defineExpose({
 }
 
 .slot:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(60, 60, 60, 0.8);
   z-index: 2;
 }
 
@@ -1318,50 +1234,35 @@ defineExpose({
   min-width: 30px;
   height: 100%;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.2s ease;
   border-radius: 4px;
   align-self: stretch;
   margin: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px dashed rgba(200, 205, 233, 0.4);
-  background: rgba(40, 45, 60, 0.5);
-  backdrop-filter: blur(5px);
+  border: 2px dashed rgba(255, 215, 0, 0.4);
+  background: rgba(50, 50, 50, 0.5);
   z-index: 1;
   box-sizing: border-box;
 }
 
 .slot-empty-area:hover {
-  background-color: rgba(50, 55, 70, 0.8);
-  border-color: rgba(102, 126, 234, 0.6);
-  transform: scale(1.02);
+  background-color: rgba(70, 70, 70, 0.8);
+  border-color: rgba(255, 215, 0, 0.6);
   z-index: 3;
 }
 
 .slot-empty-area::before {
   content: '+';
   font-size: 20px;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 215, 0, 0.6);
   font-weight: 400;
   line-height: 1;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .slot-empty-area:hover::before {
-  color: rgba(255, 255, 255, 1);
-}
-
-.slot-empty-area::before {
-  content: '+';
-  font-size: 18px;
-  color: rgba(200, 205, 233, 0.5);
-  font-weight: 300;
-  line-height: 1;
-}
-
-.slot-empty-area:hover::before {
-  color: rgba(102, 126, 234, 0.9);
+  color: #FFD700;
 }
 
 .lesson-card {
@@ -1371,7 +1272,7 @@ defineExpose({
   margin: 0;
   font-size: 12px;
   cursor: pointer;
-  transition: box-shadow 0.15s, transform 0.15s;
+  transition: box-shadow 0.2s ease;
   flex: 1 1 0;
   min-width: 0;
   height: 100%;
@@ -1392,8 +1293,7 @@ defineExpose({
 }
 
 .lesson-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
   z-index: 5;
 }
 
@@ -1420,12 +1320,10 @@ defineExpose({
   background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
   border-left-color: #ea580c;
   box-shadow: 0 2px 12px rgba(245, 158, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  animation: trial-pulse 2s ease-in-out infinite;
 }
 
 .lesson-card--trial:hover {
   box-shadow: 0 4px 16px rgba(245, 158, 11, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  transform: translateY(-2px);
 }
 
 /* Комбинации пробного занятия со статусами */
@@ -1460,14 +1358,6 @@ defineExpose({
   z-index: 10;
 }
 
-@keyframes trial-pulse {
-  0%, 100% {
-    box-shadow: 0 2px 12px rgba(245, 158, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  }
-  50% {
-    box-shadow: 0 2px 16px rgba(245, 158, 11, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  }
-}
 
 .lesson-time {
   font-weight: 700;
@@ -1478,7 +1368,6 @@ defineExpose({
   text-overflow: ellipsis;
   margin-bottom: 3px;
   color: #ffffff;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 .lesson-student {
@@ -1489,7 +1378,6 @@ defineExpose({
   text-overflow: ellipsis;
   color: #ffffff;
   font-weight: 600;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 .lesson-actions {
@@ -1500,15 +1388,15 @@ defineExpose({
 
 .btn {
   padding: 8px 16px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  border: 2px solid #FFD700;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.95);
-  color: #667eea;
+  background: #FFD700;
+  color: #1A1A1A;
   font-size: 0.9rem;
   font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .btn.small {
@@ -1517,9 +1405,9 @@ defineExpose({
 }
 
 .btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 1);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  background: #FF8C00;
+  border-color: #FF8C00;
+  color: #FFFFFF;
 }
 
 .btn:disabled {
@@ -1540,21 +1428,24 @@ defineExpose({
 
 .modal {
   width: 500px;
-  background: #1e2338;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(40, 40, 40, 0.95);
+  border: 3px solid #FFD700;
   border-radius: 12px;
   padding: 24px;
-  color: #e8eaf6;
+  color: #FFFFFF;
   max-height: 90vh;
   overflow-y: auto;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .modal h2 {
   margin-top: 0;
   margin-bottom: 20px;
-  font-size: 20px;
-  font-weight: 600;
-  color: #e8eaf6;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(255, 215, 0, 0.3);
 }
 
 .field {
@@ -1565,10 +1456,9 @@ defineExpose({
 
 .field span {
   margin-bottom: 6px;
-  color: #ffffff;
+  color: #FFFFFF;
   font-size: 0.9rem;
   font-weight: 600;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 .email-input-wrapper {
@@ -1582,22 +1472,22 @@ defineExpose({
 
 .btn-search {
   padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.95);
-  color: #667eea;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: #FFD700;
+  color: #1A1A1A;
+  border: 2px solid #FFD700;
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 600;
   white-space: nowrap;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .btn-search:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 1);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  background: #FF8C00;
+  border-color: #FF8C00;
+  color: #FFFFFF;
 }
 
 .btn-search:disabled {
@@ -1606,33 +1496,34 @@ defineExpose({
 }
 
 .found-user {
-  color: #4caf50;
+  color: #22c55e;
   font-size: 0.85rem;
   margin-top: 4px;
+  font-weight: 600;
 }
 
 .error-text {
-  color: #ff6b6b;
+  color: #ef4444;
   font-size: 0.85rem;
   margin-top: 4px;
+  font-weight: 600;
 }
 
 .field input,
 .field select,
 .field textarea {
-  background: rgba(40, 45, 60, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #e8eaf6;
+  background: rgba(50, 50, 50, 0.8);
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  color: #FFFFFF;
   padding: 10px 12px;
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 14px;
-  transition: all 0.3s ease;
+  transition: border-color 0.2s ease;
 }
 
 .field input::placeholder,
 .field textarea::placeholder {
-  color: rgba(200, 205, 233, 0.6);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .field textarea {
@@ -1666,9 +1557,8 @@ defineExpose({
 .field select:focus,
 .field textarea:focus {
   outline: none;
-  border-color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border-color: #FFD700;
+  background: rgba(60, 60, 60, 0.9);
 }
 
 .field input:disabled,
@@ -1696,13 +1586,29 @@ defineExpose({
   font-weight: 600;
 }
 
-.modal-actions button[type="submit"] {
-  background: #1e88e5;
-  color: white;
+.modal-actions button[type="submit"],
+.modal-actions .btn {
+  background: #FFD700;
+  color: #1A1A1A;
+  border: 2px solid #FFD700;
 }
 
-.modal-actions button[type="submit"]:hover:not(:disabled) {
-  background: #1565c0;
+.modal-actions button[type="submit"]:hover:not(:disabled),
+.modal-actions .btn:hover:not(:disabled) {
+  background: #FF8C00;
+  border-color: #FF8C00;
+  color: #FFFFFF;
+}
+
+.modal-actions .btn-secondary {
+  background: transparent;
+  color: #FFD700;
+  border: 2px solid #FFD700;
+}
+
+.modal-actions .btn-secondary:hover {
+  background: #FFD700;
+  color: #1A1A1A;
 }
 
 .modal-actions button[type="submit"]:disabled {
@@ -1710,13 +1616,15 @@ defineExpose({
   cursor: not-allowed;
 }
 
-.modal-actions button[type="button"] {
-  background: rgba(50, 55, 70, 0.9);
-  color: #e8eaf6;
+.modal-actions button[type="button"]:not(.btn-secondary) {
+  background: transparent;
+  color: #FFD700;
+  border: 2px solid #FFD700;
 }
 
-.modal-actions button[type="button"]:hover {
-  background: rgba(60, 65, 80, 0.95);
+.modal-actions button[type="button"]:not(.btn-secondary):hover {
+  background: #FFD700;
+  color: #1A1A1A;
 }
 
 .error {
@@ -1725,64 +1633,27 @@ defineExpose({
   font-size: 0.95rem;
   font-weight: 600;
   background: rgba(220, 38, 38, 0.95);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(220, 38, 38, 1);
-  border-radius: 12px;
+  border: 2px solid rgba(220, 38, 38, 1);
+  border-radius: 8px;
   padding: 12px 16px;
   box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
 }
 
 .status-text {
-  color: #c5cae9;
+  color: #FFFFFF;
   margin-top: 12px;
   font-size: 0.95rem;
   font-weight: 600;
 }
 
-.lesson-info-card h2 {
-  margin-top: 0;
-  margin-bottom: 20px;
-  color: #e8eaf6;
-  font-size: 1.5rem;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-}
-
-.lesson-info-card p {
-  margin: 12px 0;
-  color: #c5cae9;
-  font-size: 0.95rem;
-  line-height: 1.6;
-  font-weight: 500;
-}
-
-.lesson-info-card strong {
-  color: #e8eaf6;
-  font-weight: 700;
-}
-
-.lesson-info-card a {
-  color: #60a5fa;
-  text-decoration: none;
-  font-weight: 600;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-  border-bottom: 1px solid rgba(96, 165, 250, 0.5);
-  transition: all 0.3s ease;
-}
-
-.lesson-info-card a:hover {
-  color: #93c5fd;
-  border-bottom-color: rgba(96, 165, 250, 0.8);
-}
 
 .balance-zero {
   color: #ffffff;
   font-weight: 700;
   background: #ef4444;
-  backdrop-filter: blur(10px);
   padding: 6px 12px;
   border-radius: 8px;
-  border: 1px solid #dc2626;
+  border: 2px solid #dc2626;
   box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
 }
 
@@ -1790,19 +1661,17 @@ defineExpose({
   color: #ffffff;
   font-weight: 700;
   background: #22c55e;
-  backdrop-filter: blur(10px);
   padding: 6px 12px;
   border-radius: 8px;
-  border: 1px solid #16a34a;
+  border: 2px solid #16a34a;
   box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4);
 }
 
 .trial-badge {
   background: rgba(251, 191, 36, 0.95);
-  backdrop-filter: blur(10px);
   padding: 8px 14px;
-  border-radius: 10px;
-  border: 1px solid rgba(251, 191, 36, 1);
+  border-radius: 8px;
+  border: 2px solid rgba(251, 191, 36, 1);
   margin: 12px 0;
   box-shadow: 0 2px 8px rgba(251, 191, 36, 0.4);
 }
@@ -1810,17 +1679,15 @@ defineExpose({
 .trial-badge strong {
   color: #1a1a1a;
   font-weight: 800;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
 }
 
 .status-badge {
   display: inline-block;
   padding: 6px 12px;
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 0.85rem;
   font-weight: 700;
   margin-left: 8px;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -1848,18 +1715,10 @@ defineExpose({
 /* Адаптивность */
 @media (max-width: 1024px) {
   .schedule-view {
-    grid-template-columns: 1fr;
     gap: 16px;
   }
 
-  .lesson-info-card {
-    grid-column: 1 / -1;
-    grid-row: 3;
-    max-width: 100%;
-  }
-
   .calendar-card {
-    grid-column: 1 / -1;
     height: auto;
     min-height: 500px;
     max-height: 70vh;
@@ -1959,18 +1818,6 @@ defineExpose({
     font-size: 11px;
   }
 
-  .lesson-info-card {
-    padding: 16px;
-    max-height: 50vh;
-  }
-
-  .lesson-info-card h2 {
-    font-size: 1.2rem;
-  }
-
-  .lesson-info-card p {
-    font-size: 0.85rem;
-  }
 
   .modal {
     width: 90%;
