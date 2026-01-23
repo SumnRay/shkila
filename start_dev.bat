@@ -1,5 +1,8 @@
 @echo off
 set ROOT=%~dp0
+rem Сбрасываем потенциально ломающие переменные Python
+set PYTHONHOME=
+set PYTHONPATH=
 if exist "%ROOT%venv312\Scripts\python.exe" (
     start "Backend" cmd /k "cd /d %ROOT%back\school && %ROOT%venv312\Scripts\python.exe manage.py runserver"
 ) else if exist "%ROOT%venv\Scripts\python.exe" (
@@ -11,7 +14,7 @@ if exist "%ROOT%venv312\Scripts\python.exe" (
 ) else if exist "%ROOT%back\venv\Scripts\python.exe" (
     start "Backend" cmd /k "cd /d %ROOT%back\school && %ROOT%back\venv\Scripts\python.exe manage.py runserver"
 ) else if exist "%ROOT%back\.venv\Scripts\python.exe" (
-    start "Backend" cmd /k "cd /d %ROOT%back\school && %ROOT%back\.venv\Scripts\python.exe manage.py runserver"
+    start "Backend" cmd /k "set PYTHONHOME= && set PYTHONPATH= && cd /d %ROOT%back\school && %ROOT%back\.venv\Scripts\python.exe manage.py runserver"
 ) else (
     start "Backend" cmd /k "cd /d %ROOT%back\school && python manage.py runserver"
 )

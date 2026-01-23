@@ -44,6 +44,49 @@
               </div>
             </div>
           </div>
+
+          <!-- История уроков -->
+          <div class="card history-card">
+            <h2 class="history-title">История уроков</h2>
+            <div v-if="historyLoading" class="loading">Загрузка...</div>
+            <div v-else-if="historyError" class="error">{{ historyError }}</div>
+            <div v-else-if="historyLessons.length === 0" class="empty">
+              Нет завершенных уроков
+            </div>
+            <div v-else class="schedule-list">
+              <div
+                v-for="lesson in historyLessons"
+                :key="lesson.id"
+                class="schedule-item schedule-item--clickable"
+                @click="openLessonDetails(lesson)"
+              >
+                <div class="schedule-date">
+                  {{ formatDate(lesson.scheduled_at) }} в {{ formatTime(lesson.scheduled_at) }}
+                </div>
+                <div class="schedule-course">Курс: {{ lesson.course || '—' }}</div>
+                <div class="schedule-teacher">Преподаватель: {{ lesson.teacher_email || 'Не назначен' }}</div>
+              </div>
+            </div>
+            <div class="history-pagination">
+              <button
+                class="pagination-btn"
+                :disabled="!canGoHistoryPrev"
+                @click="handleHistoryPrev"
+              >
+                Назад
+              </button>
+              <div class="pagination-info">
+                Стр. {{ historyPage }} из {{ historyTotalPages }}
+              </div>
+              <button
+                class="pagination-btn"
+                :disabled="!canGoHistoryNext"
+                @click="handleHistoryNext"
+              >
+                Вперед
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Правая колонка -->
@@ -86,6 +129,37 @@
       @close="showRequestForm = false"
       @success="handleRequestSuccess"
     />
+
+    <!-- Карточка деталей урока -->
+    <div v-if="selectedHistoryLesson" class="modal-overlay" @click="closeLessonDetails">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h3>Информация об уроке</h3>
+          <button class="modal-close" @click="closeLessonDetails">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="detail-item">
+            <span class="detail-label">Дата и время:</span>
+            <span class="detail-value">{{ formatDate(selectedHistoryLesson.scheduled_at) }} в {{ formatTime(selectedHistoryLesson.scheduled_at) }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Курс:</span>
+            <span class="detail-value">{{ selectedHistoryLesson.course || '—' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Преподаватель:</span>
+            <span class="detail-value">{{ selectedHistoryLesson.teacher_email || 'Не назначен' }}</span>
+          </div>
+          <div class="detail-item" v-if="selectedHistoryLesson.feedback">
+            <span class="detail-label">Обратная связь:</span>
+            <span class="detail-value">{{ selectedHistoryLesson.feedback }}</span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-close" @click="closeLessonDetails">Закрыть</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -106,6 +180,13 @@ const dashboardError = ref(null)
 const lessons = ref([])
 const lessonsLoading = ref(false)
 const lessonsError = ref(null)
+
+const allHistoryLessons = ref([])
+const historyLoading = ref(false)
+const historyError = ref(null)
+const historyPage = ref(1)
+const historyPageSize = 5
+const selectedHistoryLesson = ref(null)
 
 const showRequestForm = ref(false)
 
@@ -140,6 +221,29 @@ const loadLessons = async () => {
   }
 }
 
+const loadHistoryLessons = async () => {
+  historyLoading.value = true
+  historyError.value = null
+  try {
+    const { data } = await studentGetLessons({
+      status: 'DONE',
+      ordering: '-scheduled_at'
+    })
+    allHistoryLessons.value = Array.isArray(data) ? data : data.results || []
+    historyPage.value = 1
+  } catch (err) {
+    console.error('load history lessons error:', err)
+    historyError.value = 'Не удалось загрузить историю уроков'
+  } finally {
+    historyLoading.value = false
+  }
+}
+
+const historyLessons = computed(() => {
+  const start = (historyPage.value - 1) * historyPageSize
+  return allHistoryLessons.value.slice(start, start + historyPageSize)
+})
+
 const upcomingLessons = computed(() => {
   const now = new Date()
   return lessons.value
@@ -150,6 +254,18 @@ const upcomingLessons = computed(() => {
     })
     .sort((a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at))
     .slice(0, 3) // Максимум 3 занятия
+})
+
+const historyTotalPages = computed(() => {
+  return allHistoryLessons.value.length > 0 ? Math.ceil(allHistoryLessons.value.length / historyPageSize) : 1
+})
+
+const canGoHistoryPrev = computed(() => {
+  return historyPage.value > 1
+})
+
+const canGoHistoryNext = computed(() => {
+  return historyPage.value < historyTotalPages.value
 })
 
 const formatDate = (dateString) => {
@@ -185,6 +301,24 @@ const handleRequestSuccess = () => {
   console.log('Обращение успешно отправлено')
 }
 
+const openLessonDetails = (lesson) => {
+  selectedHistoryLesson.value = lesson
+}
+
+const closeLessonDetails = () => {
+  selectedHistoryLesson.value = null
+}
+
+const handleHistoryPrev = () => {
+  if (!canGoHistoryPrev.value) return
+  historyPage.value--
+}
+
+const handleHistoryNext = () => {
+  if (!canGoHistoryNext.value) return
+  historyPage.value++
+}
+
 onMounted(async () => {
   if (!auth.isAuthenticated) {
     router.push({ name: 'login' })
@@ -197,6 +331,7 @@ onMounted(async () => {
 
   await loadDashboard()
   await loadLessons()
+  await loadHistoryLessons()
 })
 </script>
 
@@ -384,6 +519,58 @@ onMounted(async () => {
   flex-direction: column;
 }
 
+/* История уроков */
+.history-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.history-title {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #FFFFFF;
+  text-align: center;
+  margin: 0 0 20px 0;
+  padding: 0;
+}
+
+.history-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.pagination-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #FFD700;
+  background: transparent;
+  color: #FFD700;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #FFD700;
+  color: #1A1A1A;
+}
+
+.pagination-info {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
 .schedule-title {
   font-size: 2rem;
   font-weight: 900;
@@ -408,6 +595,16 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.schedule-item--clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.schedule-item--clickable:hover {
+  background: rgba(60, 60, 60, 0.7);
+  transform: translateY(-1px);
 }
 
 .schedule-date {
@@ -484,6 +681,99 @@ onMounted(async () => {
 
 .error {
   color: #ffaaaa;
+}
+
+/* Модальное окно */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  width: 100%;
+  max-width: 520px;
+  background: #1f1f1f;
+  border: 2px solid #FFD700;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: #FFFFFF;
+  font-size: 1.6rem;
+  cursor: pointer;
+}
+
+.modal-body {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.detail-value {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.btn-close {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #FFD700;
+  background: transparent;
+  color: #FFD700;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.btn-close:hover {
+  background: #FFD700;
+  color: #1A1A1A;
 }
 
 /* Адаптивность */
