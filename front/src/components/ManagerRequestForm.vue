@@ -102,14 +102,13 @@ const handleSubmit = async () => {
 }
 
 .modal-content {
-  background: rgba(76, 68, 118, 0.95);
-  backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(102, 126, 234, 0.4);
-  border-radius: 16px;
+  background: rgba(40, 40, 40, 0.95);
+  border: 3px solid #FFD700;
+  border-radius: 12px;
   padding: 0;
   max-width: 500px;
   width: 100%;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   animation: slideIn 0.3s ease-out;
 }
 
@@ -129,37 +128,34 @@ const handleSubmit = async () => {
   justify-content: space-between;
   align-items: center;
   padding: 24px;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 2px solid rgba(255, 215, 0, 0.3);
 }
 
 .modal-header h2 {
   margin: 0;
   font-size: 1.5rem;
-  color: #ffffff;
+  color: #FFFFFF;
   font-weight: 700;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .close-btn {
   background: transparent;
   border: none;
-  color: #ffffff;
+  color: #FFFFFF;
   font-size: 2rem;
   cursor: pointer;
   padding: 0;
-  width: 32px;
-  height: 32px;
+  width: auto;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
   transition: all 0.3s ease;
   line-height: 1;
 }
 
 .close-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: rotate(90deg);
+  color: #FFD700;
 }
 
 .request-form {
@@ -173,20 +169,18 @@ const handleSubmit = async () => {
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: rgba(255, 255, 255, 0.9);
+  color: #FFFFFF;
   font-weight: 600;
-  font-size: 0.9rem;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  font-size: 0.95rem;
 }
 
 .form-textarea {
   width: 100%;
   padding: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid #FFD700;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  color: #ffffff;
+  background: rgba(50, 50, 50, 0.6);
+  color: #FFFFFF;
   font-size: 0.95rem;
   font-family: inherit;
   resize: vertical;
@@ -196,24 +190,23 @@ const handleSubmit = async () => {
 
 .form-textarea:focus {
   outline: none;
-  border-color: rgba(102, 126, 234, 0.6);
-  background: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  border-color: #FFD700;
+  background: rgba(60, 60, 60, 0.7);
+  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
 }
 
 .form-textarea::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .error-message {
   padding: 12px;
-  background: rgba(255, 107, 107, 0.2);
-  border: 1px solid rgba(255, 107, 107, 0.4);
+  background: rgba(255, 68, 68, 0.2);
+  border: 2px solid rgba(255, 68, 68, 0.6);
   border-radius: 8px;
-  color: #ffb3b3;
+  color: #ffaaaa;
   margin-bottom: 20px;
   font-size: 0.9rem;
-  text-shadow: 0 2px 8px rgba(255, 107, 107, 0.4);
 }
 
 .form-actions {
@@ -230,31 +223,31 @@ const handleSubmit = async () => {
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  border: none;
+  font-family: inherit;
 }
 
 .btn-cancel {
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: #FFFFFF;
+  border: 1px solid #FFD700;
 }
 
 .btn-cancel:hover {
-  background: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 215, 0, 0.1);
+  border-color: #FFD700;
 }
 
 .btn-submit {
-  background: rgba(102, 126, 234, 0.9);
-  color: #ffffff;
-  border: 1px solid rgba(102, 126, 234, 0.6);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  background: transparent;
+  color: #FFFFFF;
+  border: 1px solid #FFD700;
 }
 
 .btn-submit:hover:not(:disabled) {
-  background: rgba(102, 126, 234, 1);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  background: #FFD700;
+  color: #1A1A1A;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
 }
 
 .btn-submit:disabled {
@@ -271,6 +264,7 @@ const handleSubmit = async () => {
   .modal-content {
     max-width: 100%;
     border-radius: 12px;
+    border-width: 2px;
   }
 
   .modal-header {
@@ -301,6 +295,10 @@ const handleSubmit = async () => {
     padding: 12px;
   }
 
+  .modal-content {
+    border-width: 2px;
+  }
+
   .modal-header {
     padding: 16px;
   }
@@ -316,6 +314,7 @@ const handleSubmit = async () => {
   .form-textarea {
     font-size: 0.9rem;
     padding: 10px;
+    border-width: 2px;
   }
 }
 </style>
