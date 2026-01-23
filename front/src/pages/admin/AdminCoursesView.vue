@@ -1,8 +1,6 @@
 <!-- src/pages/admin/AdminCoursesView.vue -->
 <template>
   <div class="admin-page">
-    <TopNavigationBar />
-
     <main class="admin-main">
       <div class="page-header">
         <div class="title-block">
@@ -204,7 +202,6 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
-import TopNavigationBar from '../../components/TopNavigationBar.vue'
 import {
   adminGetCourses,
   adminCreateCourse,

@@ -1,12 +1,13 @@
 <!-- src/App.vue -->
 <template>
   <div class="app">
+    <TopNavigationBar />
     <router-view />
   </div>
 </template>
 
 <script setup>
-// ничего не нужно
+import TopNavigationBar from './components/TopNavigationBar.vue'
 </script>
 
 <style scoped>

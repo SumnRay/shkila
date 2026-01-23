@@ -1,8 +1,6 @@
 <!-- src/pages/common/EditProfileView.vue -->
 <template>
   <div class="edit-profile">
-    <TopNavigationBar />
-
     <div class="profile-content">
       <div class="page-header">
         <h1>Редактирование профиля</h1>
@@ -76,7 +74,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { useRouter } from 'vue-router'
-import TopNavigationBar from '../../components/TopNavigationBar.vue'
 import { updateMeApi } from '../../api/auth'
 
 const auth = useAuthStore()

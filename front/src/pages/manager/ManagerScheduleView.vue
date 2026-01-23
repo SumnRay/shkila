@@ -1,8 +1,6 @@
 <!-- src/pages/manager/ManagerScheduleView.vue -->
 <template>
   <div class="manager-page">
-    <TopNavigationBar />
-
     <main class="manager-main">
       <div class="page-header">
         <h1>Календарь уроков</h1>
@@ -29,7 +27,6 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import ScheduleView from '../../components/ScheduleView.vue'
-import TopNavigationBar from '../../components/TopNavigationBar.vue'
 import { managerGetLessons, managerCreateLesson, managerUpdateLesson, managerSearchUserByEmail, managerGetUsersAutocomplete } from '../../api/manager'
 
 const auth = useAuthStore()

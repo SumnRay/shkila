@@ -1,8 +1,6 @@
 <!-- src/pages/teacher/TeacherStudentsView.vue -->
 <template>
   <div class="teacher-students-page">
-    <TopNavigationBar />
-
     <main class="students-main">
       <div class="page-header">
         <div class="title-block">
@@ -91,7 +89,6 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
-import TopNavigationBar from '../../components/TopNavigationBar.vue'
 import { teacherGetStudents } from '../../api/teacher'
 
 const auth = useAuthStore()

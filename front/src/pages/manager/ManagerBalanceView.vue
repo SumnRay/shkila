@@ -1,8 +1,6 @@
 <!-- src/pages/manager/ManagerBalanceView.vue -->
 <template>
   <div class="manager-balance-page">
-    <TopNavigationBar />
-
     <main class="balance-main">
       <div class="page-header">
         <div class="title-block">
@@ -160,7 +158,6 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
-import TopNavigationBar from '../../components/TopNavigationBar.vue'
 import {
   managerGetClients,
   managerGetStudentBalance,

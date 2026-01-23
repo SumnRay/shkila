@@ -1,8 +1,6 @@
 <!-- src/pages/manager/ManagerAdminView.vue -->
 <template>
   <div class="manager-admin-page">
-    <TopNavigationBar />
-
     <!-- Основной контент -->
     <main class="main-container">
       <section class="content-section">
@@ -68,7 +66,6 @@
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
-import TopNavigationBar from '../../components/TopNavigationBar.vue'
 
 const auth = useAuthStore()
 const router = useRouter()

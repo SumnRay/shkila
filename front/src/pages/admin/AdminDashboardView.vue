@@ -1,8 +1,6 @@
 <!-- src/pages/admin/AdminDashboardView.vue -->
 <template>
   <div class="admin-page">
-    <TopNavigationBar />
-
     <!-- ОСНОВНОЙ КОНТЕНТ -->
     <main class="admin-main">
       <div class="page-header">
@@ -168,7 +166,6 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
-import TopNavigationBar from '../../components/TopNavigationBar.vue'
 import {
   adminGetUsers,
   adminUpdateUser,

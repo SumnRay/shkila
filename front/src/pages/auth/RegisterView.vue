@@ -1,7 +1,6 @@
 <!-- src/pages/auth/RegisterView.vue -->
 <template>
   <div class="auth-page">
-    <TopNavigationBar />
     <div class="auth-page-content">
       <div class="auth-container">
         <div class="auth-card">
@@ -132,7 +131,6 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
-import TopNavigationBar from '../../components/TopNavigationBar.vue'
 
 const email = ref('')
 const phone = ref('')

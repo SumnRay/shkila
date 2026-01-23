@@ -1,8 +1,6 @@
 <!-- src/pages/manager/ManagerRequestsView.vue -->
 <template>
   <div class="manager-requests-page">
-    <TopNavigationBar />
-
     <main class="main-container">
       <div class="page-header">
         <h1>Связь с клиентами</h1>
@@ -90,7 +88,6 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
-import TopNavigationBar from '../../components/TopNavigationBar.vue'
 import { managerGetClientRequests, managerUpdateClientRequest } from '../../api/manager'
 
 const auth = useAuthStore()

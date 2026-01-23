@@ -1,18 +1,6 @@
 <!-- src/pages/student/StudentDashboardView.vue -->
 <template>
   <div class="student-dashboard">
-    <!-- Верхняя навигация -->
-    <nav class="top-nav-bar">
-      <div class="nav-left">
-        <router-link :to="{ name: 'home' }" class="nav-link">На главную</router-link>
-        <router-link :to="{ name: 'payment-calculator' }" class="nav-link">Оплатить занятие</router-link>
-        <router-link :to="{ name: 'home' }" class="nav-link">Мои курсы</router-link>
-      </div>
-      <div class="nav-right">
-        <button class="logout-btn" @click="handleLogout">Выход</button>
-      </div>
-    </nav>
-
     <div class="dashboard-content">
       <div class="main-grid">
         <!-- Левая колонка -->
@@ -287,10 +275,6 @@ const formatTime = (dateString) => {
   })
 }
 
-const handleLogout = () => {
-  auth.logout()
-  router.push({ name: 'home' })
-}
 
 const handleCreateRequest = async (payload) => {
   await studentCreateRequest(payload)
@@ -342,61 +326,6 @@ onMounted(async () => {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   color: #FFFFFF;
   padding-bottom: 100px;
-}
-
-/* Верхняя навигация */
-.top-nav-bar {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: rgba(26, 26, 26, 0.95);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 215, 0, 0.3);
-  padding: 12px 32px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-}
-
-.nav-left {
-  display: flex;
-  gap: 24px;
-  align-items: center;
-}
-
-.nav-link {
-  color: #FFFFFF;
-  text-decoration: none;
-  font-size: 0.95rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  padding: 4px 0;
-}
-
-.nav-link:hover {
-  color: #FFD700;
-  transform: translateY(-1px);
-}
-
-.logout-btn {
-  padding: 8px 20px;
-  border-radius: 8px;
-  border: 1px solid #FFD700;
-  background: transparent;
-  color: #FFFFFF;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: inherit;
-}
-
-.logout-btn:hover {
-  background: #FFD700;
-  color: #1A1A1A;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
 }
 
 .dashboard-content {
@@ -788,19 +717,6 @@ onMounted(async () => {
     padding: 20px 16px;
   }
 
-  .top-nav-bar {
-    padding: 10px 16px;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .nav-left {
-    gap: 16px;
-  }
-
-  .nav-link {
-    font-size: 0.85rem;
-  }
 
   .profile-card {
     flex-direction: column;
@@ -820,25 +736,6 @@ onMounted(async () => {
     padding: 16px 12px;
   }
 
-  .top-nav-bar {
-    padding: 8px 12px;
-    gap: 8px;
-  }
-
-  .nav-left {
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .nav-link {
-    font-size: 0.8rem;
-    padding: 6px 12px;
-  }
-
-  .logout-btn {
-    font-size: 0.8rem;
-    padding: 6px 12px;
-  }
 
   .card {
     padding: 16px;

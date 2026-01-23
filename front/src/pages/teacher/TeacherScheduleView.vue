@@ -1,8 +1,6 @@
 <!-- src/pages/teacher/TeacherScheduleView.vue -->
 <template>
   <div class="teacher-schedule-page">
-    <TopNavigationBar />
-
     <main class="teacher-main">
       <div class="page-header">
         <div class="title-block">
@@ -34,7 +32,6 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import ScheduleView from '../../components/ScheduleView.vue'
-import TopNavigationBar from '../../components/TopNavigationBar.vue'
 import { teacherGetLessons, teacherCreateLesson, teacherUpdateLesson, teacherSearchStudentByEmail, teacherGetStudentsAutocomplete } from '../../api/teacher'
 
 const auth = useAuthStore()

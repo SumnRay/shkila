@@ -1,8 +1,6 @@
 <!-- src/pages/applicant/ApplicantDashboardView.vue -->
 <template>
   <div class="applicant-dashboard">
-    <TopNavigationBar />
-
     <!-- Верхняя навигация -->
     <nav class="top-nav-bar">
       <div class="nav-left">
@@ -168,7 +166,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
-import TopNavigationBar from '../../components/TopNavigationBar.vue'
 import ManagerRequestForm from '../../components/ManagerRequestForm.vue'
 import { studentGetLessons } from '../../api/student'
 import { applicantCreateRequest, applicantGetBalance } from '../../api/applicant'

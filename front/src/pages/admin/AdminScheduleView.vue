@@ -1,8 +1,6 @@
 <!-- src/pages/admin/AdminScheduleView.vue -->
 <template>
   <div class="admin-page">
-    <TopNavigationBar />
-
     <main class="admin-main">
       <div class="page-header">
         <h1>Календарь уроков</h1>
@@ -30,7 +28,6 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import ScheduleView from '../../components/ScheduleView.vue'
-import TopNavigationBar from '../../components/TopNavigationBar.vue'
 import { adminGetLessons, adminCreateLesson, adminUpdateLesson } from '../../api/lessons'
 import { adminGetUsersAutocomplete } from '../../api/admin'
 import { managerSearchUserByEmail } from '../../api/manager'

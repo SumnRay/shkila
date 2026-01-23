@@ -1,19 +1,6 @@
 <!-- src/pages/common/LandingPage.vue -->
 <template>
   <div class="home-page">
-    <!-- Навигация -->
-    <TopNavigationBar v-if="auth.isAuthenticated" />
-    <div v-else class="top-nav">
-      <div class="nav-right">
-        <router-link 
-          :to="{ name: 'login' }" 
-          class="nav-btn auth-btn"
-        >
-          Вход/Регистрация
-        </router-link>
-      </div>
-    </div>
-
     <!-- Hero секция -->
     <section class="hero-section">
       <div class="hero-content">
@@ -139,7 +126,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { useRouter } from 'vue-router'
-import TopNavigationBar from '../../components/TopNavigationBar.vue'
 import { applicantGetPublicCourses } from '../../api/applicant'
 
 const auth = useAuthStore()

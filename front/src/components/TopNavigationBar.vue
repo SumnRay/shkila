@@ -10,127 +10,135 @@
 
     <!-- Правая часть -->
     <div class="nav-right">
-      <!-- Кнопка администрирования (для admin, manager и teacher) -->
-      <div v-if="hasAdminAccess || isTeacher" class="admin-section">
-        <button 
-          class="admin-toggle-btn" 
-          @click="toggleAdminMenu"
-          :class="{ 'active': showAdminMenu }"
+      <template v-if="auth.isAuthenticated && auth.user">
+        <!-- Кнопка администрирования (для admin, manager и teacher) -->
+        <div v-if="hasAdminAccess || isTeacher" class="admin-section">
+          <button 
+            class="admin-toggle-btn" 
+            @click="toggleAdminMenu"
+            :class="{ 'active': showAdminMenu }"
+          >
+            <span class="admin-icon">⚙️</span>
+            <span class="admin-text">Администрирование</span>
+            <span class="admin-arrow" :class="{ 'rotated': showAdminMenu }">▼</span>
+          </button>
+
+          <!-- Выпадающее меню администрирования -->
+          <transition name="fade-slide">
+            <div v-if="showAdminMenu" class="admin-dropdown" @click.stop>
+              <template v-if="isAdmin">
+                <router-link :to="{ name: 'admin-dashboard' }" class="dropdown-item" @click="closeAdminMenu">
+                  <span class="item-icon">👥</span>
+                  <span>Управление пользователями</span>
+                </router-link>
+                <router-link :to="{ name: 'admin-schedule' }" class="dropdown-item" @click="closeAdminMenu">
+                  <span class="item-icon">📅</span>
+                  <span>Расписание</span>
+                </router-link>
+                <router-link :to="{ name: 'admin-courses' }" class="dropdown-item" @click="closeAdminMenu">
+                  <span class="item-icon">📚</span>
+                  <span>Курсы</span>
+                </router-link>
+                <router-link :to="{ name: 'admin-logs' }" class="dropdown-item" @click="closeAdminMenu">
+                  <span class="item-icon">📋</span>
+                  <span>Логи</span>
+                </router-link>
+              </template>
+              <template v-else-if="isManager">
+                <router-link :to="{ name: 'manager-balance' }" class="dropdown-item" @click="closeAdminMenu">
+                  <span class="item-icon">💰</span>
+                  <span>Управление балансами</span>
+                </router-link>
+                <router-link :to="{ name: 'manager-schedule' }" class="dropdown-item" @click="closeAdminMenu">
+                  <span class="item-icon">📅</span>
+                  <span>Календарь занятий</span>
+                </router-link>
+                <router-link :to="{ name: 'manager-requests' }" class="dropdown-item" @click="closeAdminMenu">
+                  <span class="item-icon">💬</span>
+                  <span>Сообщения клиентов</span>
+                </router-link>
+              </template>
+              <template v-else-if="isTeacher">
+                <router-link :to="{ name: 'teacher-students' }" class="dropdown-item" @click="closeAdminMenu">
+                  <span class="item-icon">👥</span>
+                  <span>Список учеников</span>
+                </router-link>
+                <router-link :to="{ name: 'teacher-schedule' }" class="dropdown-item" @click="closeAdminMenu">
+                  <span class="item-icon">📅</span>
+                  <span>Расписание занятий</span>
+                </router-link>
+              </template>
+            </div>
+          </transition>
+        </div>
+
+        <!-- Кнопка оплаты (для студентов и абитуриентов) -->
+        <router-link 
+          v-if="isStudent || isApplicant" 
+          :to="{ name: 'payment-calculator' }" 
+          class="payment-btn"
         >
-          <span class="admin-icon">⚙️</span>
-          <span class="admin-text">Администрирование</span>
-          <span class="admin-arrow" :class="{ 'rotated': showAdminMenu }">▼</span>
-        </button>
+          <span class="payment-icon">💳</span>
+          <span class="payment-text">Оплата</span>
+        </router-link>
 
-        <!-- Выпадающее меню администрирования -->
-        <transition name="fade-slide">
-          <div v-if="showAdminMenu" class="admin-dropdown" @click.stop>
-            <template v-if="isAdmin">
-              <router-link :to="{ name: 'admin-dashboard' }" class="dropdown-item" @click="closeAdminMenu">
-                <span class="item-icon">👥</span>
-                <span>Управление пользователями</span>
-              </router-link>
-              <router-link :to="{ name: 'admin-schedule' }" class="dropdown-item" @click="closeAdminMenu">
-                <span class="item-icon">📅</span>
-                <span>Расписание</span>
-              </router-link>
-              <router-link :to="{ name: 'admin-courses' }" class="dropdown-item" @click="closeAdminMenu">
-                <span class="item-icon">📚</span>
-                <span>Курсы</span>
-              </router-link>
-              <router-link :to="{ name: 'admin-logs' }" class="dropdown-item" @click="closeAdminMenu">
-                <span class="item-icon">📋</span>
-                <span>Логи</span>
-              </router-link>
-            </template>
-            <template v-else-if="isManager">
-              <router-link :to="{ name: 'manager-balance' }" class="dropdown-item" @click="closeAdminMenu">
-                <span class="item-icon">💰</span>
-                <span>Управление балансами</span>
-              </router-link>
-              <router-link :to="{ name: 'manager-schedule' }" class="dropdown-item" @click="closeAdminMenu">
-                <span class="item-icon">📅</span>
-                <span>Календарь занятий</span>
-              </router-link>
-              <router-link :to="{ name: 'manager-requests' }" class="dropdown-item" @click="closeAdminMenu">
-                <span class="item-icon">💬</span>
-                <span>Сообщения клиентов</span>
-              </router-link>
-            </template>
-            <template v-else-if="isTeacher">
-              <router-link :to="{ name: 'teacher-students' }" class="dropdown-item" @click="closeAdminMenu">
-                <span class="item-icon">👥</span>
-                <span>Список учеников</span>
-              </router-link>
-              <router-link :to="{ name: 'teacher-schedule' }" class="dropdown-item" @click="closeAdminMenu">
-                <span class="item-icon">📅</span>
-                <span>Расписание занятий</span>
-              </router-link>
-            </template>
-          </div>
-        </transition>
-      </div>
+        <!-- Кнопка с email -->
+        <div class="role-section">
+          <button 
+            class="role-toggle-btn" 
+            @click="toggleUserMenu"
+            :class="{ 'active': showUserMenu }"
+          >
+            <span class="role-text">{{ auth.user.email }}</span>
+            <span class="role-arrow" :class="{ 'rotated': showUserMenu }">▼</span>
+          </button>
 
-      <!-- Информация об аккаунте / Кнопки входа -->
-      <div class="auth-section">
-        <template v-if="auth.isAuthenticated && auth.user">
-          <!-- Профиль пользователя -->
-          <div class="user-menu-wrapper">
-            <button class="user-menu-btn" @click="toggleUserMenu">
-              <span class="user-email">{{ auth.user.email }}</span>
-              <span class="user-role-badge" :class="`role-${auth.normalizedRole}`">
-                {{ roleDisplayName }}
-              </span>
-              <span class="user-arrow" :class="{ 'rotated': showUserMenu }">▼</span>
-            </button>
-
-            <!-- Выпадающее меню пользователя -->
-            <transition name="fade-slide">
-              <div v-if="showUserMenu" class="user-dropdown" @click.stop>
-                <div class="dropdown-item user-info">
-                  <div class="user-info-email">{{ auth.user.email }}</div>
-                  <div class="user-info-role">{{ roleDisplayName }}</div>
-                </div>
-                <div class="dropdown-divider"></div>
-                <router-link 
-                  v-if="isStudent" 
-                  :to="{ name: 'student-dashboard' }" 
-                  class="dropdown-item" 
-                  @click="closeUserMenu"
-                >
-                  <span class="item-icon">📊</span>
-                  <span>Личный кабинет</span>
-                </router-link>
-                <router-link 
-                  v-if="isApplicant" 
-                  :to="{ name: 'applicant-dashboard' }" 
-                  class="dropdown-item" 
-                  @click="closeUserMenu"
-                >
-                  <span class="item-icon">📊</span>
-                  <span>Личный кабинет</span>
-                </router-link>
-                <div class="dropdown-divider"></div>
-                <button class="dropdown-item logout-item" @click="handleLogout">
-                  <span class="item-icon">🚪</span>
-                  <span>Выйти</span>
-                </button>
+          <!-- Выпадающее меню пользователя -->
+          <transition name="fade-slide">
+            <div v-if="showUserMenu" class="user-dropdown" @click.stop>
+              <div class="dropdown-item user-info">
+                <div class="user-info-email">{{ auth.user.email }}</div>
+                <div class="user-info-role">{{ roleDisplayName }}</div>
               </div>
-            </transition>
-          </div>
-        </template>
-        <template v-else>
-          <!-- Кнопки входа и регистрации -->
-          <div class="auth-buttons">
-            <router-link :to="{ name: 'login' }" class="auth-btn login-btn">
-              Войти
-            </router-link>
-            <router-link :to="{ name: 'register' }" class="auth-btn register-btn">
-              Зарегистрироваться
-            </router-link>
-          </div>
-        </template>
-      </div>
+              <div class="dropdown-divider"></div>
+              <router-link 
+                v-if="isStudent" 
+                :to="{ name: 'student-dashboard' }" 
+                class="dropdown-item" 
+                @click="closeUserMenu"
+              >
+                <span class="item-icon">📊</span>
+                <span>Личный кабинет</span>
+              </router-link>
+              <router-link 
+                v-if="isApplicant" 
+                :to="{ name: 'applicant-dashboard' }" 
+                class="dropdown-item" 
+                @click="closeUserMenu"
+              >
+                <span class="item-icon">📊</span>
+                <span>Личный кабинет</span>
+              </router-link>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item logout-item" @click="handleLogout">
+                <span class="item-icon">🚪</span>
+                <span>Выйти</span>
+              </button>
+            </div>
+          </transition>
+        </div>
+      </template>
+      <template v-else>
+        <!-- Кнопки входа и регистрации -->
+        <div class="auth-buttons">
+          <router-link :to="{ name: 'login' }" class="auth-btn login-btn">
+            Войти
+          </router-link>
+          <router-link :to="{ name: 'register' }" class="auth-btn register-btn">
+            Зарегистрироваться
+          </router-link>
+        </div>
+      </template>
     </div>
 
     <!-- Overlay для закрытия меню при клике вне его -->
@@ -208,7 +216,7 @@ const handleLogout = () => {
 
 // Закрытие меню при клике вне области или при переходе на другую страницу
 const handleClickOutside = (event) => {
-  if (!event.target.closest('.admin-section') && !event.target.closest('.user-menu-wrapper')) {
+  if (!event.target.closest('.admin-section') && !event.target.closest('.role-section')) {
     closeAllMenus()
   }
 }
@@ -229,16 +237,13 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   z-index: 1000;
-  background: rgba(26, 26, 26, 0.95);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+  background: #222222;
+  border-bottom: 2px solid #FFD700;
   padding: 12px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  gap: 16px;
   min-height: 64px;
   width: 100%;
   max-width: 100%;
@@ -300,7 +305,6 @@ onUnmounted(() => {
   font-size: 1.5rem;
   transition: all 0.3s ease;
   padding: 8px 12px;
-  border-radius: 8px;
   letter-spacing: 1px;
   white-space: nowrap;
   overflow: hidden;
@@ -310,7 +314,6 @@ onUnmounted(() => {
 
 .school-logo:hover {
   color: #FFD700;
-  transform: translateY(-1px) translateX(0);
 }
 
 .logo-text {
@@ -320,45 +323,15 @@ onUnmounted(() => {
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   flex-shrink: 1;
   min-width: 0;
   justify-content: flex-end;
   margin-left: auto;
   flex-wrap: nowrap;
   overflow: visible;
-  padding-left: 180px;
 }
 
-@media (max-width: 1024px) {
-  .nav-right {
-    padding-left: 160px;
-  }
-}
-
-@media (max-width: 768px) {
-  .nav-right {
-    padding-left: 120px;
-  }
-}
-
-@media (max-width: 640px) {
-  .nav-right {
-    padding-left: 100px;
-  }
-}
-
-@media (max-width: 480px) {
-  .nav-right {
-    padding-left: 80px;
-  }
-}
-
-@media (max-width: 360px) {
-  .nav-right {
-    padding-left: 70px;
-  }
-}
 
 /* Кнопка администрирования */
 .admin-section {
@@ -371,10 +344,10 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: transparent;
+  background: #222222;
   border: 1px solid #FFD700;
   border-radius: 8px;
-  color: #FFD700;
+  color: #FFFFFF;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
@@ -385,23 +358,25 @@ onUnmounted(() => {
 
 .admin-toggle-btn:hover {
   background: rgba(255, 215, 0, 0.1);
-  border-color: #FF8C00;
-  color: #FF8C00;
 }
 
 .admin-toggle-btn.active {
   background: rgba(255, 215, 0, 0.15);
-  border-color: #FFD700;
-  color: #FFD700;
 }
 
 .admin-icon {
   font-size: 1.1rem;
+  color: #9370DB;
+}
+
+.admin-text {
+  color: #FFFFFF;
 }
 
 .admin-arrow {
   font-size: 0.7rem;
   transition: transform 0.3s ease;
+  color: #FFFFFF;
 }
 
 .admin-arrow.rotated {
@@ -475,94 +450,89 @@ onUnmounted(() => {
   text-align: center;
 }
 
-/* Меню пользователя */
-.auth-section {
-  position: relative;
-  flex-shrink: 0;
-}
-
-.user-menu-wrapper {
-  position: relative;
-  flex-shrink: 0;
-}
-
-.user-menu-btn {
+/* Кнопка оплаты */
+.payment-btn {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   padding: 8px 16px;
-  background: transparent;
-  border: 1px solid rgba(255, 215, 0, 0.3);
+  background: #222222;
+  border: 1px solid #FFD700;
   border-radius: 8px;
   color: #FFFFFF;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 600;
+  text-decoration: none;
   cursor: pointer;
   transition: all 0.3s ease;
   white-space: nowrap;
   box-sizing: border-box;
-  max-width: 100%;
+  flex-shrink: 0;
 }
 
-.user-menu-btn:hover {
+.payment-btn:hover {
   background: rgba(255, 215, 0, 0.1);
-  border-color: #FFD700;
   color: #FFD700;
 }
 
-.user-email {
+.payment-icon {
+  font-size: 1.1rem;
+}
+
+.payment-text {
   color: #FFFFFF;
+}
+
+/* Кнопка роли */
+.role-section {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.role-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #FFD700;
+  border: 1px solid #FFD700;
+  border-radius: 8px;
+  color: #1A1A1A;
+  font-size: 0.9rem;
   font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  box-sizing: border-box;
+  max-width: 250px;
+  overflow: hidden;
+}
+
+.role-toggle-btn:hover {
+  background: #FF8C00;
+  border-color: #FF8C00;
+}
+
+.role-toggle-btn.active {
+  background: #FF8C00;
+  border-color: #FF8C00;
+}
+
+.role-text {
+  color: #1A1A1A;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 200px;
 }
 
-.user-role-badge {
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  flex-shrink: 0;
-  box-sizing: border-box;
-  white-space: nowrap;
-}
-
-.user-role-badge.role-admin {
-  background: rgba(255, 215, 0, 0.2);
-  color: #FFD700;
-  border: 1px solid rgba(255, 215, 0, 0.4);
-}
-
-.user-role-badge.role-manager {
-  background: rgba(255, 215, 0, 0.2);
-  color: #FFD700;
-  border: 1px solid rgba(255, 215, 0, 0.4);
-}
-
-.user-role-badge.role-teacher {
-  background: rgba(255, 215, 0, 0.2);
-  color: #FFD700;
-  border: 1px solid rgba(255, 215, 0, 0.4);
-}
-
-.user-role-badge.role-student,
-.user-role-badge.role-applicant {
-  background: rgba(255, 215, 0, 0.2);
-  color: #FFD700;
-  border: 1px solid rgba(255, 215, 0, 0.4);
-}
-
-.user-arrow {
+.role-arrow {
   font-size: 0.7rem;
   transition: transform 0.3s ease;
-  color: rgba(255, 255, 255, 0.7);
+  color: #1A1A1A;
 }
 
-.user-arrow.rotated {
+.role-arrow.rotated {
   transform: rotate(180deg);
 }
 
@@ -741,7 +711,7 @@ onUnmounted(() => {
     font-size: 1.3rem;
   }
 
-  .user-email {
+  .role-text {
     max-width: 150px;
   }
 }
@@ -777,18 +747,27 @@ onUnmounted(() => {
     display: none;
   }
 
-  .user-menu-btn {
+  .role-toggle-btn {
+    max-width: 180px;
+  }
+
+  .role-text {
+    max-width: 120px;
+    font-size: 0.8rem;
+  }
+
+  .payment-btn {
     padding: 7px 14px;
     font-size: 0.85rem;
   }
 
-  .user-email {
+  .payment-text {
     display: none;
   }
 
-  .user-role-badge {
-    font-size: 0.7rem;
-    padding: 3px 8px;
+  .role-toggle-btn {
+    padding: 7px 14px;
+    font-size: 0.85rem;
   }
 
   .auth-buttons {
@@ -835,7 +814,8 @@ onUnmounted(() => {
   }
 
   .admin-toggle-btn,
-  .user-menu-btn {
+  .payment-btn,
+  .role-toggle-btn {
     padding: 6px 12px;
     font-size: 0.8rem;
     gap: 6px;
@@ -845,9 +825,21 @@ onUnmounted(() => {
     font-size: 1rem;
   }
 
-  .user-role-badge {
-    font-size: 0.65rem;
-    padding: 2px 6px;
+  .payment-icon {
+    font-size: 1rem;
+  }
+
+  .payment-text {
+    display: none;
+  }
+
+  .role-toggle-btn {
+    max-width: 150px;
+  }
+
+  .role-text {
+    font-size: 0.8rem;
+    max-width: 100px;
   }
 
   .auth-btn {
@@ -902,7 +894,8 @@ onUnmounted(() => {
   }
 
   .admin-toggle-btn,
-  .user-menu-btn {
+  .payment-btn,
+  .role-toggle-btn {
     padding: 5px 10px;
     font-size: 0.75rem;
     gap: 5px;
@@ -912,15 +905,26 @@ onUnmounted(() => {
     font-size: 0.95rem;
   }
 
+  .payment-icon {
+    font-size: 0.95rem;
+  }
+
+  .payment-text {
+    display: none;
+  }
+
   .admin-arrow,
-  .user-arrow {
+  .role-arrow {
     font-size: 0.6rem;
   }
 
-  .user-role-badge {
-    font-size: 0.6rem;
-    padding: 2px 5px;
-    letter-spacing: 0.3px;
+  .role-toggle-btn {
+    max-width: 120px;
+  }
+
+  .role-text {
+    font-size: 0.75rem;
+    max-width: 80px;
   }
 
   .auth-buttons {
@@ -991,7 +995,8 @@ onUnmounted(() => {
   }
 
   .admin-toggle-btn,
-  .user-menu-btn {
+  .payment-btn,
+  .role-toggle-btn {
     padding: 4px 8px;
     font-size: 0.7rem;
     gap: 4px;
@@ -1001,9 +1006,21 @@ onUnmounted(() => {
     font-size: 0.9rem;
   }
 
-  .user-role-badge {
-    font-size: 0.55rem;
-    padding: 2px 4px;
+  .payment-icon {
+    font-size: 0.9rem;
+  }
+
+  .payment-text {
+    display: none;
+  }
+
+  .role-toggle-btn {
+    max-width: 100px;
+  }
+
+  .role-text {
+    font-size: 0.7rem;
+    max-width: 60px;
   }
 
   .auth-btn {
@@ -1039,7 +1056,8 @@ onUnmounted(() => {
   }
 
   .admin-toggle-btn,
-  .user-menu-btn {
+  .payment-btn,
+  .role-toggle-btn {
     padding: 5px 12px;
   }
 }
