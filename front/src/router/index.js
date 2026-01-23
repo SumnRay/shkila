@@ -116,6 +116,12 @@ const routes = [
     component: PaymentCalculatorView,
     meta: { requiresAuth: true, roles: ['student', 'applicant'] },
   },
+  // Catch-all маршрут для 404 - перенаправляет на главную
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'not-found',
+    redirect: { name: 'home' },
+  },
 ]
 
 const router = createRouter({
