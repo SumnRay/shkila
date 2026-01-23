@@ -1,8 +1,6 @@
 # accounts/forms.py
 from django import forms
 from django.contrib.auth import authenticate
-from django.contrib.auth.password_validation import validate_password
-from django.contrib.auth.hashers import make_password
 from django.conf import settings
 
 from .models import User
@@ -13,11 +11,6 @@ class RegistrationForm(forms.ModelForm):
         widget=forms.PasswordInput,
         help_text='Минимум 8 символов'
     )
-    parent_password = forms.CharField(
-        label='Пароль родителя',
-        widget=forms.PasswordInput,
-        help_text='Будет сохранён в виде хеша'
-    )
 
     class Meta:
         model = User
@@ -26,7 +19,6 @@ class RegistrationForm(forms.ModelForm):
             'phone',
             'student_full_name',
             'parent_full_name',
-            # пароли отдельно
         ]
 
         widgets = {
@@ -44,7 +36,8 @@ class RegistrationForm(forms.ModelForm):
 
     def clean_password(self):
         pwd = self.cleaned_data['password']
-        validate_password(pwd)
+        if len(pwd) < 8:
+            raise forms.ValidationError('Пароль должен содержать минимум 8 символов')
         return pwd
 
     def save(self, commit=True):
@@ -58,8 +51,6 @@ class RegistrationForm(forms.ModelForm):
         )
         user.username = user.email  # логинимся по email
         user.set_password(data['password'])
-        # пароль родителя сохраняем как хеш
-        user.parent_password_hash = make_password(data['parent_password'])
 
         if commit:
             user.save()

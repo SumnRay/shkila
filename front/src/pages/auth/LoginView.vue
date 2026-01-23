@@ -30,13 +30,23 @@
               <span class="label-icon">🔑</span>
               <span>Пароль</span>
             </label>
-            <input
-              v-model="password"
-              type="password"
-              required
-              placeholder="••••••••"
-              class="form-input"
-            />
+            <div class="password-input-wrapper">
+              <input
+                v-model="password"
+                :type="showPassword ? 'text' : 'password'"
+                required
+                placeholder="••••••••"
+                class="form-input"
+              />
+              <label class="show-password-checkbox">
+                <input
+                  type="checkbox"
+                  v-model="showPassword"
+                  class="checkbox-input"
+                />
+                <span class="checkbox-label">Показать пароль</span>
+              </label>
+            </div>
           </div>
 
           <button 
@@ -78,6 +88,7 @@ import { useAuthStore } from '../../stores/auth'
 
 const email = ref('')
 const password = ref('')
+const showPassword = ref(false)
 const auth = useAuthStore()
 const router = useRouter()
 
@@ -248,6 +259,33 @@ const handleSubmit = async () => {
   background: rgba(40, 45, 60, 1);
   box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.2);
   transform: translateY(-2px);
+}
+
+.password-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.show-password-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+  user-select: none;
+}
+
+.checkbox-input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #FFD700;
+}
+
+.checkbox-label {
+  cursor: pointer;
 }
 
 .btn-submit {

@@ -1,23 +1,21 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.password_validation import validate_password
-from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 
 User = get_user_model()
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
-    parent_password = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
         fields = (
             "email", "phone", "student_full_name", "parent_full_name",
-            "password", "parent_password"
+            "password"
         )
 
     def validate_password(self, value):
-        validate_password(value)
+        if len(value) < 8:
+            raise serializers.ValidationError("Пароль должен содержать минимум 8 символов")
         return value
 
     def create(self, validated):
@@ -30,7 +28,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             role=User.Roles.APPLICANT,  # по умолчанию — абитуриент
         )
         user.set_password(validated["password"])
-        user.parent_password_hash = make_password(validated["parent_password"])
         user.save()
         return user
 

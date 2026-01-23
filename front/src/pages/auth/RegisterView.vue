@@ -20,7 +20,7 @@
               v-model="email"
               type="email"
               required
-              placeholder="parent@example.com"
+              placeholder="example@email.com"
               class="form-input"
             />
           </div>
@@ -70,29 +70,26 @@
           <div class="form-group">
             <label class="form-label">
               <span class="label-icon">🔑</span>
-              <span>Пароль ученика</span>
+              <span>Пароль</span>
             </label>
-            <input
-              v-model="password"
-              type="password"
-              required
-              placeholder="Пароль для входа ученика"
-              class="form-input"
-            />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">
-              <span class="label-icon">🔐</span>
-              <span>Пароль родителя</span>
-            </label>
-            <input
-              v-model="parentPassword"
-              type="password"
-              required
-              placeholder="Пароль для входа родителя"
-              class="form-input"
-            />
+            <div class="password-input-wrapper">
+              <input
+                v-model="password"
+                :type="showPassword ? 'text' : 'password'"
+                required
+                minlength="8"
+                placeholder="Минимум 8 символов"
+                class="form-input"
+              />
+              <label class="show-password-checkbox">
+                <input
+                  type="checkbox"
+                  v-model="showPassword"
+                  class="checkbox-input"
+                />
+                <span class="checkbox-label">Показать пароль</span>
+              </label>
+            </div>
           </div>
 
           <button 
@@ -137,7 +134,7 @@ const phone = ref('')
 const studentFullName = ref('')
 const parentFullName = ref('')
 const password = ref('')
-const parentPassword = ref('')
+const showPassword = ref(false)
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -149,7 +146,6 @@ const handleSubmit = async () => {
     student_full_name: studentFullName.value,
     parent_full_name: parentFullName.value,
     password: password.value,
-    parent_password: parentPassword.value,
   })
 
   if (ok) {
@@ -315,6 +311,33 @@ const handleSubmit = async () => {
   background: rgba(40, 45, 60, 1);
   box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.2);
   transform: translateY(-2px);
+}
+
+.password-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.show-password-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+  user-select: none;
+}
+
+.checkbox-input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #FFD700;
+}
+
+.checkbox-label {
+  cursor: pointer;
 }
 
 .btn-submit {

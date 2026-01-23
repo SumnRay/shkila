@@ -4,7 +4,7 @@ import apiClient from './http'
 // регистрация пользователя
 export function registerApi(payload) {
   // payload должен содержать:
-  // email, phone, student_full_name, parent_full_name, password, parent_password
+  // email, phone, student_full_name, parent_full_name, password
   return apiClient.post('/auth/register/', payload)
 }
 
