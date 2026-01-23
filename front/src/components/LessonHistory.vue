@@ -25,7 +25,7 @@
         <div class="lesson-info">
           <div class="lesson-teacher">
             <span class="info-label">Преподаватель:</span>
-            <span class="info-value">{{ lesson.teacher_email || 'Не назначен' }}</span>
+            <span class="info-value">{{ lesson.teacher_full_name || 'Не назначен' }}</span>
           </div>
           <div class="lesson-status" :class="'status-' + lesson.status.toLowerCase()">
             {{ getStatusText(lesson.status) }}
@@ -48,7 +48,7 @@
           </div>
           <div class="detail-item">
             <span class="detail-label">Преподаватель:</span>
-            <span class="detail-value">{{ selectedLesson.teacher_email || 'Не назначен' }}</span>
+            <span class="detail-value">{{ selectedLesson.teacher_full_name || 'Не назначен' }}</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Статус:</span>

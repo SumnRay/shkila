@@ -64,7 +64,7 @@
                   {{ formatDate(lesson.scheduled_at) }} в {{ formatTime(lesson.scheduled_at) }}
                 </div>
                 <div class="schedule-course">Курс: {{ lesson.course || '—' }}</div>
-                <div class="schedule-teacher">Преподаватель: {{ lesson.teacher_email || 'Не назначен' }}</div>
+                <div class="schedule-teacher">Преподаватель: {{ lesson.teacher_full_name || 'Не назначен' }}</div>
               </div>
             </div>
             <div class="history-pagination">
@@ -109,7 +109,7 @@
                   {{ formatDate(lesson.scheduled_at) }} в {{ formatTime(lesson.scheduled_at) }}
                 </div>
                 <div class="schedule-course">Курс: {{ lesson.course || '—' }}</div>
-                <div class="schedule-teacher">Преподаватель: {{ lesson.teacher_email || 'Не назначен' }}</div>
+                <div class="schedule-teacher">Преподаватель: {{ lesson.teacher_full_name || 'Не назначен' }}</div>
               </div>
             </div>
           </div>
@@ -148,7 +148,7 @@
           </div>
           <div class="detail-item">
             <span class="detail-label">Преподаватель:</span>
-            <span class="detail-value">{{ selectedHistoryLesson.teacher_email || 'Не назначен' }}</span>
+            <span class="detail-value">{{ selectedHistoryLesson.teacher_full_name || 'Не назначен' }}</span>
           </div>
           <div class="detail-item" v-if="selectedHistoryLesson.feedback">
             <span class="detail-label">Обратная связь:</span>

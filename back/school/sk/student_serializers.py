@@ -33,6 +33,7 @@ class StudentCourseSerializer(serializers.ModelSerializer):
 
 class StudentLessonSerializer(serializers.ModelSerializer):
     teacher_email = serializers.EmailField(source="teacher.email", read_only=True)
+    teacher_full_name = serializers.SerializerMethodField()
     course = serializers.SerializerMethodField()
     feedback = serializers.SerializerMethodField()
 
@@ -40,7 +41,7 @@ class StudentLessonSerializer(serializers.ModelSerializer):
         model = Lesson
         fields = (
             "id",
-            "teacher", "teacher_email",
+            "teacher", "teacher_email", "teacher_full_name",
             "course",
             "link",
             "scheduled_at",
@@ -50,6 +51,16 @@ class StudentLessonSerializer(serializers.ModelSerializer):
             "debited_from_balance",
             "created_at",
         )
+
+    def get_teacher_full_name(self, obj):
+        """Получение ФИО преподавателя"""
+        if obj.teacher:
+            # Используем student_full_name (общее поле ФИО) или собираем из first_name/last_name
+            if obj.teacher.student_full_name:
+                return obj.teacher.student_full_name
+            full_name = f"{obj.teacher.first_name} {obj.teacher.last_name}".strip()
+            return full_name if full_name else obj.teacher.email
+        return None
     
     def get_course(self, obj):
         """Получение названия курса"""

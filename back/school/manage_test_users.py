@@ -34,7 +34,7 @@ def build_email(prefix: str, index: int, domain: str) -> str:
     return f"{prefix}{index}@{domain}"
 
 
-def upsert_user(email, role, is_staff=False, is_superuser=False, password=DEFAULT_PASSWORD):
+def upsert_user(email, role, is_staff=False, is_superuser=False, password=DEFAULT_PASSWORD, full_name=""):
     User = get_user_model()
     user, created = User.objects.get_or_create(
         email=email,
@@ -44,6 +44,7 @@ def upsert_user(email, role, is_staff=False, is_superuser=False, password=DEFAUL
             "is_staff": is_staff,
             "is_superuser": is_superuser,
             "is_active": True,
+            "student_full_name": full_name,
         },
     )
 
@@ -60,6 +61,9 @@ def upsert_user(email, role, is_staff=False, is_superuser=False, password=DEFAUL
     if user.is_superuser != is_superuser:
         user.is_superuser = is_superuser
         changed = True
+    if full_name and user.student_full_name != full_name:
+        user.student_full_name = full_name
+        changed = True
 
     # Пароль устанавливаем всегда
     user.set_password(password)
@@ -71,11 +75,22 @@ def upsert_user(email, role, is_staff=False, is_superuser=False, password=DEFAUL
     return created
 
 
+ROLE_NAMES = {
+    "admin": "Админ",
+    "manager": "Менеджер", 
+    "teacher": "Преподаватель",
+    "student": "Ученик",
+    "applicant": "Абитуриент",
+}
+
+
 def create_users(prefix, count, role, is_staff=False, is_superuser=False, domain="example.com", password=DEFAULT_PASSWORD):
     created = 0
+    role_name = ROLE_NAMES.get(prefix, prefix.capitalize())
     for i in range(1, count + 1):
         email = build_email(prefix, i, domain)
-        if upsert_user(email, role, is_staff=is_staff, is_superuser=is_superuser, password=password):
+        full_name = f"{role_name} Тестовый {i}"
+        if upsert_user(email, role, is_staff=is_staff, is_superuser=is_superuser, password=password, full_name=full_name):
             created += 1
     return created
 
