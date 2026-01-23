@@ -42,6 +42,7 @@
               v-for="day in weekDays"
               :key="day.iso + '-' + hour"
               class="calendar-cell slot"
+              @click="openCreate(day.iso, hour)"
             >
               <!-- Контейнер для всех карточек уроков (80% ширины) -->
               <div class="slot-lessons-container">
@@ -64,12 +65,6 @@
                   <div v-if="lesson.is_trial" class="lesson-trial-badge">Пробное</div>
                 </div>
               </div>
-              <!-- Пустое место для добавления еще одного урока (20% ширины, справа) -->
-              <div 
-                class="slot-empty-area" 
-                @click.stop="openCreate(day.iso, hour)"
-                :title="'Добавить урок на ' + formatHour(hour) + ' ' + day.display"
-              ></div>
             </div>
           </div>
         </div>
