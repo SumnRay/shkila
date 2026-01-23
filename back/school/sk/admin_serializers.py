@@ -198,11 +198,29 @@ class AdminLessonCreateSerializer(serializers.ModelSerializer):
 class AdminLessonUpdateSerializer(serializers.ModelSerializer):
     """
     Обновление урока админом.
-    Может менять время, ссылку, статус, комментарий.
+    Может менять время, ссылку, статус, комментарий, преподавателя.
     """
+    teacher_email = serializers.EmailField(write_only=True, required=False, allow_blank=True)
+    teacher = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False, allow_null=True)
+    
     class Meta:
         model = Lesson
-        fields = ("scheduled_at", "status", "link", "comment")
+        fields = ("scheduled_at", "status", "link", "comment", "teacher", "teacher_email")
+    
+    def validate(self, attrs):
+        # Обработка teacher_email
+        teacher_email = attrs.pop('teacher_email', None)
+        if teacher_email:
+            teacher_email = teacher_email.strip() if isinstance(teacher_email, str) else None
+            if teacher_email:
+                try:
+                    teacher = User.objects.get(email__iexact=teacher_email)
+                    attrs['teacher'] = teacher
+                except User.DoesNotExist:
+                    raise serializers.ValidationError({"teacher_email": "Teacher with this email not found"})
+                except User.MultipleObjectsReturned:
+                    raise serializers.ValidationError({"teacher_email": "Multiple teachers with this email found"})
+        return attrs
 
 
 class AuditLogSerializer(serializers.ModelSerializer):

@@ -56,10 +56,16 @@ class StudentLessonSerializer(serializers.ModelSerializer):
         """Получение ФИО преподавателя"""
         if obj.teacher:
             # Используем student_full_name (общее поле ФИО) или собираем из first_name/last_name
-            if obj.teacher.student_full_name:
-                return obj.teacher.student_full_name
-            full_name = f"{obj.teacher.first_name} {obj.teacher.last_name}".strip()
-            return full_name if full_name else obj.teacher.email
+            if hasattr(obj.teacher, 'student_full_name') and obj.teacher.student_full_name:
+                return obj.teacher.student_full_name.strip()
+            first_name = getattr(obj.teacher, 'first_name', '') or ''
+            last_name = getattr(obj.teacher, 'last_name', '') or ''
+            full_name = f"{first_name} {last_name}".strip()
+            if full_name:
+                return full_name
+            # Если нет имени, возвращаем email
+            if hasattr(obj.teacher, 'email') and obj.teacher.email:
+                return obj.teacher.email
         return None
     
     def get_course(self, obj):

@@ -163,12 +163,15 @@ class ManagerLessonCreateSerializer(serializers.ModelSerializer):
 
 class ManagerLessonUpdateSerializer(serializers.ModelSerializer):
     """
-    Менеджер может менять время, ссылку, статус, комментарий.
+    Менеджер может менять время, ссылку, статус, комментарий, преподавателя.
     При отмене занятия (статус CANCELLED) обязательна причина отмены.
     """
+    teacher_email = serializers.EmailField(write_only=True, required=False, allow_blank=True)
+    teacher = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False, allow_null=True)
+    
     class Meta:
         model = Lesson
-        fields = ("scheduled_at", "status", "link", "comment", "cancellation_reason", "feedback", "is_trial")
+        fields = ("scheduled_at", "status", "link", "comment", "cancellation_reason", "feedback", "is_trial", "teacher", "teacher_email")
 
     def save(self, **kwargs):
         # Миграции применены, поля должны быть в БД
@@ -176,6 +179,19 @@ class ManagerLessonUpdateSerializer(serializers.ModelSerializer):
         return super().save(**kwargs)
 
     def validate(self, attrs):
+        # Обработка teacher_email
+        teacher_email = attrs.pop('teacher_email', None)
+        if teacher_email:
+            teacher_email = teacher_email.strip() if isinstance(teacher_email, str) else None
+            if teacher_email:
+                try:
+                    teacher = User.objects.get(email__iexact=teacher_email)
+                    attrs['teacher'] = teacher
+                except User.DoesNotExist:
+                    raise serializers.ValidationError({"teacher_email": "Teacher with this email not found"})
+                except User.MultipleObjectsReturned:
+                    raise serializers.ValidationError({"teacher_email": "Multiple teachers with this email found"})
+        
         # Получаем текущий статус (новый или существующий)
         new_status = attrs.get('status')
         old_status = self.instance.status if self.instance else None
