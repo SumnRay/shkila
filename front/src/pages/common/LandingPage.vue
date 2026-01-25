@@ -6,13 +6,16 @@
       <div class="hero-content">
         <div class="hero-text">
           <h1 class="hero-title">F.L.A.R.E.</h1>
-          <p class="hero-subtitle">— современное обучение программированию</p>
-          <p class="hero-slogan">От первого шага до первых проектов.</p>
+          <p class="hero-subtitle">Персональный сервис учёта и индивидуального обучения</p>
+          <p class="hero-description">Прозрачный учет занятий, индивидуальный подход и личный преподаватель.</p>
           <div class="hero-cta">
-            <button class="cta-button" @click="handleEnroll">
+            <button class="cta-button-primary" @click="handleEnroll">
               Записаться
             </button>
-            <span class="cta-text">Начни прямо сейчас!</span>
+            <button class="cta-button-secondary" @click="scrollToFeatures">
+              Подробнее о сервисе
+              <span class="caret-icon">▼</span>
+            </button>
           </div>
         </div>
         <div class="hero-graphic">
@@ -23,102 +26,114 @@
       </div>
     </section>
 
+    <!-- Секция возможностей -->
+    <section class="features-section" ref="featuresSection">
+      <h2 class="features-title">Что даёт платформа F.L.A.R.E.</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">💼</div>
+          <h3 class="feature-title">Баланс оплаченных занятий</h3>
+          <p class="feature-description">Количество уроков и остаточный баланс.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📅</div>
+          <h3 class="feature-title">Удобное расписание</h3>
+          <p class="feature-description">Ближайшие занятия и удобное расписание.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⏰</div>
+          <h3 class="feature-title">История занятий</h3>
+          <p class="feature-description">История всех занятий.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">👤</div>
+          <h3 class="feature-title">Личный кабинет</h3>
+          <p class="feature-description">Личный кабинет ученика.</p>
+        </div>
+      </div>
+    </section>
+
     <!-- Секция курсов -->
     <section class="courses-section">
       <h2 class="courses-title">Курсы</h2>
-      
       <div v-if="loading" class="loading-state">
         <div class="loading-spinner"></div>
         <p>Загрузка курсов...</p>
       </div>
-      
       <div v-else-if="courses.length === 0" class="empty-state">
         <p>Курсы пока не добавлены</p>
       </div>
-      
-      <div v-else class="courses-grid">
-        <article 
-          v-for="course in displayedCourses" 
-          :key="course.id" 
-          class="course-card"
-          @click="openCourseDetails(course)"
-        >
-          <h3 class="course-card-title">{{ course.title }}</h3>
-          <div class="course-card-description">
-            <p v-for="(line, index) in getCourseDescription(course)" :key="index">
-              {{ line }}
+      <div v-else class="courses-layout">
+        <div class="course-detail-card">
+          <h3 class="course-detail-title">{{ selectedCourse?.title || 'Курс' }}</h3>
+          <div class="course-tags">
+            <span class="course-tag">
+              <span class="tag-icon">📖</span>
+              С нуля
+            </span>
+            <span class="course-tag">
+              <span class="tag-icon">👤</span>
+              Индивидуально
+            </span>
+            <span class="course-tag">
+              <span class="tag-icon">💻</span>
+              Онлайн
+            </span>
+          </div>
+          <div v-if="selectedCourse" class="course-info">
+            <div v-if="selectedCourse.modules && selectedCourse.modules.length > 0" class="course-modules">
+              <p class="course-modules-count">Модулей: {{ selectedCourse.modules_count || 0 }}</p>
+              <div class="course-description">
+                <p v-for="(module, index) in selectedCourse.modules.slice(0, 3)" :key="module.id" class="module-preview">
+                  {{ module.title }}
+                </p>
+                <p v-if="selectedCourse.modules.length > 3" class="module-preview-more">
+                  и ещё {{ selectedCourse.modules.length - 3 }} модулей...
+                </p>
+              </div>
+            </div>
+            <p v-else class="course-detail-description">
+              Просто начать. Легко продолжать. Понятно сложно — очевидно для первых шагов. Используем в анализе данных, AI, вебе и автоматизации.
             </p>
           </div>
-          <button class="course-enroll-btn" @click.stop="handleCourseEnroll(course)">
+          <p v-else class="course-detail-description">
+            Просто начать. Легко продолжать. Понятно сложно — очевидно для первых шагов. Используем в анализе данных, AI, вебе и автоматизации.
+          </p>
+          <button class="course-enroll-btn" @click="handleEnroll">
             Записаться
           </button>
-        </article>
-      </div>
-
-      <div v-if="courses.length > 3" class="more-courses">
-        <button class="more-courses-btn" @click="showAllCourses = !showAllCourses">
-          {{ showAllCourses ? 'Скрыть' : 'Больше курсов →' }}
-        </button>
+        </div>
+        <div class="course-benefits">
+          <div class="benefit-item">
+            <span class="benefit-checkmark">✓</span>
+            <span class="benefit-text">С нуля — Индивидуально — Онлайн</span>
+          </div>
+          <div class="benefit-item">
+            <span class="benefit-checkmark">✓</span>
+            <span class="benefit-text">Ближайшие занятия и удобное расписание</span>
+          </div>
+          <div class="benefit-item">
+            <span class="benefit-checkmark">✓</span>
+            <span class="benefit-text">История всех занятий</span>
+          </div>
+          <div class="benefit-item">
+            <span class="benefit-checkmark">✓</span>
+            <span class="benefit-text">Личный кабинет ученика</span>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- Модальное окно с деталями курса -->
-    <div v-if="selectedCourse" class="course-modal-backdrop" @click="closeCourseDetails">
-      <div class="course-modal" @click.stop>
-        <div class="course-modal-header">
-          <h2 class="course-modal-title">{{ selectedCourse.title }}</h2>
-          <button class="course-modal-close" @click="closeCourseDetails">×</button>
-        </div>
-        
-        <div class="course-modal-content">
-          <div v-if="selectedCourse.modules && selectedCourse.modules.length > 0" class="modules-list">
-            <div 
-              v-for="module in selectedCourse.modules" 
-              :key="module.id" 
-              class="module-item"
-            >
-              <div class="module-header">
-                <h3 class="module-title">
-                  <span class="module-icon">📦</span>
-                  {{ module.title }}
-                </h3>
-                <span class="module-topics-count">{{ module.topics_count || 0 }} тем</span>
-              </div>
-              
-              <p v-if="module.description" class="module-description">{{ module.description }}</p>
-              
-              <div v-if="module.topics && module.topics.length > 0" class="topics-list">
-                <div 
-                  v-for="topic in module.topics" 
-                  :key="topic.id" 
-                  class="topic-item"
-                >
-                  <span class="topic-icon">📝</span>
-                  <div class="topic-content">
-                    <h4 class="topic-title">{{ topic.title }}</h4>
-                    <p v-if="topic.description" class="topic-description">{{ topic.description }}</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div v-else class="topics-empty">
-                <p>Темы пока не добавлены</p>
-              </div>
-            </div>
-          </div>
-          
-          <div v-else class="modules-empty">
-            <p>Модули пока не добавлены в этот курс</p>
-          </div>
-        </div>
-        
-        <div class="course-modal-footer">
-          <button class="course-modal-enroll-btn" @click="handleCourseEnroll(selectedCourse)">
-            Записаться на курс
-          </button>
-        </div>
-      </div>
-    </div>
+    <!-- Секция призыва к действию -->
+    <section class="cta-section">
+      <h2 class="cta-title">Хотите индивидуальное обучение и прозрачный учёт занятий?</h2>
+      <button class="cta-button-primary" @click="handleEnroll">
+        Записаться
+      </button>
+    </section>
+
+    <!-- Футер -->
+    <Footer />
   </div>
 </template>
 
@@ -127,19 +142,16 @@ import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { useRouter } from 'vue-router'
 import { applicantGetPublicCourses } from '../../api/applicant'
+import Footer from '../../components/Footer.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
+const featuresSection = ref(null)
 const courses = ref([])
 const loading = ref(false)
-const showAllCourses = ref(false)
-const selectedCourse = ref(null)
 
-const displayedCourses = computed(() => {
-  if (showAllCourses.value || courses.value.length <= 3) {
-    return courses.value
-  }
-  return courses.value.slice(0, 3)
+const selectedCourse = computed(() => {
+  return courses.value.length > 0 ? courses.value[0] : null
 })
 
 const fetchCourses = async () => {
@@ -157,49 +169,6 @@ const fetchCourses = async () => {
   }
 }
 
-const getCourseDescription = (course) => {
-  // Описания курсов на основе названия
-  const descriptions = {
-    'python': [
-      'Просто начать. Легко продолжать.',
-      'Понятный синтаксис — идеально для первых шагов.',
-      'Используется в анализе данных, AI, вебе и автоматизации.'
-    ],
-    'c++': [
-      'Максимум мощности и контроля.',
-      'Высокая производительность для игр и системных приложений.',
-      'Позволяет управлять памятью и ресурсами напрямую.'
-    ],
-    'javascript': [
-      'Язык, который работает в браузере.',
-      'Делает сайты интерактивными и живыми.',
-      'React, Vue, Node.js — огромная экосистема для роста.'
-    ]
-  }
-
-  // Ищем точное совпадение или частичное
-  const courseTitle = course.title.toLowerCase().trim()
-  
-  // Проверяем точное совпадение
-  if (descriptions[courseTitle]) {
-    return descriptions[courseTitle]
-  }
-  
-  // Проверяем частичное совпадение
-  for (const [key, desc] of Object.entries(descriptions)) {
-    if (courseTitle.includes(key) || key.includes(courseTitle)) {
-      return desc
-    }
-  }
-
-  // Дефолтное описание
-  return [
-    'Современный подход к обучению.',
-    'Практические задания и проекты.',
-    `Модулей: ${course.modules_count || 0}`
-  ]
-}
-
 const handleEnroll = () => {
   if (auth.isAuthenticated) {
     router.push({ name: 'applicant-dashboard' })
@@ -208,20 +177,9 @@ const handleEnroll = () => {
   }
 }
 
-const openCourseDetails = (course) => {
-  selectedCourse.value = course
-}
-
-const closeCourseDetails = () => {
-  selectedCourse.value = null
-}
-
-const handleCourseEnroll = (course) => {
-  closeCourseDetails()
-  if (auth.isAuthenticated) {
-    router.push({ name: 'applicant-dashboard' })
-  } else {
-    router.push({ name: 'register' })
+const scrollToFeatures = () => {
+  if (featuresSection.value) {
+    featuresSection.value.scrollIntoView({ behavior: 'smooth' })
   }
 }
 
@@ -241,77 +199,28 @@ onMounted(() => {
 .home-page {
   width: 100%;
   min-height: 100vh;
-  background: #1A1A1A;
+  background: #000000;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   color: #FFFFFF;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-}
-
-/* Навигация */
-.top-nav {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: rgba(26, 26, 26, 0.95);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 16px 32px;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  width: 100%;
-  box-sizing: border-box;
-  flex-shrink: 0;
-}
-
-.nav-right {
-  display: flex;
-  align-items: center;
-}
-
-.auth-btn {
-  padding: 10px 24px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-size: 0.95rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  border: 1px solid #FFD700;
-  color: #FFD700;
-  background: transparent;
-  display: inline-block;
-  cursor: pointer;
-}
-
-.auth-btn:hover {
-  background: #FFD700;
-  color: #1A1A1A;
 }
 
 /* Hero секция */
 .hero-section {
-  padding: 80px 32px;
+  padding: 120px 32px 100px;
   max-width: 1400px;
   width: 100%;
   margin: 0 auto;
-  min-height: auto;
-  position: relative;
-  flex-shrink: 0;
   box-sizing: border-box;
 }
 
 .hero-content {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
-  gap: 60px;
+  gap: 80px;
   align-items: center;
-  min-height: auto;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
@@ -320,24 +229,25 @@ onMounted(() => {
 .hero-text {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
   max-width: 100%;
   width: 100%;
   box-sizing: border-box;
 }
 
 .hero-title {
-  font-size: 4.5rem;
+  font-size: 5.5rem;
   font-weight: 900;
   margin: 0;
   padding: 0;
   color: #FFFFFF;
-  letter-spacing: -2px;
-  line-height: 1.1;
+  letter-spacing: -3px;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .hero-subtitle {
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   margin: 0;
   padding: 0;
   color: #FFFFFF;
@@ -345,30 +255,30 @@ onMounted(() => {
   line-height: 1.4;
 }
 
-.hero-slogan {
-  font-size: 1rem;
+.hero-description {
+  font-size: 1.15rem;
   margin: 0;
   padding: 0;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.85);
   font-weight: 400;
-  line-height: 1.5;
+  line-height: 1.7;
 }
 
 .hero-cta {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-top: 24px;
+  gap: 20px;
+  margin-top: 40px;
   flex-wrap: wrap;
 }
 
-.cta-button {
-  padding: 14px 36px;
+.cta-button-primary {
+  padding: 16px 40px;
   border-radius: 8px;
   border: none;
   background: #FFD700;
-  color: #1A1A1A;
-  font-size: 1rem;
+  color: #000000;
+  font-size: 1.05rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -376,17 +286,41 @@ onMounted(() => {
   white-space: nowrap;
 }
 
-.cta-button:hover {
-  background: #FF8C00;
+.cta-button-primary:hover {
+  background: #FFA500;
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
+  box-shadow: 0 8px 24px rgba(255, 215, 0, 0.5);
 }
 
-.cta-text {
-  font-size: 0.95rem;
+.cta-button-secondary {
+  padding: 16px 40px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(30, 30, 30, 0.9);
   color: #FFFFFF;
-  font-weight: 500;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cta-button-secondary:hover {
+  background: rgba(50, 50, 50, 0.95);
+  transform: translateY(-2px);
+}
+
+.caret-icon {
+  font-size: 0.85rem;
+  transition: transform 0.3s ease;
+}
+
+.cta-button-secondary:hover .caret-icon {
+  transform: translateY(3px);
 }
 
 .hero-graphic {
@@ -395,13 +329,13 @@ onMounted(() => {
   align-items: center;
   width: 100%;
   height: 100%;
-  min-height: 300px;
+  min-height: 350px;
   box-sizing: border-box;
 }
 
 .logo-wrapper {
   width: 100%;
-  max-width: 280px;
+  max-width: 320px;
   height: auto;
   aspect-ratio: 1;
   position: relative;
@@ -414,47 +348,296 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6)) 
-          drop-shadow(0 0 40px rgba(255, 215, 0, 0.4))
-          drop-shadow(0 0 60px rgba(255, 165, 0, 0.3));
+  filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.7)) 
+          drop-shadow(0 0 50px rgba(255, 215, 0, 0.5))
+          drop-shadow(0 0 75px rgba(255, 165, 0, 0.4));
   animation: logo-glow 3s ease-in-out infinite alternate;
 }
 
 @keyframes logo-glow {
   0% {
-    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.5)) 
-            drop-shadow(0 0 30px rgba(255, 215, 0, 0.3))
-            drop-shadow(0 0 45px rgba(255, 165, 0, 0.2));
+    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6)) 
+            drop-shadow(0 0 40px rgba(255, 215, 0, 0.4))
+            drop-shadow(0 0 60px rgba(255, 165, 0, 0.3));
   }
   100% {
-    filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.7)) 
-            drop-shadow(0 0 50px rgba(255, 215, 0, 0.5))
-            drop-shadow(0 0 75px rgba(255, 165, 0, 0.4));
+    filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.8)) 
+            drop-shadow(0 0 60px rgba(255, 215, 0, 0.6))
+            drop-shadow(0 0 90px rgba(255, 165, 0, 0.5));
   }
+}
+
+/* Секция возможностей */
+.features-section {
+  padding: 120px 32px;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.features-title {
+  font-size: 3.2rem;
+  font-weight: 900;
+  text-align: center;
+  margin: 0 0 80px 0;
+  padding: 0;
+  color: #FFFFFF;
+  letter-spacing: -1.5px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 40px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.feature-card {
+  background: rgba(30, 30, 30, 0.9);
+  border-radius: 16px;
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(255, 215, 0, 0.25);
+  border-color: rgba(255, 215, 0, 0.3);
+}
+
+.feature-icon {
+  font-size: 3.5rem;
+  margin-bottom: 4px;
+  filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+}
+
+.feature-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0;
+  padding: 0;
+  color: #FFFFFF;
+}
+
+.feature-description {
+  font-size: 1.05rem;
+  margin: 0;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.7;
 }
 
 /* Секция курсов */
 .courses-section {
-  padding: 100px 32px;
+  padding: 120px 32px;
   max-width: 1400px;
   width: 100%;
-  margin: 60px auto 0 auto;
-  position: relative;
-  border-top: 2px solid rgba(255, 215, 0, 0.2);
-  flex-shrink: 0;
+  margin: 0 auto;
   box-sizing: border-box;
 }
 
 .courses-title {
-  font-size: 3rem;
+  font-size: 3.2rem;
   font-weight: 900;
-  text-align: center;
-  margin: 0 0 60px 0;
+  margin: 0 0 80px 0;
+  padding: 0;
+  color: #FFFFFF;
+  letter-spacing: -1.5px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.courses-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 80px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.course-detail-card {
+  background: rgba(30, 30, 30, 0.9);
+  border-radius: 16px;
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.course-detail-title {
+  font-size: 2.8rem;
+  font-weight: 800;
+  margin: 0;
   padding: 0;
   color: #FFFFFF;
   letter-spacing: -1px;
+}
+
+.course-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.course-tag {
+  background: rgba(0, 0, 0, 0.6);
+  color: #FFFFFF;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tag-icon {
+  font-size: 1.1rem;
+}
+
+.course-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.course-modules {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.course-modules-count {
+  font-size: 1rem;
+  color: rgba(255, 215, 0, 0.9);
+  font-weight: 600;
+  margin: 0;
+  padding: 0;
+}
+
+.course-description {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.module-preview {
+  font-size: 1.05rem;
+  margin: 0;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.6;
+  padding-left: 16px;
+  position: relative;
+}
+
+.module-preview::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: #FFD700;
+  font-weight: bold;
+}
+
+.module-preview-more {
+  font-size: 1rem;
+  margin: 0;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+  padding-left: 16px;
+}
+
+.course-detail-description {
+  font-size: 1.15rem;
+  margin: 0;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.9;
+}
+
+.course-enroll-btn {
+  padding: 16px 40px;
+  border-radius: 8px;
+  border: none;
+  background: #FFD700;
+  color: #000000;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+.course-enroll-btn:hover {
+  background: #FFA500;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 215, 0, 0.5);
+}
+
+.course-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding-top: 24px;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.benefit-checkmark {
+  color: #FFD700;
+  font-size: 1.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 2px;
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
+}
+
+.benefit-text {
+  font-size: 1.15rem;
+  color: #FFFFFF;
+  line-height: 1.7;
+  font-weight: 400;
+}
+
+/* Секция призыва к действию */
+.cta-section {
+  padding: 120px 32px;
+  max-width: 1400px;
   width: 100%;
+  margin: 0 auto;
+  text-align: center;
   box-sizing: border-box;
+}
+
+.cta-title {
+  font-size: 2.8rem;
+  font-weight: 700;
+  margin: 0 0 50px 0;
+  padding: 0;
+  color: #FFFFFF;
+  line-height: 1.3;
+  letter-spacing: -0.5px;
 }
 
 /* Состояния загрузки */
@@ -464,20 +647,20 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 80px 20px;
+  padding: 100px 20px;
   color: rgba(255, 255, 255, 0.8);
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: 600;
 }
 
 .loading-spinner {
-  width: 56px;
-  height: 56px;
+  width: 60px;
+  height: 60px;
   border: 5px solid rgba(255, 215, 0, 0.2);
   border-top-color: #FFD700;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 @keyframes spin {
@@ -486,172 +669,94 @@ onMounted(() => {
   }
 }
 
-/* Сетка курсов */
-.courses-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 32px;
-  margin-bottom: 40px;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-.course-card {
-  background: rgba(40, 40, 40, 0.8);
-  border: 3px solid #FFD700;
-  border-radius: 12px;
-  padding: 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  transition: all 0.3s ease;
-  min-height: 350px;
-  height: auto;
-  width: 100%;
-  max-width: 100%;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  box-sizing: border-box;
-  overflow: hidden;
-  cursor: pointer;
-}
-
-.course-card:hover {
-  border-color: #FF8C00;
-  transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(255, 215, 0, 0.3);
-}
-
-.course-card-title {
-  font-size: 2rem;
-  font-weight: 800;
-  margin: 0;
-  padding: 0;
-  color: #FFFFFF;
-}
-
-.course-card-description {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.course-card-description p {
-  margin: 0;
-  padding: 0;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 1rem;
-  line-height: 1.6;
-}
-
-.course-enroll-btn {
-  padding: 14px 28px;
-  border-radius: 8px;
-  border: none;
-  background: #FFD700;
-  color: #1A1A1A;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: inherit;
-  margin-top: auto;
-}
-
-.course-enroll-btn:hover {
-  background: #FF8C00;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(255, 215, 0, 0.4);
-}
-
-.more-courses {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.more-courses-btn {
-  padding: 12px 24px;
-  border-radius: 8px;
-  border: 1px solid #FFD700;
-  background: transparent;
-  color: #FFD700;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: inherit;
-}
-
-.more-courses-btn:hover {
-  background: #FFD700;
-  color: #1A1A1A;
-}
-
 /* Адаптивность */
 @media (max-width: 1200px) {
-  .hero-section {
-    padding: 60px 32px;
-    width: 100%;
-  }
-
-  .courses-section {
-    padding: 80px 32px;
-    margin-top: 40px;
-    width: 100%;
+  .hero-section,
+  .features-section,
+  .courses-section,
+  .cta-section {
+    padding: 100px 32px;
   }
 
   .hero-content {
     grid-template-columns: 1fr;
-    gap: 50px;
-    min-height: auto;
-    width: 100%;
+    gap: 60px;
   }
 
   .hero-graphic {
     order: -1;
-    min-height: 250px;
-    width: 100%;
+    min-height: 280px;
   }
 
   .logo-wrapper {
-    max-width: 240px;
+    max-width: 260px;
+  }
+
+  .courses-layout {
+    grid-template-columns: 1fr;
+    gap: 50px;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-section,
+  .features-section,
+  .courses-section,
+  .cta-section {
+    padding: 80px 20px;
   }
 
   .hero-title {
     font-size: 4rem;
   }
 
-  .courses-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 28px;
+  .hero-subtitle {
+    font-size: 1.4rem;
+  }
+
+  .hero-description {
+    font-size: 1.05rem;
+  }
+
+  .hero-cta {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cta-button-primary,
+  .cta-button-secondary {
     width: 100%;
   }
 
-  .course-card {
-    min-height: 320px;
-    width: 100%;
+  .features-title,
+  .courses-title {
+    font-size: 2.5rem;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .feature-card {
+    padding: 36px;
+  }
+
+  .cta-title {
+    font-size: 2.2rem;
+  }
+
+  .course-detail-card {
+    padding: 36px;
   }
 }
 
-@media (max-width: 768px) {
-  .hero-section {
-    padding: 50px 20px;
-    width: 100%;
-  }
-
-  .courses-section {
-    padding: 60px 20px;
-    margin-top: 30px;
-    width: 100%;
-  }
-
-  .hero-content {
-    gap: 40px;
-    width: 100%;
+@media (max-width: 480px) {
+  .hero-section,
+  .features-section,
+  .courses-section,
+  .cta-section {
+    padding: 60px 16px;
   }
 
   .hero-title {
@@ -662,406 +767,18 @@ onMounted(() => {
     font-size: 1.2rem;
   }
 
-  .hero-slogan {
-    font-size: 0.95rem;
-  }
-
-  .hero-graphic {
-    min-height: 200px;
-    width: 100%;
-  }
-
-  .logo-wrapper {
-    max-width: 200px;
-  }
-
-  .courses-title {
-    font-size: 2.5rem;
-    margin-bottom: 40px;
-  }
-
-  .courses-grid {
-    grid-template-columns: 1fr;
-    gap: 24px;
-    width: 100%;
-  }
-
-  .course-card {
-    min-height: auto;
-    padding: 28px;
-    width: 100%;
-  }
-
-  .top-nav {
-    padding: 12px 20px;
-    width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  .hero-section {
-    padding: 40px 16px;
-    width: 100%;
-  }
-
-  .courses-section {
-    padding: 50px 16px;
-    margin-top: 20px;
-    width: 100%;
-  }
-
-  .hero-content {
-    width: 100%;
-  }
-
-  .hero-title {
-    font-size: 2.5rem;
-  }
-
-  .hero-subtitle {
-    font-size: 1.1rem;
-  }
-
-  .hero-cta {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-    width: 100%;
-  }
-
-  .cta-button {
-    width: 100%;
-    padding: 12px 24px;
-  }
-
-  .cta-text {
-    text-align: center;
-  }
-
-  .hero-graphic {
-    min-height: 180px;
-    width: 100%;
-  }
-
-  .logo-wrapper {
-    max-width: 180px;
-  }
-
+  .features-title,
   .courses-title {
     font-size: 2rem;
-    margin-bottom: 30px;
   }
 
-  .courses-grid {
-    width: 100%;
+  .feature-card,
+  .course-detail-card {
+    padding: 28px;
   }
 
-  .course-card {
-    padding: 24px;
-    width: 100%;
-  }
-}
-
-/* Модальное окно с деталями курса */
-.course-modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  padding: 20px;
-  overflow-y: auto;
-}
-
-.course-modal {
-  background: rgba(30, 35, 50, 0.98);
-  backdrop-filter: blur(20px);
-  border: 2px solid #FFD700;
-  border-radius: 20px;
-  max-width: 900px;
-  width: 100%;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  overflow: hidden;
-}
-
-.course-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24px 32px;
-  border-bottom: 2px solid rgba(255, 215, 0, 0.3);
-  background: rgba(40, 45, 60, 0.8);
-}
-
-.course-modal-title {
-  font-size: 2rem;
-  font-weight: 800;
-  margin: 0;
-  color: #FFFFFF;
-  letter-spacing: -1px;
-}
-
-.course-modal-close {
-  background: transparent;
-  border: none;
-  color: #FFD700;
-  font-size: 2.5rem;
-  line-height: 1;
-  cursor: pointer;
-  padding: 0;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.course-modal-close:hover {
-  background: rgba(255, 215, 0, 0.1);
-  transform: rotate(90deg);
-}
-
-.course-modal-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 32px;
-}
-
-.course-modal-content::-webkit-scrollbar {
-  width: 8px;
-}
-
-.course-modal-content::-webkit-scrollbar-track {
-  background: rgba(40, 45, 60, 0.5);
-  border-radius: 4px;
-}
-
-.course-modal-content::-webkit-scrollbar-thumb {
-  background: rgba(255, 215, 0, 0.5);
-  border-radius: 4px;
-}
-
-.course-modal-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 215, 0, 0.7);
-}
-
-.modules-list {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.module-item {
-  background: rgba(40, 45, 60, 0.6);
-  border: 2px solid rgba(255, 215, 0, 0.3);
-  border-radius: 16px;
-  padding: 24px;
-  transition: all 0.3s ease;
-}
-
-.module-item:hover {
-  border-color: #FFD700;
-  box-shadow: 0 8px 24px rgba(255, 215, 0, 0.2);
-}
-
-.module-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.module-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0;
-  color: #FFFFFF;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.module-icon {
-  font-size: 1.5rem;
-}
-
-.module-topics-count {
-  background: rgba(255, 215, 0, 0.2);
-  color: #FFD700;
-  padding: 6px 12px;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  border: 1px solid rgba(255, 215, 0, 0.4);
-}
-
-.module-description {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 1rem;
-  line-height: 1.6;
-  margin: 0 0 16px 0;
-}
-
-.topics-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.topic-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 16px;
-  background: rgba(25, 30, 45, 0.8);
-  border-radius: 12px;
-  border-left: 3px solid #FFD700;
-  transition: all 0.3s ease;
-}
-
-.topic-item:hover {
-  background: rgba(35, 40, 55, 0.9);
-  transform: translateX(4px);
-}
-
-.topic-icon {
-  font-size: 1.2rem;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.topic-content {
-  flex: 1;
-}
-
-.topic-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin: 0 0 6px 0;
-  color: #FFFFFF;
-}
-
-.topic-description {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.7);
-  margin: 0;
-  line-height: 1.5;
-}
-
-.topics-empty,
-.modules-empty {
-  text-align: center;
-  padding: 40px 20px;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 1rem;
-}
-
-.course-modal-footer {
-  padding: 24px 32px;
-  border-top: 2px solid rgba(255, 215, 0, 0.3);
-  background: rgba(40, 45, 60, 0.8);
-  display: flex;
-  justify-content: center;
-}
-
-.course-modal-enroll-btn {
-  padding: 14px 36px;
-  border-radius: 8px;
-  border: none;
-  background: #FFD700;
-  color: #1A1A1A;
-  font-size: 1.1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: inherit;
-}
-
-.course-modal-enroll-btn:hover {
-  background: #FF8C00;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
-}
-
-/* Адаптивность модального окна */
-@media (max-width: 768px) {
-  .course-modal {
-    max-width: 100%;
-    max-height: 95vh;
-    border-radius: 16px;
-  }
-
-  .course-modal-header {
-    padding: 20px 24px;
-  }
-
-  .course-modal-title {
-    font-size: 1.5rem;
-  }
-
-  .course-modal-content {
-    padding: 24px;
-  }
-
-  .module-item {
-    padding: 20px;
-  }
-
-  .module-title {
-    font-size: 1.3rem;
-  }
-
-  .course-modal-footer {
-    padding: 20px 24px;
-  }
-
-  .course-modal-enroll-btn {
-    width: 100%;
-    padding: 12px 24px;
-  }
-}
-
-@media (max-width: 480px) {
-  .course-modal-backdrop {
-    padding: 10px;
-  }
-
-  .course-modal-header {
-    padding: 16px 20px;
-  }
-
-  .course-modal-title {
-    font-size: 1.3rem;
-  }
-
-  .course-modal-content {
-    padding: 20px;
-  }
-
-  .module-item {
-    padding: 16px;
-  }
-
-  .module-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .topic-item {
-    padding: 12px;
+  .cta-title {
+    font-size: 1.8rem;
   }
 }
 </style>
