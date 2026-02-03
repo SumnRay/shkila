@@ -5,7 +5,11 @@
       <div class="footer-column">
         <h4 class="footer-column-title">О сервисе</h4>
         <ul class="footer-links">
-          <li><a href="#" class="footer-link">О сервисе</a></li>
+          <li>
+            <RouterLink :to="{ name: 'about-service' }" class="footer-link">
+              О сервисе
+            </RouterLink>
+          </li>
           <li><a href="#" class="footer-link">Как это работает</a></li>
           <li><a href="#" class="footer-link">Курсы</a></li>
           <li><a href="#" class="footer-link">О преподавателе</a></li>
@@ -56,7 +60,7 @@
 </template>
 
 <script setup>
-// Компонент футера
+import { RouterLink } from 'vue-router'
 </script>
 
 <style scoped>
