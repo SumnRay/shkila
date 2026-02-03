@@ -10,20 +10,16 @@
               О сервисе
             </RouterLink>
           </li>
-          <li><a href="#" class="footer-link">Как это работает</a></li>
-          <li><a href="#" class="footer-link">Курсы</a></li>
+          <li>
+            <RouterLink :to="{ name: 'payment-calculator' }" class="footer-link">
+              Оплата занятий
+            </RouterLink>
+          </li>
           <li>
             <RouterLink :to="{ name: 'about-teacher' }" class="footer-link">
               О преподавателе
             </RouterLink>
           </li>
-        </ul>
-      </div>
-      <div class="footer-column">
-        <h4 class="footer-column-title">Информация</h4>
-        <ul class="footer-links">
-          <li><a href="#" class="footer-link">Переговоров индивидуальности</a></li>
-          <li><a href="#" class="footer-link">Пользовательское соглашение</a></li>
         </ul>
       </div>
       <div class="footer-column">
@@ -50,16 +46,6 @@
         </p>
       </div>
     </div>
-    <div class="footer-bottom">
-      <div class="footer-copyright">
-        <span>© 2008 / F.L.A.R.E. Все права защищены.</span>
-      </div>
-      <div class="footer-legal">
-        <a href="#" class="footer-link">Политика конфиденциальности</a>
-        <span class="footer-separator">—</span>
-        <a href="#" class="footer-link">Куки</a>
-      </div>
-    </div>
   </footer>
 </template>
 
@@ -79,9 +65,8 @@ import { RouterLink } from 'vue-router'
   max-width: 1400px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 40px;
-  margin-bottom: 40px;
   box-sizing: border-box;
 }
 
@@ -134,35 +119,6 @@ import { RouterLink } from 'vue-router'
   padding: 0;
 }
 
-.footer-bottom {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding-top: 30px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 20px;
-  box-sizing: border-box;
-}
-
-.footer-copyright {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.9rem;
-}
-
-.footer-legal {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
-}
-
-.footer-separator {
-  color: rgba(255, 255, 255, 0.5);
-}
-
 /* Адаптивность */
 @media (max-width: 1200px) {
   .footer-content {
@@ -178,11 +134,6 @@ import { RouterLink } from 'vue-router'
   .footer-content {
     grid-template-columns: 1fr;
     gap: 30px;
-  }
-
-  .footer-bottom {
-    flex-direction: column;
-    text-align: center;
   }
 }
 

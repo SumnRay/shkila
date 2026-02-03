@@ -72,16 +72,6 @@
           </transition>
         </div>
 
-        <!-- Кнопка оплаты (для студентов и абитуриентов) -->
-        <router-link 
-          v-if="isStudent || isApplicant" 
-          :to="{ name: 'payment-calculator' }" 
-          class="payment-btn"
-        >
-          <span class="payment-icon">💳</span>
-          <span class="payment-text">Оплата</span>
-        </router-link>
-
         <!-- Кнопка с email -->
         <div class="role-section">
           <button 
