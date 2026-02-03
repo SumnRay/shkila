@@ -130,26 +130,40 @@ import Footer from '../../components/Footer.vue'
 .teacher-intro {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 32px;
   flex-wrap: wrap;
 }
 
 .teacher-photo-wrapper {
-  width: 96px;
-  height: 96px;
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: #111;
+  flex-shrink: 0;
+  /* растушёванные края без чёткой обводки */
+  box-shadow:
+    0 0 28px rgba(0, 0, 0, 0.45),
+    0 0 56px rgba(255, 215, 0, 0.08),
+    0 0 80px rgba(0, 0, 0, 0.25);
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.teacher-photo-wrapper:hover {
+  transform: scale(1.3);
+  box-shadow:
+    0 0 36px rgba(0, 0, 0, 0.4),
+    0 0 72px rgba(255, 215, 0, 0.12),
+    0 0 100px rgba(0, 0, 0, 0.2);
 }
 
 .teacher-photo {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 .teacher-main-info {
