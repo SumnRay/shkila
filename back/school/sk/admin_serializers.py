@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Payment, Lesson, LessonBalance, AuditLog, Course, Module, LessonTopic
+from .models import Payment, Lesson, LessonBalance, AuditLog, Course
 
 User = get_user_model()
 
@@ -231,51 +231,15 @@ class AuditLogSerializer(serializers.ModelSerializer):
         fields = ("id", "actor", "actor_email", "action", "meta", "created_at")
 
 
-# ======= COURSES, MODULES, TOPICS =======
-
-
-class LessonTopicSerializer(serializers.ModelSerializer):
-    """Сериализатор для темы занятия"""
-    class Meta:
-        model = LessonTopic
-        fields = ("id", "title", "description", "order", "created_at", "updated_at")
-        read_only_fields = ("id", "created_at", "updated_at")
-
-
-class LessonTopicCreateUpdateSerializer(serializers.ModelSerializer):
-    """Сериализатор для создания/обновления темы занятия"""
-    class Meta:
-        model = LessonTopic
-        fields = ("title", "description", "order")
-
-
-class ModuleSerializer(serializers.ModelSerializer):
-    """Сериализатор для модуля с темами"""
-    topics = LessonTopicSerializer(many=True, read_only=True)
-    topics_count = serializers.IntegerField(source="topics.count", read_only=True)
-
-    class Meta:
-        model = Module
-        fields = ("id", "title", "description", "order", "topics", "topics_count", "created_at", "updated_at")
-        read_only_fields = ("id", "created_at", "updated_at")
-
-
-class ModuleCreateUpdateSerializer(serializers.ModelSerializer):
-    """Сериализатор для создания/обновления модуля"""
-    class Meta:
-        model = Module
-        fields = ("title", "description", "order")
+# ======= COURSES =======
 
 
 class CourseSerializer(serializers.ModelSerializer):
-    """Сериализатор для курса с модулями"""
-    modules = ModuleSerializer(many=True, read_only=True)
-    modules_count = serializers.IntegerField(source="modules.count", read_only=True)
-
+    """Сериализатор для курса (название и описание)"""
     class Meta:
         model = Course
         fields = (
-            "id", "title", "modules", "modules_count", "created_at", "updated_at"
+            "id", "title", "description", "created_at", "updated_at"
         )
         read_only_fields = ("id", "created_at", "updated_at")
 
@@ -284,4 +248,4 @@ class CourseCreateUpdateSerializer(serializers.ModelSerializer):
     """Сериализатор для создания/обновления курса"""
     class Meta:
         model = Course
-        fields = ("title",)
+        fields = ("title", "description")

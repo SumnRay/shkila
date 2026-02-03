@@ -1,35 +1,15 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Course, LessonBalance, Payment, Module, LessonTopic, ClientRequest
+from .models import Course, LessonBalance, Payment, ClientRequest
 
 User = get_user_model()
 
 
-class PublicLessonTopicSerializer(serializers.ModelSerializer):
-    """Публичный сериализатор для темы занятия"""
-    class Meta:
-        model = LessonTopic
-        fields = ("id", "title", "description", "order")
-
-
-class PublicModuleSerializer(serializers.ModelSerializer):
-    """Публичный сериализатор для модуля с темами"""
-    topics = PublicLessonTopicSerializer(many=True, read_only=True)
-    topics_count = serializers.IntegerField(source="topics.count", read_only=True)
-
-    class Meta:
-        model = Module
-        fields = ("id", "title", "description", "order", "topics", "topics_count")
-
-
 class ApplicantCourseSerializer(serializers.ModelSerializer):
-    """Публичный сериализатор для курса с модулями и темами"""
-    modules = PublicModuleSerializer(many=True, read_only=True)
-    modules_count = serializers.IntegerField(source="modules.count", read_only=True)
-
+    """Публичный сериализатор для курса (название и описание)"""
     class Meta:
         model = Course
-        fields = ("id", "title", "modules", "modules_count")
+        fields = ("id", "title", "description")
 
 
 class ApplicantBalanceSerializer(serializers.ModelSerializer):

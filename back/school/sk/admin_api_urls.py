@@ -13,10 +13,6 @@ from .admin_api_views import (
     AdminAuditLogListAPI,
     AdminCourseListCreateAPI,
     AdminCourseDetailAPI,
-    AdminModuleListCreateAPI,
-    AdminModuleDetailAPI,
-    AdminLessonTopicListCreateAPI,
-    AdminLessonTopicDetailAPI,
 )
 
 urlpatterns = [
@@ -42,12 +38,4 @@ urlpatterns = [
     # COURSES
     path("courses/", AdminCourseListCreateAPI.as_view()),                   # GET список / POST создать
     path("courses/<int:pk>/", AdminCourseDetailAPI.as_view()),             # GET/PATCH/DELETE
-
-    # MODULES
-    path("modules/", AdminModuleListCreateAPI.as_view()),                   # GET список / POST создать
-    path("modules/<int:pk>/", AdminModuleDetailAPI.as_view()),             # GET/PATCH/DELETE
-
-    # LESSON TOPICS
-    path("lesson-topics/", AdminLessonTopicListCreateAPI.as_view()),        # GET список / POST создать
-    path("lesson-topics/<int:pk>/", AdminLessonTopicDetailAPI.as_view()),   # GET/PATCH/DELETE
 ]

@@ -97,21 +97,9 @@
                   </span>
                 </div>
                 <div v-if="selectedCourse" class="course-info">
-                  <div v-if="selectedCourse.modules && selectedCourse.modules.length > 0" class="course-modules">
-                    <p class="course-modules-count">Модулей: {{ selectedCourse.modules_count || 0 }}</p>
-                    <div class="course-description">
-                      <p
-                        v-for="(module, index) in selectedCourse.modules.slice(0, 3)"
-                        :key="module.id"
-                        class="module-preview"
-                      >
-                        {{ module.title }}
-                      </p>
-                      <p v-if="selectedCourse.modules.length > 3" class="module-preview-more">
-                        и ещё {{ selectedCourse.modules.length - 3 }} модулей...
-                      </p>
-                    </div>
-                  </div>
+                  <p v-if="selectedCourse.description" class="course-detail-description course-description-pre">
+                    {{ selectedCourse.description }}
+                  </p>
                   <p v-else class="course-detail-description">
                     Просто начать. Легко продолжать. Понятно сложно — очевидно для первых шагов. Используем в анализе данных, AI, вебе и автоматизации.
                   </p>
@@ -712,51 +700,8 @@ onMounted(() => {
   gap: 16px;
 }
 
-.course-modules {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.course-modules-count {
-  font-size: 1rem;
-  color: rgba(255, 215, 0, 0.9);
-  font-weight: 600;
-  margin: 0;
-  padding: 0;
-}
-
-.course-description {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.module-preview {
-  font-size: 1.05rem;
-  margin: 0;
-  padding: 0;
-  color: rgba(255, 255, 255, 0.85);
-  line-height: 1.6;
-  padding-left: 16px;
-  position: relative;
-}
-
-.module-preview::before {
-  content: '•';
-  position: absolute;
-  left: 0;
-  color: #FFD700;
-  font-weight: bold;
-}
-
-.module-preview-more {
-  font-size: 1rem;
-  margin: 0;
-  padding: 0;
-  color: rgba(255, 255, 255, 0.6);
-  font-style: italic;
-  padding-left: 16px;
+.course-detail-description.course-description-pre {
+  white-space: pre-wrap;
 }
 
 .course-detail-description {

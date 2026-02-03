@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from accounts.permissions import IsApplicantOrAdmin
-from .models import Course, LessonBalance, Payment, Module, LessonTopic, ClientRequest
+from .models import Course, LessonBalance, Payment, ClientRequest
 from .applicant_serializers import (
     ApplicantCourseSerializer,
     ApplicantBalanceSerializer,
@@ -24,7 +24,7 @@ class PublicCoursesListAPI(generics.ListAPIView):
     serializer_class = ApplicantCourseSerializer
 
     def get_queryset(self):
-        return Course.objects.prefetch_related('modules__topics').all().order_by("id")
+        return Course.objects.all().order_by("id")
 
 
 class ApplicantCoursesListAPI(generics.ListAPIView):
@@ -36,7 +36,7 @@ class ApplicantCoursesListAPI(generics.ListAPIView):
     serializer_class = ApplicantCourseSerializer
 
     def get_queryset(self):
-        return Course.objects.prefetch_related('modules__topics').all().order_by("id")
+        return Course.objects.all().order_by("id")
 
 
 class ApplicantBalanceAPI(APIView):
