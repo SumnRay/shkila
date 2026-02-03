@@ -26,23 +26,17 @@
         <h4 class="footer-column-title">Контакты</h4>
         <ul class="footer-links">
           <li>
-            <a href="#" class="footer-link">
-              <span class="footer-link-icon">@</span>
-              flare_school
+            <a href="https://t.me/nikiticko" class="footer-link">
+              Telegram
             </a>
           </li>
-          <li>
-            <a href="#" class="footer-link">
-              <span class="footer-link-icon">✉</span>
-              manager-01@gmail.com
-            </a>
-          </li>
+          
         </ul>
       </div>
       <div class="footer-column">
         <h4 class="footer-column-title">F.L.A.R.E.</h4>
         <p class="footer-description">
-          Переделываем образовательный курс и адаптируем обучение и урок занятий. Самое преподовательство — некз...
+          Создан для удобства клиентов с любовью ❤️
         </p>
       </div>
     </div>
