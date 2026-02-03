@@ -19,6 +19,7 @@ import TeacherScheduleView from '../pages/teacher/TeacherScheduleView.vue'
 import StudentDashboardView from '../pages/student/StudentDashboardView.vue'
 import PaymentCalculatorView from '../pages/common/PaymentCalculatorView.vue'
 import AboutServiceView from '../pages/common/AboutServiceView.vue'
+import AboutTeacherView from '../pages/common/AboutTeacherView.vue'
 
 const routes = [
   {
@@ -123,6 +124,12 @@ const routes = [
     component: AboutServiceView,
     meta: { guestOnly: false },
   },
+  {
+    path: '/teacher',
+    name: 'about-teacher',
+    component: AboutTeacherView,
+    meta: { guestOnly: false },
+  },
   // Catch-all маршрут для 404 - перенаправляет на главную
   {
     path: '/:pathMatch(.*)*',
@@ -140,6 +147,7 @@ const router = createRouter({
 const pageTitles = {
   'home': 'F.L.A.R.E. — Главная',
   'about-service': 'О сервисе — F.L.A.R.E.',
+  'about-teacher': 'О преподавателе — F.L.A.R.E.',
   'login': 'Вход — F.L.A.R.E.',
   'register': 'Регистрация — F.L.A.R.E.',
   'applicant-dashboard': 'Личный кабинет — F.L.A.R.E.',

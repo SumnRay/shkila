@@ -12,7 +12,11 @@
           </li>
           <li><a href="#" class="footer-link">Как это работает</a></li>
           <li><a href="#" class="footer-link">Курсы</a></li>
-          <li><a href="#" class="footer-link">О преподавателе</a></li>
+          <li>
+            <RouterLink :to="{ name: 'about-teacher' }" class="footer-link">
+              О преподавателе
+            </RouterLink>
+          </li>
         </ul>
       </div>
       <div class="footer-column">
