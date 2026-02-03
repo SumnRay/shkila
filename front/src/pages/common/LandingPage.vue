@@ -77,27 +77,14 @@
           </div>
 
           <div class="courses-main">
-            <Transition :name="courseSlideTransitionName" mode="out-in">
-              <div class="course-detail-card" :key="currentSlideKey">
+            <div class="course-card-slot">
+              <Transition :name="courseSlideTransitionName" mode="out-in">
+                <div class="course-detail-card" :key="currentSlideKey">
                 <h3 class="course-detail-title">
                   {{ isOnLastSlide ? 'Новые курсы скоро' : (selectedCourse?.title || 'Курс') }}
                 </h3>
-                <div class="course-tags">
-                  <span class="course-tag">
-                    <span class="tag-icon"></span>
-                    С нуля
-                  </span>
-                  <span class="course-tag">
-                    <span class="tag-icon"></span>
-                    Индивидуально
-                  </span>
-                  <span class="course-tag">
-                    <span class="tag-icon"></span>
-                    Онлайн
-                  </span>
-                </div>
                 <div v-if="selectedCourse" class="course-info">
-                  <p v-if="selectedCourse.description" class="course-detail-description course-description-pre">
+                  <p v-if="selectedCourse.description" class="course-detail-description course-description-preview">
                     {{ selectedCourse.description }}
                   </p>
                   <p v-else class="course-detail-description">
@@ -107,11 +94,12 @@
                 <p v-else class="course-detail-description">
                   Мы продолжаем добавлять новые курсы и направления. Следите за обновлениями — скоро здесь появятся новые программы обучения.
                 </p>
-                <button class="course-enroll-btn" @click="handleEnroll">
-                  Записаться
+                <button v-if="selectedCourse" class="course-detail-btn" @click="openCourseDetails">
+                  Подробнее
                 </button>
               </div>
             </Transition>
+            </div>
           </div>
 
           <div class="course-arrow-wrapper course-arrow-wrapper--right">
@@ -146,6 +134,17 @@
         </div>
       </div>
     </section>
+
+    <!-- Окно с полным описанием курса -->
+    <div v-if="courseDetailsOverlay" class="course-details-overlay" @click.self="closeCourseDetails">
+      <div class="course-details-panel">
+        <div class="course-details-header">
+          <h3 class="course-details-title">{{ courseDetailsOverlay?.title }}</h3>
+          <button type="button" class="course-details-close" @click="closeCourseDetails" title="Закрыть">×</button>
+        </div>
+        <pre class="course-details-description">{{ courseDetailsOverlay?.description || '' }}</pre>
+      </div>
+    </div>
 
     <!-- Секция призыва к действию -->
     <section class="cta-section">
@@ -232,6 +231,21 @@ const fetchCourses = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const courseDetailsOverlay = ref(null)
+
+const openCourseDetails = () => {
+  if (selectedCourse.value) {
+    courseDetailsOverlay.value = {
+      title: selectedCourse.value.title,
+      description: selectedCourse.value.description || '',
+    }
+  }
+}
+
+const closeCourseDetails = () => {
+  courseDetailsOverlay.value = null
 }
 
 const handleEnroll = () => {
@@ -512,6 +526,7 @@ onMounted(() => {
   width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
+  background: transparent;
 }
 
 .courses-title {
@@ -532,6 +547,7 @@ onMounted(() => {
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+  background: transparent;
 }
 
 .courses-row {
@@ -539,11 +555,18 @@ onMounted(() => {
   grid-template-columns: auto minmax(0, 1fr) auto;
   column-gap: 64px;
   align-items: center;
+  background: transparent;
 }
 
 .courses-main {
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
+  background: transparent !important;
+}
+
+.course-card-slot {
+  background: transparent !important;
+  overflow: visible;
 }
 
 .course-arrow-wrapper {
@@ -557,38 +580,33 @@ onMounted(() => {
   width: 64px;
   height: 64px;
   border-radius: 18px;
-  border: 1px solid rgba(255, 215, 0, 0.65);
-  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #1A1A1A;
   color: #FFD700;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 32px;
   padding: 0;
+  margin: 0;
   outline: none;
-  box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.8),
-    0 0 18px rgba(255, 215, 0, 0.55);
   z-index: 2;
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
-  line-height: 0;
+  transition: transform 0.15s ease, border-color 0.2s ease;
 }
 
 .course-nav-arrow:hover {
-  box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.9),
-    0 0 26px rgba(255, 215, 0, 0.9);
+  border-color: rgba(255, 215, 0, 0.5);
   transform: scale(1.05);
 }
 
 .course-nav-arrow-icon {
+  font-size: 56px;
+  font-weight: 300;
+  line-height: 0.5  ;
+  margin: 0;
+  padding: 0;
   display: block;
-  font-size: 36px;
-  line-height: 1;
+  transform: translateY(-8px);
 }
 
 /* Анимация свайпа курсов */
@@ -654,7 +672,8 @@ onMounted(() => {
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(26px);
   width: 100%;
-  min-height: 260px;
+  height: 340px;
+  min-height: 340px;
 }
 
 .course-detail-title {
@@ -666,42 +685,20 @@ onMounted(() => {
   letter-spacing: -1px;
 }
 
-.course-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-}
-
-.course-tag {
-  background: rgba(0, 0, 0, 0.6);
-  color: #FFFFFF;
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.tag-icon {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #FFD700;
-  box-shadow: 0 0 6px rgba(255, 215, 0, 0.7);
-}
-
 .course-info {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.course-detail-description.course-description-pre {
+.course-detail-description.course-description-preview {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
   white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .course-detail-description {
@@ -712,7 +709,7 @@ onMounted(() => {
   line-height: 1.9;
 }
 
-.course-enroll-btn {
+.course-detail-btn {
   padding: 16px 40px;
   border-radius: 8px;
   border: none;
@@ -727,10 +724,84 @@ onMounted(() => {
   margin-top: auto;
 }
 
-.course-enroll-btn:hover {
+.course-detail-btn:hover {
   background: #FF8C00;
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(255, 215, 0, 0.5);
+}
+
+/* Окно с полным описанием курса */
+.course-details-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: overlayFadeIn 0.2s ease;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.course-details-panel {
+  width: 100%;
+  max-width: 560px;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: rgba(26, 26, 26, 0.98);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.course-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 16px;
+}
+
+.course-details-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #FFD700;
+}
+
+.course-details-close {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.course-details-close:hover {
+  background: rgba(255, 215, 0, 0.2);
+  color: #FFD700;
+}
+
+.course-details-description {
+  white-space: pre-wrap;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.7;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .course-benefits {
