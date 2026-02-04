@@ -135,6 +135,32 @@
       </div>
     </section>
 
+    <!-- Окно записи на занятия -->
+    <div v-if="showEnrollModal" class="enroll-modal-overlay" @click.self="closeEnrollModal">
+      <div class="enroll-modal-panel">
+        <div class="enroll-modal-header">
+          <h3 class="enroll-modal-title">Записаться на занятия</h3>
+          <button type="button" class="enroll-modal-close" @click="closeEnrollModal" title="Закрыть">×</button>
+        </div>
+        <div class="enroll-modal-body">
+          <p class="enroll-modal-text">
+            На данный момент механика автоматической записи находится в разработке.
+          </p>
+          <p class="enroll-modal-text">
+            Пожалуйста, воспользуйтесь моими контактами — напишите или позвоните, и я запишу вас лично. Мы обсудим проведение занятия и я проконсультирую по всем вопросам.
+          </p>
+          <div class="enroll-modal-contacts">
+            <a href="https://t.me/nikiticko" target="_blank" class="enroll-contact-link">
+              Telegram: @nikiticko
+            </a>
+            <a href="tel:+79784741326" class="enroll-contact-link">
+              Телефон: +7 978 474 13 26
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Окно с полным описанием курса -->
     <div v-if="courseDetailsOverlay" class="course-details-overlay" @click.self="closeCourseDetails">
       <div class="course-details-panel">
@@ -162,12 +188,10 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
-import { useRouter } from 'vue-router'
 import { applicantGetPublicCourses } from '../../api/applicant'
 import Footer from '../../components/Footer.vue'
 
 const auth = useAuthStore()
-const router = useRouter()
 const featuresSection = ref(null)
 const courses = ref([])
 const loading = ref(false)
@@ -234,6 +258,7 @@ const fetchCourses = async () => {
 }
 
 const courseDetailsOverlay = ref(null)
+const showEnrollModal = ref(false)
 
 const openCourseDetails = () => {
   if (selectedCourse.value) {
@@ -249,11 +274,11 @@ const closeCourseDetails = () => {
 }
 
 const handleEnroll = () => {
-  if (auth.isAuthenticated) {
-    router.push({ name: 'applicant-dashboard' })
-  } else {
-    router.push({ name: 'register' })
-  }
+  showEnrollModal.value = true
+}
+
+const closeEnrollModal = () => {
+  showEnrollModal.value = false
 }
 
 const scrollToFeatures = () => {
@@ -802,6 +827,115 @@ onMounted(() => {
   line-height: 1.7;
   margin: 0;
   color: rgba(255, 255, 255, 0.9);
+}
+
+/* Окно записи на занятия */
+.enroll-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: overlayFadeIn 0.2s ease;
+}
+
+.enroll-modal-panel {
+  width: 100%;
+  max-width: 480px;
+  background: rgba(26, 26, 26, 0.98);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.enroll-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 16px;
+}
+
+.enroll-modal-title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #FFD700;
+}
+
+.enroll-modal-close {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.enroll-modal-close::before {
+  content: '×';
+  font-size: 1.5rem;
+  display: block;
+  transform: translateY(-3px);
+}
+
+.enroll-modal-close:hover {
+  background: rgba(255, 215, 0, 0.2);
+  color: #FFD700;
+}
+
+.enroll-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.enroll-modal-text {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.enroll-modal-contacts {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.enroll-contact-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #FFD700;
+  background: rgba(255, 215, 0, 0.1);
+  border: 2px solid rgba(255, 215, 0, 0.4);
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.enroll-contact-link:hover {
+  background: rgba(255, 215, 0, 0.2);
+  border-color: #FFD700;
+  color: #FFFFFF;
 }
 
 .course-benefits {

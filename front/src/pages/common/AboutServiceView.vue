@@ -86,16 +86,19 @@ import Footer from '../../components/Footer.vue'
 <style scoped>
 .about-page {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   background: #1A1A1A;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   color: #FFFFFF;
-  padding-bottom: 60px;
 }
 
 .about-content {
+  flex: 1;
   max-width: 900px;
   margin: 0 auto;
   padding: 80px 32px 40px;
+  width: 100%;
 }
 
 .about-title {
