@@ -63,3 +63,20 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
         if User.objects.filter(email=value.lower()).exclude(pk=user.pk).exists():
             raise serializers.ValidationError("Пользователь с таким email уже существует")
         return value.lower()
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    """Смена пароля: старый пароль + новый (мин. 8 символов)"""
+    old_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True)
+
+    def validate_old_password(self, value):
+        user = self.context["request"].user
+        if not user.check_password(value):
+            raise serializers.ValidationError("Неверный текущий пароль")
+        return value
+
+    def validate_new_password(self, value):
+        if len(value) < 8:
+            raise serializers.ValidationError("Пароль должен содержать минимум 8 символов")
+        return value

@@ -27,3 +27,13 @@ export function adminLoginApi({ email, password }) {
 export function updateMeApi(payload) {
   return apiClient.patch('/auth/me/', payload)
 }
+
+// проверка текущего пароля
+export function verifyPasswordApi(payload) {
+  return apiClient.post('/auth/verify-password/', payload)
+}
+
+// смена пароля
+export function changePasswordApi(payload) {
+  return apiClient.post('/auth/change-password/', payload)
+}

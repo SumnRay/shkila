@@ -7,7 +7,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .serializers import (
-    RegisterSerializer, LoginSerializer, AdminLoginSerializer, MeSerializer, UpdateProfileSerializer
+    RegisterSerializer, LoginSerializer, AdminLoginSerializer, MeSerializer, UpdateProfileSerializer,
+    ChangePasswordSerializer,
 )
 
 User = get_user_model()
@@ -106,6 +107,31 @@ class MeAPI(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(MeSerializer(request.user).data)
+
+
+class VerifyPasswordAPI(APIView):
+    """Проверка текущего пароля (без смены)"""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        old_password = request.data.get("old_password")
+        if not old_password:
+            return Response({"detail": "Введите текущий пароль"}, status=400)
+        if request.user.check_password(old_password):
+            return Response({"valid": True})
+        return Response({"detail": "Неверный пароль"}, status=400)
+
+
+class ChangePasswordAPI(APIView):
+    """Смена пароля текущего пользователя"""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        ser = ChangePasswordSerializer(data=request.data, context={"request": request})
+        ser.is_valid(raise_exception=True)
+        request.user.set_password(ser.validated_data["new_password"])
+        request.user.save()
+        return Response({"detail": "Пароль успешно изменён"})
 
 
 class LogoutAPI(APIView):
