@@ -16,6 +16,7 @@ class TeacherLessonSerializer(serializers.ModelSerializer):
     
     # Используем SerializerMethodField для полей, которые могут отсутствовать в БД
     course = serializers.SerializerMethodField()
+    course_id = serializers.SerializerMethodField()
     cancellation_reason = serializers.SerializerMethodField()
     feedback = serializers.SerializerMethodField()
     student_balance = serializers.SerializerMethodField()
@@ -28,6 +29,7 @@ class TeacherLessonSerializer(serializers.ModelSerializer):
             "parent_full_name",
             "teacher", "teacher_email",
             "course",
+            "course_id",
             "link",
             "scheduled_at",
             "status",
@@ -45,6 +47,10 @@ class TeacherLessonSerializer(serializers.ModelSerializer):
         if obj.course:
             return obj.course.title
         return None
+    
+    def get_course_id(self, obj):
+        """ID курса для подстановки при создании/редактировании"""
+        return obj.course_id if obj.course_id else None
     
     def get_cancellation_reason(self, obj):
         """Безопасное получение причины отмены"""
@@ -71,10 +77,13 @@ class TeacherLessonUpdateSerializer(serializers.ModelSerializer):
     - причину отмены (обязательна при статусе CANCELLED)
     - обратную связь (обязательна при статусе DONE)
     - при необходимости ссылку (если по договорённости)
+    - курс (становится курсом по умолчанию для ученика)
     """
+    course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all(), required=False, allow_null=True)
+    
     class Meta:
         model = Lesson
-        fields = ("status", "comment", "link", "cancellation_reason", "feedback")
+        fields = ("status", "comment", "link", "cancellation_reason", "feedback", "course")
 
     def save(self, **kwargs):
         # Миграция применена, поля должны быть в БД

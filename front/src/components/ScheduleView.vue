@@ -167,6 +167,21 @@
             <input :value="currentUserEmail" type="email" disabled />
           </div>
 
+          <!-- Курс (становится курсом по умолчанию для ученика) -->
+          <label v-if="coursesList.length" class="field">
+            <span>Курс</span>
+            <select v-model="formCourseId">
+              <option value="">— Не выбран —</option>
+              <option
+                v-for="c in coursesList"
+                :key="c.id"
+                :value="c.id"
+              >
+                {{ c.title }}
+              </option>
+            </select>
+          </label>
+
           <label class="field">
             <span>Дата *</span>
             <input v-model="formDate" type="date" required />
@@ -220,6 +235,21 @@
               <option value="PLANNED">Запланировано</option>
               <option value="DONE">Проведено</option>
               <option value="CANCELLED">Отменено</option>
+            </select>
+          </label>
+
+          <!-- Курс (при смене станет курсом по умолчанию для ученика) -->
+          <label v-if="coursesList.length" class="field">
+            <span>Курс</span>
+            <select v-model="editForm.course_id">
+              <option value="">— Не выбран —</option>
+              <option
+                v-for="c in coursesList"
+                :key="c.id"
+                :value="c.id"
+              >
+                {{ c.title }}
+              </option>
             </select>
           </label>
 
@@ -282,7 +312,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useAuthStore } from '../stores/auth'
 
 const props = defineProps({
@@ -314,6 +344,14 @@ const props = defineProps({
     type: Function,
     default: null
   },
+  onGetCourses: {
+    type: Function,
+    default: null
+  },
+  onGetLastLessonForStudent: {
+    type: Function,
+    default: null
+  },
   userRole: {
     type: String,
     default: 'manager' // 'manager' или 'teacher'
@@ -336,6 +374,20 @@ const canSelectTeacher = computed(() => isManager.value || isAdmin.value)
 const canCreateTrial = computed(() => isManager.value || isAdmin.value)
 const canEditTime = computed(() => isManager.value || isAdmin.value)
 const canEditLesson = computed(() => props.onUpdateLesson !== null)
+
+// Загружаем список курсов при монтировании (для выбора при создании/редактировании)
+onMounted(() => {
+  if (props.onGetCourses) {
+    props.onGetCourses()
+      .then((res) => {
+        const data = res?.data
+        coursesList.value = Array.isArray(data) ? data : data?.results || []
+      })
+      .catch(() => {
+        coursesList.value = []
+      })
+  }
+})
 
 // =====================================
 // ДАТЫ
@@ -451,6 +503,9 @@ const formTeacherEmail = ref('')
 const formLink = ref('')
 const formComment = ref('')
 const formIsTrial = ref(false)
+const formCourseId = ref(null) // '' или id курса
+
+const coursesList = ref([])
 
 const foundStudent = ref(null)
 const foundTeacher = ref(null)
@@ -479,7 +534,7 @@ const handleSlotClick = (event, iso, hour) => {
   openCreate(iso, hour, minutes)
 }
 
-const openCreate = (iso, hour, minutes = 0) => {
+const openCreate = async (iso, hour, minutes = 0) => {
   formDate.value = iso
   formTime.value = `${String(hour).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`
   formStudentEmail.value = ''
@@ -487,12 +542,23 @@ const openCreate = (iso, hour, minutes = 0) => {
   formLink.value = ''
   formComment.value = ''
   formIsTrial.value = false
+  formCourseId.value = ''
   foundStudent.value = null
   foundTeacher.value = null
   studentError.value = ''
   teacherError.value = ''
   createError.value = ''
   showCreateModal.value = true
+  
+  // Загружаем список курсов при первом открытии
+  if (props.onGetCourses && coursesList.value.length === 0) {
+    try {
+      const { data } = await props.onGetCourses()
+      coursesList.value = Array.isArray(data) ? data : data.results || []
+    } catch (_) {
+      coursesList.value = []
+    }
+  }
   
   // Загружаем начальные списки для автодополнения
   if (props.onGetAutocomplete) {
@@ -518,6 +584,17 @@ const searchStudent = async () => {
     const result = await props.onSearchUser(formStudentEmail.value, 'student')
     if (result && result.is_my_student !== false) {
       foundStudent.value = result
+      // Подставляем курс по умолчанию из последнего занятия ученика
+      if (props.onGetLastLessonForStudent && result.id) {
+        try {
+          const lastLesson = await props.onGetLastLessonForStudent(result.id)
+          if (lastLesson?.course_id) {
+            formCourseId.value = lastLesson.course_id
+          }
+        } catch (_) {
+          // Игнорируем ошибку — курс останется пустым
+        }
+      }
     } else {
       studentError.value = 'Этот ученик не назначен вам. Обратитесь к менеджеру.'
     }
@@ -754,6 +831,11 @@ const handleCreate = async () => {
     payload.is_trial = true
   }
 
+  // Курс (становится курсом по умолчанию для ученика)
+  if (formCourseId.value && formCourseId.value !== '') {
+    payload.course = Number(formCourseId.value)
+  }
+
   console.log('Creating lesson with payload:', payload)
 
   createLoading.value = true
@@ -840,7 +922,8 @@ const editForm = ref({
   link: '',
   comment: '',
   cancellation_reason: '',
-  feedback: ''
+  feedback: '',
+    course_id: '' // '' или id курса
 })
 
 const updateLoading = ref(false)
@@ -860,6 +943,7 @@ const openEditLesson = () => {
     comment: lesson.comment || '',
     cancellation_reason: lesson.cancellation_reason || '',
     feedback: lesson.feedback || '',
+    course_id: lesson.course_id ?? ''
   }
   updateError.value = null
   showEditModal.value = true
@@ -894,6 +978,13 @@ const handleUpdate = async () => {
       status: editForm.value.status,
       link: editForm.value.link || null,
       comment: editForm.value.comment || '',
+    }
+
+    // Курс (при смене станет курсом по умолчанию для ученика)
+    if ('course_id' in editForm.value) {
+      payload.course = (editForm.value.course_id && editForm.value.course_id !== '')
+        ? Number(editForm.value.course_id)
+        : null
     }
 
     // Всегда передаем cancellation_reason и feedback, если они есть в форме

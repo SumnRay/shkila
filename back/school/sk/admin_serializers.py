@@ -81,6 +81,7 @@ class LessonSerializer(serializers.ModelSerializer):
     teacher_email = serializers.EmailField(source="teacher.email", read_only=True)
     student_balance = serializers.SerializerMethodField()
     course = serializers.SerializerMethodField()
+    course_id = serializers.SerializerMethodField()
 
     class Meta:
         model = Lesson
@@ -93,6 +94,7 @@ class LessonSerializer(serializers.ModelSerializer):
             "teacher_email",
             "student_balance",
             "course",
+            "course_id",
             "link",
             "scheduled_at",
             "status",
@@ -107,6 +109,10 @@ class LessonSerializer(serializers.ModelSerializer):
         if obj.course:
             return obj.course.title
         return None
+    
+    def get_course_id(self, obj):
+        """ID курса для подстановки при создании/редактировании"""
+        return obj.course_id if obj.course_id else None
     
     def get_student_balance(self, obj):
         """Получение баланса ученика"""
@@ -198,14 +204,15 @@ class AdminLessonCreateSerializer(serializers.ModelSerializer):
 class AdminLessonUpdateSerializer(serializers.ModelSerializer):
     """
     Обновление урока админом.
-    Может менять время, ссылку, статус, комментарий, преподавателя.
+    Может менять время, ссылку, статус, комментарий, преподавателя, курс.
     """
     teacher_email = serializers.EmailField(write_only=True, required=False, allow_blank=True)
     teacher = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False, allow_null=True)
+    course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all(), required=False, allow_null=True)
     
     class Meta:
         model = Lesson
-        fields = ("scheduled_at", "status", "link", "comment", "teacher", "teacher_email")
+        fields = ("scheduled_at", "status", "link", "comment", "teacher", "teacher_email", "course")
     
     def validate(self, attrs):
         # Обработка teacher_email

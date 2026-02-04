@@ -17,6 +17,7 @@ class ManagerLessonSerializer(serializers.ModelSerializer):
     
     # Используем SerializerMethodField для полей, которые могут отсутствовать в БД
     course = serializers.SerializerMethodField()
+    course_id = serializers.SerializerMethodField()
     cancellation_reason = serializers.SerializerMethodField()
     feedback = serializers.SerializerMethodField()
     student_balance = serializers.SerializerMethodField()
@@ -31,6 +32,7 @@ class ManagerLessonSerializer(serializers.ModelSerializer):
             "teacher",
             "teacher_email",
             "course",
+            "course_id",
             "link",
             "scheduled_at",
             "status",
@@ -48,6 +50,10 @@ class ManagerLessonSerializer(serializers.ModelSerializer):
         if obj.course:
             return obj.course.title
         return None
+    
+    def get_course_id(self, obj):
+        """ID курса для подстановки при создании/редактировании"""
+        return obj.course_id if obj.course_id else None
     
     def get_cancellation_reason(self, obj):
         """Безопасное получение причины отмены"""
@@ -163,15 +169,16 @@ class ManagerLessonCreateSerializer(serializers.ModelSerializer):
 
 class ManagerLessonUpdateSerializer(serializers.ModelSerializer):
     """
-    Менеджер может менять время, ссылку, статус, комментарий, преподавателя.
+    Менеджер может менять время, ссылку, статус, комментарий, преподавателя, курс.
     При отмене занятия (статус CANCELLED) обязательна причина отмены.
     """
     teacher_email = serializers.EmailField(write_only=True, required=False, allow_blank=True)
     teacher = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False, allow_null=True)
+    course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all(), required=False, allow_null=True)
     
     class Meta:
         model = Lesson
-        fields = ("scheduled_at", "status", "link", "comment", "cancellation_reason", "feedback", "is_trial", "teacher", "teacher_email")
+        fields = ("scheduled_at", "status", "link", "comment", "cancellation_reason", "feedback", "is_trial", "teacher", "teacher_email", "course")
 
     def save(self, **kwargs):
         # Миграции применены, поля должны быть в БД

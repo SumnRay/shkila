@@ -13,6 +13,8 @@
         :on-update-lesson="handleUpdateLesson"
         :on-search-user="handleSearchUser"
         :on-get-autocomplete="handleGetAutocomplete"
+        :on-get-courses="() => adminGetCourses()"
+        :on-get-last-lesson-for-student="handleGetLastLessonForStudent"
         user-role="admin"
         :current-user-email="auth.user?.email || ''"
         @lesson-selected="selectLesson"
@@ -29,7 +31,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import ScheduleView from '../../components/ScheduleView.vue'
 import { adminGetLessons, adminCreateLesson, adminUpdateLesson } from '../../api/lessons'
-import { adminGetUsersAutocomplete } from '../../api/admin'
+import { adminGetUsersAutocomplete, adminGetCourses } from '../../api/admin'
 import { managerSearchUserByEmail } from '../../api/manager'
 
 const auth = useAuthStore()
@@ -123,6 +125,20 @@ const handleGetAutocomplete = async (role, search = '') => {
   } catch (err) {
     console.error('get autocomplete error:', err)
     return []
+  }
+}
+
+const handleGetLastLessonForStudent = async (studentId) => {
+  try {
+    const { data } = await adminGetLessons({
+      student: studentId,
+      ordering: '-scheduled_at'
+    })
+    const list = Array.isArray(data) ? data : data?.results || []
+    return list[0] || null
+  } catch (err) {
+    console.error('get last lesson error:', err)
+    return null
   }
 }
 

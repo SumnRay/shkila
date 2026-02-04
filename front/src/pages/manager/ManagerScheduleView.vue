@@ -13,6 +13,8 @@
         :on-update-lesson="handleUpdateLesson"
         :on-search-user="handleSearchUser"
         :on-get-autocomplete="handleGetAutocomplete"
+        :on-get-courses="() => applicantGetPublicCourses()"
+        :on-get-last-lesson-for-student="handleGetLastLessonForStudent"
         user-role="manager"
         :current-user-email="auth.user?.email || ''"
         @lesson-selected="selectLesson"
@@ -28,6 +30,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import ScheduleView from '../../components/ScheduleView.vue'
 import { managerGetLessons, managerCreateLesson, managerUpdateLesson, managerSearchUserByEmail, managerGetUsersAutocomplete } from '../../api/manager'
+import { applicantGetPublicCourses } from '../../api/applicant'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -106,6 +109,20 @@ const handleGetAutocomplete = async (role, search = '') => {
   } catch (err) {
     console.error('get autocomplete error:', err)
     return []
+  }
+}
+
+const handleGetLastLessonForStudent = async (studentId) => {
+  try {
+    const { data } = await managerGetLessons({
+      student: studentId,
+      ordering: '-scheduled_at'
+    })
+    const list = Array.isArray(data) ? data : data?.results || []
+    return list[0] || null
+  } catch (err) {
+    console.error('get last lesson error:', err)
+    return null
   }
 }
 
