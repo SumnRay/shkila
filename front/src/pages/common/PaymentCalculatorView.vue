@@ -4,40 +4,18 @@
     <div class="payment-content">
       <h1 class="page-title">Оплата занятий</h1>
 
-      <div class="cards-grid">
-        <!-- Карточка с ценой -->
+      <!-- Основные блоки -->
+      <div class="main-blocks">
+        <!-- Блок: Стоимость одного занятия -->
         <div class="card price-card">
-          <h2 class="card-title">Стоимость</h2>
+          <h2 class="card-title">Стоимость одного занятия</h2>
           <div class="price-block">
             <div class="price-value">800 ₽</div>
             <div class="price-label">за 1 урок</div>
           </div>
         </div>
 
-        <!-- Карточка с реквизитами -->
-        <div class="card payment-card">
-          <h2 class="card-title">Реквизиты для оплаты</h2>
-          <div class="payment-info">
-            <div class="payment-row">
-              <span class="payment-label">Способ оплаты:</span>
-              <span class="payment-value">СБП (Система быстрых платежей)</span>
-            </div>
-            <div class="payment-row">
-              <span class="payment-label">Банк:</span>
-              <span class="payment-value">ВТБ</span>
-            </div>
-            <div class="payment-row">
-              <span class="payment-label">Номер телефона:</span>
-              <span class="payment-value phone-number">+7 978 474 13 26</span>
-            </div>
-            <div class="payment-row">
-              <span class="payment-label">Получатель:</span>
-              <span class="payment-value">Семененко Никита Сергеевич</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Информационная карточка -->
+        <!-- Блок: Важная информация -->
         <div class="card info-card">
           <h2 class="card-title">Важная информация</h2>
           <div class="info-block warning">
@@ -47,57 +25,106 @@
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Карточка с контактами -->
-        <div class="card contact-card">
-          <h2 class="card-title">Отправка чека</h2>
-          <p class="contact-description">
-            После оплаты отправьте скриншот или фото чека преподавателю для подтверждения и начисления занятий на ваш баланс.
-          </p>
-          <div class="contact-info">
-            <div class="contact-row">
-              <span class="contact-label">Telegram:</span>
-              <a href="https://t.me/nikiticko" target="_blank" class="contact-link">@nikiticko</a>
+      <!-- Кнопка для раскрытия инструкции -->
+      <div class="instruction-toggle">
+        <button
+          type="button"
+          class="instruction-btn"
+          :class="{ 'instruction-btn--open': showInstructions }"
+          @click="showInstructions = !showInstructions"
+        >
+          <span class="instruction-btn-text">
+            {{ showInstructions ? 'Скрыть инструкцию' : 'Инструкция по оплате' }}
+          </span>
+          <span class="instruction-btn-icon">{{ showInstructions ? '▲' : '▼' }}</span>
+        </button>
+      </div>
+
+      <!-- Раскрываемые блоки -->
+      <Transition name="expand">
+        <div v-if="showInstructions" class="expandable-blocks">
+          <!-- Реквизиты для оплаты -->
+          <div class="card payment-card">
+            <h2 class="card-title">Реквизиты для оплаты</h2>
+            <div class="payment-info">
+              <div class="payment-row">
+                <span class="payment-label">Способ оплаты:</span>
+                <span class="payment-value">СБП (Система быстрых платежей)</span>
+              </div>
+              <div class="payment-row">
+                <span class="payment-label">Банк:</span>
+                <span class="payment-value">ВТБ</span>
+              </div>
+              <div class="payment-row">
+                <span class="payment-label">Номер телефона:</span>
+                <span class="payment-value phone-number">+7 978 474 13 26</span>
+              </div>
+              <div class="payment-row">
+                <span class="payment-label">Получатель:</span>
+                <span class="payment-value">Семененко Никита Сергеевич</span>
+              </div>
             </div>
-            <div class="contact-row">
-              <span class="contact-label">Телефон:</span>
-              <span class="contact-value">+7 978 474 13 26</span>
+          </div>
+
+          <!-- Отправка чека -->
+          <div class="card contact-card">
+            <h2 class="card-title">Отправка чека</h2>
+            <p class="contact-description">
+              После оплаты отправьте скриншот или фото чека преподавателю для подтверждения и начисления занятий на ваш баланс.
+            </p>
+            <div class="contact-info">
+              <div class="contact-row">
+                <span class="contact-label">Telegram:</span>
+                <a href="https://t.me/nikiticko" target="_blank" class="contact-link">@nikiticko</a>
+              </div>
+              <div class="contact-row">
+                <span class="contact-label">Телефон:</span>
+                <span class="contact-value">+7 978 474 13 26</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Как оплатить -->
+          <div class="card instructions-card">
+            <h2 class="card-title">Как оплатить</h2>
+            <div class="steps">
+              <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-text">Откройте приложение вашего банка и выберите оплату по СБП</div>
+              </div>
+              <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-text">Введите номер телефона <strong>+7 978 474 13 26</strong> и выберите банк <strong>ВТБ</strong></div>
+              </div>
+              <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-text">Укажите сумму (800₽ × количество уроков) и выполните перевод</div>
+              </div>
+              <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-text">Отправьте скриншот чека в Telegram <strong>@nikiticko</strong></div>
+              </div>
+              <div class="step">
+                <div class="step-number">5</div>
+                <div class="step-text">После подтверждения занятия будут начислены на ваш баланс</div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- Инструкция -->
-      <div class="card instructions-card">
-        <h2 class="card-title">Как оплатить</h2>
-        <div class="steps">
-          <div class="step">
-            <div class="step-number">1</div>
-            <div class="step-text">Откройте приложение вашего банка и выберите оплату по СБП</div>
-          </div>
-          <div class="step">
-            <div class="step-number">2</div>
-            <div class="step-text">Введите номер телефона <strong>+7 978 474 13 26</strong> и выберите банк <strong>ВТБ</strong></div>
-          </div>
-          <div class="step">
-            <div class="step-number">3</div>
-            <div class="step-text">Укажите сумму (800₽ × количество уроков) и выполните перевод</div>
-          </div>
-          <div class="step">
-            <div class="step-number">4</div>
-            <div class="step-text">Отправьте скриншот чека в Telegram <strong>@nikiticko</strong></div>
-          </div>
-          <div class="step">
-            <div class="step-number">5</div>
-            <div class="step-text">После подтверждения занятия будут начислены на ваш баланс</div>
-          </div>
-        </div>
-      </div>
+      </Transition>
     </div>
+
+    <Footer />
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
+import Footer from '../../components/Footer.vue'
+
+const showInstructions = ref(false)
 </script>
 
 <style scoped>
@@ -106,14 +133,17 @@
   background: #1A1A1A;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   color: #FFFFFF;
-  padding-bottom: 60px;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Контент */
 .payment-content {
+  flex: 1;
   max-width: 1000px;
   margin: 0 auto;
   padding: 32px;
+  width: 100%;
 }
 
 .page-title {
@@ -124,8 +154,8 @@
   margin: 0 0 32px 0;
 }
 
-/* Сетка карточек */
-.cards-grid {
+/* Основные блоки */
+.main-blocks {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
@@ -177,6 +207,80 @@
   color: rgba(255, 255, 255, 0.8);
 }
 
+/* Информационная карточка */
+.info-block {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.info-block.warning {
+  background: rgba(255, 193, 7, 0.15);
+  border: 1px solid rgba(255, 193, 7, 0.4);
+}
+
+.info-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.info-text {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Кнопка инструкции */
+.instruction-toggle {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.instruction-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1A1A1A;
+  background: #FFD700;
+  border: 2px solid #FFD700;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.instruction-btn:hover {
+  background: #FFC700;
+  border-color: #FFC700;
+  transform: translateY(-2px);
+}
+
+.instruction-btn--open {
+  background: rgba(255, 215, 0, 0.3);
+  color: #FFD700;
+  border-color: #FFD700;
+}
+
+.instruction-btn--open:hover {
+  background: rgba(255, 215, 0, 0.4);
+}
+
+.instruction-btn-icon {
+  font-size: 0.9rem;
+}
+
+/* Раскрываемые блоки */
+.expandable-blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
 /* Карточка с реквизитами */
 .payment-info {
   display: flex;
@@ -207,31 +311,6 @@
   font-size: 1.3rem;
   color: #FFD700;
   font-weight: 700;
-}
-
-/* Информационная карточка */
-.info-block {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  padding: 16px;
-  border-radius: 8px;
-}
-
-.info-block.warning {
-  background: rgba(255, 193, 7, 0.15);
-  border: 1px solid rgba(255, 193, 7, 0.4);
-}
-
-.info-icon {
-  font-size: 1.5rem;
-  flex-shrink: 0;
-}
-
-.info-text {
-  font-size: 1rem;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.9);
 }
 
 /* Карточка с контактами */
@@ -283,10 +362,6 @@
 }
 
 /* Карточка с инструкцией */
-.instructions-card {
-  grid-column: 1 / -1;
-}
-
 .steps {
   display: flex;
   flex-direction: column;
@@ -325,6 +400,18 @@
   color: #FFD700;
 }
 
+/* Анимация раскрытия */
+.expand-enter-active,
+.expand-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.expand-enter-from,
+.expand-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
 /* Адаптивность */
 @media (max-width: 768px) {
   .payment-content {
@@ -336,7 +423,7 @@
     margin-bottom: 24px;
   }
 
-  .cards-grid {
+  .main-blocks {
     grid-template-columns: 1fr;
     gap: 16px;
   }
@@ -355,6 +442,11 @@
   }
 
   .price-label {
+    font-size: 1rem;
+  }
+
+  .instruction-btn {
+    padding: 12px 20px;
     font-size: 1rem;
   }
 }
