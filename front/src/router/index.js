@@ -116,7 +116,7 @@ const routes = [
     path: '/payment',
     name: 'payment-calculator',
     component: PaymentCalculatorView,
-    meta: { requiresAuth: true, roles: ['student', 'applicant'] },
+    meta: { guestOnly: false },
   },
   {
     path: '/about',
