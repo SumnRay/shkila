@@ -109,8 +109,8 @@
             <input v-model="formTeacherId" type="number" min="1" required />
           </label>
           <label class="field">
-            <span>Ссылка (необязательно)</span>
-            <input v-model="formLink" type="text" />
+            <span>Ссылка на урок *</span>
+            <input v-model="formLink" type="text" placeholder="Discord (по умолчанию)" required />
           </label>
           <label class="field">
             <span>Комментарий</span>
@@ -251,7 +251,7 @@ const formDate = ref('')
 const formTime = ref('')
 const formStudentId = ref('')
 const formTeacherId = ref('')
-const formLink = ref('')
+const formLink = ref('Discord')
 const formComment = ref('')
 
 const createLoading = ref(false)
@@ -262,7 +262,7 @@ const openCreate = (iso, hour) => {
   formTime.value = `${String(hour).padStart(2, '0')}:00`
   formStudentId.value = ''
   formTeacherId.value = ''
-  formLink.value = ''
+  formLink.value = 'Discord'
   formComment.value = ''
   createError.value = ''
   showCreateModal.value = true
@@ -279,7 +279,7 @@ const handleCreate = async () => {
     student: Number(formStudentId.value),
     teacher: Number(formTeacherId.value),
     scheduled_at: `${formDate.value}T${formTime.value}`,
-    link: formLink.value || null,
+    link: formLink.value?.trim() || 'Discord',
     comment: formComment.value || '',
   }
 

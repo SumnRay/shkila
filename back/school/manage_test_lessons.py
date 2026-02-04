@@ -59,7 +59,7 @@ def create_lesson(student, teacher, course, status, scheduled_at):
         parent_full_name=student.parent_full_name or "",
         teacher=teacher,
         course=course,
-        link="https://example.com/lesson",
+        link="Discord",
         scheduled_at=scheduled_at,
         status=status,
         comment=comment,

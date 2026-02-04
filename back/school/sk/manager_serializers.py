@@ -83,7 +83,7 @@ class ManagerLessonCreateSerializer(serializers.ModelSerializer):
     teacher = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False, allow_null=True)
     course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all(), required=False, allow_null=True)
     scheduled_at = serializers.DateTimeField(required=True)
-    link = serializers.CharField(required=False, allow_blank=True, max_length=300)
+    link = serializers.CharField(required=False, allow_blank=True, default="Discord", max_length=300)
     comment = serializers.CharField(required=False, allow_blank=True)
 
     is_trial = serializers.BooleanField(required=False, default=False, help_text="Пробное занятие (не списывается с баланса)")
@@ -91,6 +91,12 @@ class ManagerLessonCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
         fields = ("student", "student_email", "teacher", "teacher_email", "course", "scheduled_at", "link", "comment", "is_trial")
+
+    def validate_link(self, value):
+        """Пустая ссылка заменяется на Discord по умолчанию"""
+        if not value or not str(value).strip():
+            return "Discord"
+        return str(value).strip()
 
     def validate(self, attrs):
         import logging
@@ -171,14 +177,22 @@ class ManagerLessonUpdateSerializer(serializers.ModelSerializer):
     """
     Менеджер может менять время, ссылку, статус, комментарий, преподавателя, курс.
     При отмене занятия (статус CANCELLED) обязательна причина отмены.
+    Ссылка обязательна; пустое значение заменяется на Discord.
     """
     teacher_email = serializers.EmailField(write_only=True, required=False, allow_blank=True)
     teacher = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False, allow_null=True)
     course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all(), required=False, allow_null=True)
+    link = serializers.CharField(required=False, allow_blank=True, max_length=300)
     
     class Meta:
         model = Lesson
         fields = ("scheduled_at", "status", "link", "comment", "cancellation_reason", "feedback", "is_trial", "teacher", "teacher_email", "course")
+
+    def validate_link(self, value):
+        """Пустая ссылка заменяется на Discord по умолчанию"""
+        if not value or not str(value).strip():
+            return "Discord"
+        return str(value).strip()
 
     def save(self, **kwargs):
         # Миграции применены, поля должны быть в БД

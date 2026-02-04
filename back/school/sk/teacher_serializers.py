@@ -76,14 +76,21 @@ class TeacherLessonUpdateSerializer(serializers.ModelSerializer):
     - комментарий/отметку (синхронизируется для всех уроков с этим учеником)
     - причину отмены (обязательна при статусе CANCELLED)
     - обратную связь (обязательна при статусе DONE)
-    - при необходимости ссылку (если по договорённости)
+    - ссылку (обязательна; пустое значение — Discord по умолчанию)
     - курс (становится курсом по умолчанию для ученика)
     """
     course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all(), required=False, allow_null=True)
+    link = serializers.CharField(required=False, allow_blank=True, max_length=300)
     
     class Meta:
         model = Lesson
         fields = ("status", "comment", "link", "cancellation_reason", "feedback", "course")
+
+    def validate_link(self, value):
+        """Пустая ссылка заменяется на Discord по умолчанию"""
+        if not value or not str(value).strip():
+            return "Discord"
+        return str(value).strip()
 
     def save(self, **kwargs):
         # Миграция применена, поля должны быть в БД
@@ -153,13 +160,19 @@ class TeacherLessonCreateSerializer(serializers.ModelSerializer):
     student_email = serializers.EmailField(write_only=True, required=False, allow_blank=True)
     student = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
     course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all(), required=False, allow_null=True)
-    link = serializers.CharField(required=False, allow_blank=True, max_length=300)
+    link = serializers.CharField(required=False, allow_blank=True, default="Discord", max_length=300)
     comment = serializers.CharField(required=False, allow_blank=True)
     scheduled_at = serializers.DateTimeField(required=True)
 
     class Meta:
         model = Lesson
         fields = ("student", "student_email", "course", "scheduled_at", "link", "comment")
+
+    def validate_link(self, value):
+        """Пустая ссылка заменяется на Discord по умолчанию"""
+        if not value or not str(value).strip():
+            return "Discord"
+        return str(value).strip()
 
     def validate(self, attrs):
         import logging

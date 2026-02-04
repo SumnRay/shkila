@@ -193,8 +193,8 @@
           </label>
 
           <label class="field">
-            <span>Ссылка (необязательно)</span>
-            <input v-model="formLink" type="text" />
+            <span>Ссылка на урок *</span>
+            <input v-model="formLink" type="text" placeholder="Discord (по умолчанию)" required />
           </label>
 
           <label class="field">
@@ -266,8 +266,8 @@
           </div>
 
           <label class="field">
-            <span>Ссылка</span>
-            <input v-model="editForm.link" type="text" placeholder="https://..." />
+            <span>Ссылка на урок *</span>
+            <input v-model="editForm.link" type="text" placeholder="Discord (по умолчанию)" required />
           </label>
 
           <label class="field">
@@ -500,7 +500,7 @@ const formDate = ref('')
 const formTime = ref('')
 const formStudentEmail = ref('')
 const formTeacherEmail = ref('')
-const formLink = ref('')
+const formLink = ref('Discord')
 const formComment = ref('')
 const formIsTrial = ref(false)
 const formCourseId = ref(null) // '' или id курса
@@ -539,7 +539,7 @@ const openCreate = async (iso, hour, minutes = 0) => {
   formTime.value = `${String(hour).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`
   formStudentEmail.value = ''
   formTeacherEmail.value = ''
-  formLink.value = ''
+  formLink.value = 'Discord'
   formComment.value = ''
   formIsTrial.value = false
   formCourseId.value = ''
@@ -816,10 +816,8 @@ const handleCreate = async () => {
     payload.comment = formComment.value.trim()
   }
 
-  // Добавляем link только если он не пустой (не отправляем пустую строку)
-  if (formLink.value?.trim()) {
-    payload.link = formLink.value.trim()
-  }
+  // Ссылка обязательна; пустое значение — Discord по умолчанию
+  payload.link = formLink.value?.trim() || 'Discord'
 
   // Для менеджера и админа добавляем teacher_email
   if (canSelectTeacher.value) {
@@ -846,7 +844,7 @@ const handleCreate = async () => {
     // Очищаем форму после успешного создания
     formStudentEmail.value = ''
     formTeacherEmail.value = ''
-    formLink.value = ''
+    formLink.value = 'Discord'
     formComment.value = ''
     formIsTrial.value = false
     foundStudent.value = null
@@ -939,7 +937,7 @@ const openEditLesson = () => {
     status: lesson.status,
     date: toISO(scheduledDate),
     time: `${String(scheduledDate.getHours()).padStart(2, '0')}:${String(scheduledDate.getMinutes()).padStart(2, '0')}`,
-    link: lesson.link || '',
+    link: lesson.link?.trim() || 'Discord',
     comment: lesson.comment || '',
     cancellation_reason: lesson.cancellation_reason || '',
     feedback: lesson.feedback || '',
@@ -976,7 +974,7 @@ const handleUpdate = async () => {
   try {
     const payload = {
       status: editForm.value.status,
-      link: editForm.value.link || null,
+      link: editForm.value.link?.trim() || 'Discord',
       comment: editForm.value.comment || '',
     }
 
