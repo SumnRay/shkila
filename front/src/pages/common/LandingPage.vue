@@ -309,6 +309,8 @@ onMounted(() => {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  padding-top: env(safe-area-inset-top, 0);
+  padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
 /* Hero секция */
@@ -697,7 +699,6 @@ onMounted(() => {
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(26px);
   width: 100%;
-  height: 340px;
   min-height: 340px;
 }
 
@@ -765,7 +766,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 20px;
+  padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
   animation: overlayFadeIn 0.2s ease;
 }
 
@@ -803,8 +804,10 @@ onMounted(() => {
 
 .course-details-close {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
   border: none;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.1);
@@ -813,6 +816,9 @@ onMounted(() => {
   line-height: 1;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .course-details-close:hover {
@@ -822,6 +828,8 @@ onMounted(() => {
 
 .course-details-description {
   white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
   font-family: inherit;
   font-size: 1rem;
   line-height: 1.7;
@@ -839,7 +847,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 20px;
+  padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
   animation: overlayFadeIn 0.2s ease;
 }
 
@@ -870,8 +878,10 @@ onMounted(() => {
 
 .enroll-modal-close {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
   border: none;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.1);
@@ -930,6 +940,8 @@ onMounted(() => {
   border-radius: 10px;
   text-decoration: none;
   transition: all 0.2s ease;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .enroll-contact-link:hover {
@@ -1045,6 +1057,36 @@ onMounted(() => {
   }
 }
 
+@media (max-width: 900px) {
+  .courses-row {
+    column-gap: 24px;
+  }
+
+  .course-arrow-wrapper {
+    min-width: 56px;
+  }
+
+  .course-nav-arrow {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+  }
+
+  .course-nav-arrow-icon {
+    font-size: 42px;
+    transform: translateY(-6px);
+  }
+
+  .course-detail-title {
+    font-size: 2.2rem;
+  }
+
+  .features-title,
+  .courses-title {
+    margin-bottom: 56px;
+  }
+}
+
 @media (max-width: 768px) {
   .hero-section,
   .features-section,
@@ -1078,6 +1120,7 @@ onMounted(() => {
   .features-title,
   .courses-title {
     font-size: 2.5rem;
+    margin-bottom: 48px;
   }
 
   .features-grid {
@@ -1091,10 +1134,95 @@ onMounted(() => {
 
   .cta-title {
     font-size: 2.2rem;
+    margin-bottom: 40px;
+  }
+
+  .cta-section .cta-button-primary {
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+    display: block;
   }
 
   .course-detail-card {
-    padding: 36px;
+    padding: 32px 24px;
+    min-height: 280px;
+  }
+
+  .course-detail-title {
+    font-size: 2rem;
+  }
+
+  .course-detail-description {
+    font-size: 1.05rem;
+  }
+
+  .courses-row {
+    column-gap: 16px;
+  }
+
+  .course-arrow-wrapper {
+    min-width: 48px;
+  }
+
+  .course-nav-arrow {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+  }
+
+  .course-nav-arrow-icon {
+    font-size: 36px;
+    transform: translateY(-4px);
+  }
+
+  .course-benefits {
+    gap: 20px;
+  }
+
+  .benefit-text {
+    font-size: 1.05rem;
+  }
+
+  .course-details-panel,
+  .enroll-modal-panel {
+    padding: 20px;
+    margin: 0 12px;
+  }
+
+  .course-details-panel {
+    max-height: calc(85vh - 40px);
+  }
+}
+
+@media (max-width: 600px) {
+  .hero-section,
+  .features-section,
+  .courses-section,
+  .cta-section {
+    padding: 70px 18px;
+  }
+
+  .hero-title {
+    font-size: 3.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.25rem;
+  }
+
+  .features-title,
+  .courses-title {
+    font-size: 2.2rem;
+    margin-bottom: 40px;
+  }
+
+  .cta-title {
+    font-size: 2rem;
+  }
+
+  .logo-wrapper {
+    max-width: 220px;
   }
 }
 
@@ -1114,18 +1242,145 @@ onMounted(() => {
     font-size: 1.2rem;
   }
 
+  .hero-description {
+    font-size: 1rem;
+  }
+
   .features-title,
   .courses-title {
     font-size: 2rem;
+    margin-bottom: 32px;
   }
 
   .feature-card,
   .course-detail-card {
-    padding: 28px;
+    padding: 24px;
+  }
+
+  .course-detail-card {
+    min-height: 260px;
+    padding: 24px 20px;
+  }
+
+  .course-detail-title {
+    font-size: 1.75rem;
+  }
+
+  .course-detail-description {
+    font-size: 1rem;
   }
 
   .cta-title {
     font-size: 1.8rem;
+    margin-bottom: 32px;
+  }
+
+  .courses-row {
+    column-gap: 12px;
+  }
+
+  .course-arrow-wrapper {
+    min-width: 40px;
+  }
+
+  .course-nav-arrow {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+  }
+
+  .course-nav-arrow-icon {
+    font-size: 32px;
+    transform: translateY(-3px);
+  }
+
+  .course-benefits {
+    gap: 16px;
+    padding-top: 20px;
+  }
+
+  .benefit-text {
+    font-size: 1rem;
+  }
+
+  .course-details-panel,
+  .enroll-modal-panel {
+    padding: 18px 16px;
+    margin: 0 8px;
+  }
+
+  .course-details-title {
+    font-size: 1.25rem;
+  }
+
+  .enroll-modal-title {
+    font-size: 1.25rem;
+  }
+
+  .enroll-contact-link {
+    padding: 14px 16px;
+    font-size: 0.95rem;
+  }
+
+  .cta-section .cta-button-primary {
+    max-width: none;
+  }
+}
+
+@media (max-width: 360px) {
+  .hero-section,
+  .features-section,
+  .courses-section,
+  .cta-section {
+    padding: 50px 12px;
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem;
+  }
+
+  .features-title,
+  .courses-title {
+    font-size: 1.75rem;
+    margin-bottom: 28px;
+  }
+
+  .cta-title {
+    font-size: 1.6rem;
+  }
+
+  .logo-wrapper {
+    max-width: 180px;
+  }
+
+  .course-detail-card {
+    padding: 20px 16px;
+    min-height: 240px;
+  }
+
+  .course-detail-title {
+    font-size: 1.5rem;
+  }
+
+  .courses-row {
+    column-gap: 8px;
+  }
+
+  .course-arrow-wrapper {
+    min-width: 36px;
+  }
+
+  .course-nav-arrow {
+    width: 36px;
+    height: 36px;
+  }
+
+  .course-nav-arrow-icon {
+    font-size: 28px;
   }
 }
 </style>
