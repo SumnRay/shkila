@@ -33,7 +33,13 @@
         </div>
 
         <!-- Тело календаря -->
-        <div class="calendar-body">
+        <div class="calendar-body" ref="calendarBodyRef">
+          <div
+            v-if="currentTimeIndicator"
+            class="current-time-indicator"
+            :style="currentTimeIndicator.style"
+          >
+          </div>
           <div v-for="hour in timeSlots" :key="hour" class="calendar-row">
             <div class="calendar-cell time-col">
               {{ formatHour(hour) }}
@@ -130,7 +136,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps({
   lessons: {
@@ -213,6 +219,58 @@ const weekRangeLabel = computed(() => {
 // =====================================
 
 const timeSlots = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+const slotHeight = 40
+const timeColWidth = 70
+
+const calendarBodyRef = ref(null)
+const calendarBodyWidth = ref(0)
+
+const now = ref(new Date())
+let nowTimer = null
+
+const updateNow = () => {
+  now.value = new Date()
+}
+
+const updateCalendarBodyWidth = () => {
+  if (calendarBodyRef.value) {
+    calendarBodyWidth.value = calendarBodyRef.value.clientWidth
+  }
+}
+
+const currentTimeIndicator = computed(() => {
+  if (!calendarBodyWidth.value || !weekDays.value.length) return null
+
+  const current = now.value
+  const todayIso = toISO(current)
+  const dayIndex = weekDays.value.findIndex(day => day.iso === todayIso)
+  if (dayIndex < 0) return null
+
+  const startHour = timeSlots[0]
+  const endHour = timeSlots[timeSlots.length - 1] + 1
+  const totalMinutes = current.getHours() * 60 + current.getMinutes()
+  if (totalMinutes < startHour * 60 || totalMinutes > endHour * 60) return null
+
+  const minutesFromStart = totalMinutes - startHour * 60
+  const top = (minutesFromStart / 60) * slotHeight
+
+  const dayWidth = (calendarBodyWidth.value - timeColWidth) / 7
+  const left = timeColWidth + dayWidth * dayIndex
+
+  const label = current.toLocaleTimeString('ru-RU', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+
+  return {
+    style: {
+      top: `${top}px`,
+      left: `${left}px`,
+      width: `${dayWidth}px`,
+    },
+    label,
+  }
+})
 
 const activeLesson = ref(null)
 
@@ -323,6 +381,18 @@ const goToday = () => {
   })
 }
 
+onMounted(() => {
+  updateNow()
+  updateCalendarBodyWidth()
+  nowTimer = setInterval(updateNow, 60000)
+  window.addEventListener('resize', updateCalendarBodyWidth)
+})
+
+onUnmounted(() => {
+  if (nowTimer) clearInterval(nowTimer)
+  window.removeEventListener('resize', updateCalendarBodyWidth)
+})
+
 // Экспортируем функции для внешнего использования
 defineExpose({
   weekStart,
@@ -384,6 +454,8 @@ defineExpose({
 }
 
 .calendar {
+  --calendar-scrollbar: 12px;
+  --slot-height: 40px;
   border: 1px solid #333;
   border-radius: 8px;
   overflow: hidden;
@@ -394,6 +466,15 @@ defineExpose({
 .calendar-row {
   display: grid;
   grid-template-columns: 70px repeat(7, 1fr);
+  box-sizing: border-box;
+}
+
+.calendar-row {
+  height: var(--slot-height);
+}
+
+.calendar-header-row {
+  padding-right: var(--calendar-scrollbar);
 }
 
 .time-col {
@@ -424,12 +505,36 @@ defineExpose({
 .calendar-body {
   max-height: 600px;
   overflow-y: auto;
+  scrollbar-gutter: stable;
+  position: relative;
+}
+
+.current-time-indicator {
+  position: absolute;
+  height: 2px;
+  background: #FFD700;
+  z-index: 4;
+  pointer-events: none;
+  box-shadow: 0 0 6px rgba(255, 215, 0, 0.6);
+}
+
+.current-time-indicator::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #FFD700;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 6px rgba(255, 215, 0, 0.8);
 }
 
 .slot {
   cursor: pointer;
   position: relative;
-  min-height: 40px;
+  min-height: var(--slot-height);
   border-right: 1px solid #222;
   border-bottom: 1px solid #222;
   padding: 2px;
