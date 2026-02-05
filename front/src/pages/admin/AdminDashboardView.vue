@@ -106,11 +106,13 @@
         <div v-else-if="!loadingUsers && !users.length" class="empty-state">
           <p>Пользователей пока нет.</p>
         </div>
+      </section>
 
-        <!-- ПАНЕЛЬ РЕДАКТИРОВАНИЯ -->
-        <div v-if="editUser" class="edit-panel">
-          <div class="edit-panel-header">
-            <h3>Редактирование пользователя #{{ editUser.id }}</h3>
+      <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ -->
+      <div v-if="editUser" class="modal-backdrop" @click="cancelEdit">
+        <div class="modal" @click.stop>
+          <div class="modal-header">
+            <h2>Редактирование пользователя #{{ editUser.id }}</h2>
             <button class="btn-icon close" @click="cancelEdit">×</button>
           </div>
           <form @submit.prevent="handleSave">
@@ -142,7 +144,18 @@
               </label>
             </div>
 
-            <div class="edit-actions">
+            <div class="password-section">
+              <button 
+                type="button" 
+                class="btn danger" 
+                @click="handleResetPassword"
+                :disabled="resettingPassword"
+              >
+                {{ resettingPassword ? '⏳ Сбрасываем...' : '🔑 Сбросить пароль на 12345678' }}
+              </button>
+            </div>
+
+            <div class="modal-actions">
               <button class="btn primary" type="submit" :disabled="savingUser">
                 {{ savingUser ? '⏳ Сохраняем...' : '💾 Сохранить' }}
               </button>
@@ -157,7 +170,7 @@
             </div>
           </form>
         </div>
-      </section>
+      </div>
     </main>
   </div>
 </template>
@@ -171,6 +184,7 @@ import {
   adminUpdateUser,
   adminDeleteUser,
   adminSetUserRole,
+  adminResetPassword,
 } from '../../api/admin'
 
 const auth = useAuthStore()
@@ -192,6 +206,7 @@ const editForm = ref({
 })
 const savingUser = ref(false)
 const editError = ref(null)
+const resettingPassword = ref(false)
 
 // ===== ЗАГРУЗКА ПОЛЬЗОВАТЕЛЕЙ =====
 const loadUsers = async () => {
@@ -261,6 +276,26 @@ const handleSave = async () => {
       err?.response?.data?.detail || 'Не удалось сохранить изменения'
   } finally {
     savingUser.value = false
+  }
+}
+
+// ===== СБРОС ПАРОЛЯ =====
+const handleResetPassword = async () => {
+  if (!editUser.value) return
+  if (!confirm(`Сбросить пароль пользователя ${editUser.value.email} на 12345678?`)) return
+  
+  resettingPassword.value = true
+  editError.value = null
+
+  try {
+    const { data } = await adminResetPassword(editUser.value.id)
+    alert(data.detail || 'Пароль успешно сброшен')
+  } catch (err) {
+    console.error('reset password error:', err)
+    editError.value =
+      err?.response?.data?.detail || 'Не удалось сбросить пароль'
+  } finally {
+    resettingPassword.value = false
   }
 }
 
@@ -727,17 +762,17 @@ onMounted(() => {
   box-sizing: border-box;
 }
 
+.role-select option {
+  background: #282D3C;
+  color: #FFFFFF;
+  padding: 8px;
+}
+
 .role-select:focus {
   outline: none;
   border-color: #FFD700;
   background: rgba(40, 45, 60, 1);
   box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.2);
-}
-
-.role-select:focus {
-  outline: none;
-  border-color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.25);
 }
 
 .actions {
@@ -795,32 +830,88 @@ onMounted(() => {
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.edit-panel {
-  margin-top: 24px;
-  padding: 24px;
-  border-top: 2px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  width: 100%;
-  max-width: 100%;
+/* МОДАЛЬНОЕ ОКНО */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
   box-sizing: border-box;
-  overflow: hidden;
 }
 
-.edit-panel-header {
+.modal {
+  background: rgba(30, 30, 30, 0.98);
+  border: 3px solid #FFD700;
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid rgba(255, 215, 0, 0.3);
 }
 
-.edit-panel-header h3 {
+.modal-header h2 {
   margin: 0;
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  color: #ffffff;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  color: #FFFFFF;
+  flex: 1;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.modal-actions .btn {
+  flex: 1;
+  min-width: 120px;
+}
+
+.password-section {
+  margin: 20px 0;
+  padding: 16px;
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 12px;
+}
+
+.password-section .btn {
+  width: 100%;
 }
 
 .form-row {
@@ -980,28 +1071,6 @@ onMounted(() => {
     width: 100%;
     justify-content: center;
   }
-
-  .edit-panel {
-    margin-top: 20px;
-    padding: 20px;
-  }
-
-  .edit-panel-header {
-    margin-bottom: 16px;
-  }
-
-  .edit-panel-header h3 {
-    font-size: 1.1rem;
-  }
-
-  .edit-actions {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .edit-actions .btn {
-    width: 100%;
-  }
 }
 
 @media (max-width: 480px) {
@@ -1113,23 +1182,6 @@ onMounted(() => {
     gap: 6px;
   }
 
-  .edit-panel {
-    margin-top: 16px;
-    padding: 16px;
-  }
-
-  .edit-panel-header {
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .edit-panel-header h3 {
-    font-size: 1rem;
-    flex: 1;
-    min-width: 0;
-  }
-
   .form-row {
     margin-bottom: 14px;
   }
@@ -1140,16 +1192,6 @@ onMounted(() => {
   }
 
   .label-text {
-    font-size: 0.85rem;
-  }
-
-  .edit-actions {
-    margin-top: 16px;
-    gap: 8px;
-  }
-
-  .edit-actions .btn {
-    padding: 10px 16px;
     font-size: 0.85rem;
   }
 

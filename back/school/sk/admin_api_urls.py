@@ -4,6 +4,7 @@ from .admin_api_views import (
     AdminUserDetailAPI,
     AdminUserByEmailAPI,
     AdminSetRoleAPI,
+    AdminResetPasswordAPI,
     AdminPaymentListAPI,
     AdminPaymentConfirmAPI,
     AdminBalanceGetAPI,
@@ -21,6 +22,7 @@ urlpatterns = [
     path("users/by-email/", AdminUserByEmailAPI.as_view()),     # GET поиск по email
     path("users/<int:pk>/", AdminUserDetailAPI.as_view()),      # GET/PATCH/DELETE
     path("users/<int:pk>/set-role/", AdminSetRoleAPI.as_view()),  # PATCH {"role": "TEACHER"}
+    path("users/<int:pk>/reset-password/", AdminResetPasswordAPI.as_view()),  # POST сброс пароля
 
     # PAYMENTS / BALANCE
     path("payments/", AdminPaymentListAPI.as_view()),                       # GET/POST

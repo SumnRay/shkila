@@ -34,6 +34,11 @@ export function adminSetUserRole(id, role) {
   return apiClient.patch(`/admin/users/${id}/set-role/`, { role })
 }
 
+// сброс пароля пользователя на базовый "12345678"
+export function adminResetPassword(id) {
+  return apiClient.post(`/admin/users/${id}/reset-password/`)
+}
+
 // ===== AUDIT LOGS =====
 
 // получить список логов (поддерживает search, ordering, page — если включена пагинация)

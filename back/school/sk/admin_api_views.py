@@ -141,6 +141,39 @@ class AdminSetRoleAPI(APIView):
         return Response(AdminUserListSerializer(user).data)
 
 
+class AdminResetPasswordAPI(APIView):
+    """
+    Сброс пароля пользователя администратором на базовый "12345678"
+    POST /api/admin/users/{id}/reset-password/
+    """
+    permission_classes = [IsAuthenticated, IsAdminRole]
+
+    def post(self, request, pk):
+        from accounts.permissions import is_root_admin
+        
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response({"detail": "user not found"}, status=404)
+
+        # защищаем root admin
+        if is_root_admin(user):
+            return Response({"detail": "cannot reset password of ROOT ADMIN"}, status=400)
+
+        # сбрасываем пароль на базовый
+        default_password = "12345678"
+        user.set_password(default_password)
+        user.save()
+
+        AuditLog.objects.create(
+            actor=request.user,
+            action="RESET_PASSWORD",
+            meta={"user_id": user.id, "email": user.email},
+        )
+        
+        return Response({"detail": f"Пароль сброшен на {default_password}"})
+
+
 # ======= PAYMENTS / BALANCE =======
 
 
