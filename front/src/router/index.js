@@ -6,6 +6,7 @@ import LoginView from '../pages/auth/LoginView.vue'
 import RegisterView from '../pages/auth/RegisterView.vue'
 import LandingPage from '../pages/common/LandingPage.vue'
 import EditProfileView from '../pages/common/EditProfileView.vue'
+import DashboardView from '../pages/common/DashboardView.vue'
 import ApplicantDashboardView from '../pages/applicant/ApplicantDashboardView.vue'
 import AdminDashboardView from '../pages/admin/AdminDashboardView.vue'
 import AdminScheduleView from '../pages/admin/AdminScheduleView.vue'
@@ -41,10 +42,22 @@ const routes = [
     meta: { guestOnly: true },
   },
   {
+    path: '/dashboard',
+    name: 'dashboard',
+    component: DashboardView,
+    meta: { requiresAuth: true, roles: ['applicant', 'student'] },
+  },
+  {
     path: '/applicant',
     name: 'applicant-dashboard',
-    component: ApplicantDashboardView,
+    component: DashboardView,
     meta: { requiresAuth: true, roles: ['applicant'] },
+  },
+  {
+    path: '/student',
+    name: 'student-dashboard',
+    component: DashboardView,
+    meta: { requiresAuth: true, roles: ['student'] },
   },
   {
     path: '/edit-profile',
@@ -150,7 +163,9 @@ const pageTitles = {
   'about-teacher': 'О преподавателе — F.L.A.R.E.',
   'login': 'Вход — F.L.A.R.E.',
   'register': 'Регистрация — F.L.A.R.E.',
+  'dashboard': 'Личный кабинет — F.L.A.R.E.',
   'applicant-dashboard': 'Личный кабинет — F.L.A.R.E.',
+  'student-dashboard': 'Личный кабинет — F.L.A.R.E.',
   'edit-profile': 'Редактирование профиля — F.L.A.R.E.',
   'admin-dashboard': 'Панель администратора — F.L.A.R.E.',
   'admin-schedule': 'Расписание — Админ — F.L.A.R.E.',
@@ -161,7 +176,6 @@ const pageTitles = {
   'manager-requests': 'Запросы — Менеджер — F.L.A.R.E.',
   'teacher-students': 'Ученики — Учитель — F.L.A.R.E.',
   'teacher-schedule': 'Расписание — Учитель — F.L.A.R.E.',
-  'student-dashboard': 'Личный кабинет — F.L.A.R.E.',
   'payment-calculator': 'Калькулятор оплаты — F.L.A.R.E.',
 }
 

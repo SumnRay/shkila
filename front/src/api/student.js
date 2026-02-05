@@ -1,7 +1,12 @@
 // src/api/student.js
 import apiClient from './http'
 
-// Получить данные личного кабинета ученика
+// Получить унифицированный дашборд (работает для STUDENT и APPLICANT)
+export function getDashboard() {
+  return apiClient.get('/dashboard/')
+}
+
+// Получить данные личного кабинета ученика (legacy)
 export function studentGetDashboard() {
   return apiClient.get('/student/dashboard/')
 }

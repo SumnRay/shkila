@@ -24,4 +24,7 @@ urlpatterns = [
 
     # API ученика /api/student/...
     path('api/student/', include('sk.student_api_urls')),
+    
+    # API унифицированный дашборд для STUDENT и APPLICANT /api/dashboard/...
+    path('api/dashboard/', include('sk.unified_api_urls')),
 ]

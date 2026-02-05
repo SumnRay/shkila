@@ -11,6 +11,7 @@ from accounts.permissions import IsStudentOrAdmin, IsStudentOrApplicantOrAdmin
 from .models import Course, Lesson, LessonBalance, Payment, StudentProfile, ClientRequest
 from .student_serializers import (
     StudentDashboardSerializer,
+    UnifiedDashboardSerializer,
     StudentCourseSerializer,
     StudentLessonSerializer,
     StudentBalanceSerializer,
@@ -21,6 +22,39 @@ from .student_serializers import (
 )
 
 User = get_user_model()
+
+
+# ===== UNIFIED DASHBOARD =====
+
+class UnifiedDashboardAPI(APIView):
+    """
+    Унифицированный ЛК для STUDENT и APPLICANT.
+    ФИО, роль, баланс, и опционально: уровень, XP, внутренняя валюта (для STUDENT).
+    GET /api/dashboard/
+    """
+    permission_classes = [IsAuthenticated, IsStudentOrApplicantOrAdmin]
+
+    def get(self, request):
+        user = request.user
+        bal, _ = LessonBalance.objects.get_or_create(student=user)
+        
+        # StudentProfile опционален - может отсутствовать у абитуриентов
+        profile = None
+        if hasattr(user, 'student_profile'):
+            profile = user.student_profile
+        
+        data = {
+            "id": user.id,
+            "email": user.email,
+            "student_full_name": getattr(user, "student_full_name", ""),
+            "role": getattr(user, "role", ""),
+            "balance": bal.lessons_available,
+            "level": profile.level if profile else None,
+            "xp": profile.xp if profile else None,
+            "season_currency": profile.season_currency if profile else None,
+        }
+        ser = UnifiedDashboardSerializer(data)
+        return Response(ser.data)
 
 
 # ===== DASHBOARD =====

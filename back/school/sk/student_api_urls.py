@@ -1,5 +1,6 @@
 from django.urls import path
 from .student_api_views import (
+    UnifiedDashboardAPI,
     StudentDashboardAPI,
     StudentCoursesListAPI,
     StudentLessonsListAPI,
@@ -11,7 +12,8 @@ from .student_api_views import (
 )
 
 urlpatterns = [
-    path("dashboard/", StudentDashboardAPI.as_view()),                    # GET ЛК ученика
+    path("dashboard/", UnifiedDashboardAPI.as_view()),                    # GET ЛК (STUDENT и APPLICANT)
+    path("student-dashboard/", StudentDashboardAPI.as_view()),            # GET ЛК ученика (legacy)
     path("courses/", StudentCoursesListAPI.as_view()),                    # GET список курсов
     path("lessons/", StudentLessonsListAPI.as_view()),                    # GET список уроков
     path("balance/", StudentBalanceAPI.as_view()),                       # GET баланс

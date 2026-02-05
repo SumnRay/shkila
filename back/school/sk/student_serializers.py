@@ -25,6 +25,21 @@ class StudentDashboardSerializer(serializers.Serializer):
     season_currency = serializers.IntegerField()
 
 
+class UnifiedDashboardSerializer(serializers.Serializer):
+    """
+    Объединённый ответ для /api/dashboard/ (работает для STUDENT и APPLICANT).
+    StudentProfile опционален для абитуриентов.
+    """
+    id = serializers.IntegerField()
+    email = serializers.EmailField()
+    student_full_name = serializers.CharField()
+    role = serializers.CharField()
+    balance = serializers.IntegerField()
+    level = serializers.IntegerField(required=False, allow_null=True)
+    xp = serializers.IntegerField(required=False, allow_null=True)
+    season_currency = serializers.IntegerField(required=False, allow_null=True)
+
+
 class StudentCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course

@@ -147,10 +147,8 @@ const router = useRouter()
 
 const cancelRoute = computed(() => {
   const role = auth.normalizedRole
-  if (role === 'student') {
-    return { name: 'student-dashboard' }
-  } else if (role === 'applicant') {
-    return { name: 'applicant-dashboard' }
+  if (role === 'student' || role === 'applicant') {
+    return { name: 'dashboard' }
   }
   return { name: 'home' }
 })
@@ -207,10 +205,8 @@ const handleSubmit = async () => {
     // Через 2 секунды перенаправляем в личный кабинет
     setTimeout(() => {
       const role = auth.normalizedRole
-      if (role === 'student') {
-        router.push({ name: 'student-dashboard' })
-      } else if (role === 'applicant') {
-        router.push({ name: 'applicant-dashboard' })
+      if (role === 'student' || role === 'applicant') {
+        router.push({ name: 'dashboard' })
       } else {
         router.push({ name: 'home' })
       }

@@ -92,17 +92,8 @@
               </div>
               <div class="dropdown-divider"></div>
               <router-link 
-                v-if="isStudent" 
-                :to="{ name: 'student-dashboard' }" 
-                class="dropdown-item" 
-                @click="closeUserMenu"
-              >
-                <span class="item-icon">📊</span>
-                <span>Личный кабинет</span>
-              </router-link>
-              <router-link 
-                v-if="isApplicant" 
-                :to="{ name: 'applicant-dashboard' }" 
+                v-if="isStudent || isApplicant" 
+                :to="{ name: 'dashboard' }" 
                 class="dropdown-item" 
                 @click="closeUserMenu"
               >

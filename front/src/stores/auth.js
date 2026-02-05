@@ -169,9 +169,9 @@ export const useAuthStore = defineStore('auth', {
         case 'teacher':
           return { name: 'teacher-students' }
         case 'student':
-          return { name: 'student-dashboard' }
+          return { name: 'dashboard' }
         case 'applicant':
-          return { name: 'applicant-dashboard' }
+          return { name: 'dashboard' }
         default:
           return { name: 'home' }
       }
