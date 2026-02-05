@@ -26,7 +26,7 @@ class User(AbstractUser):
 
     def save(self, *args, **kwargs):
         # гарантируем username=email (чтобы можно было логиниться через стандартный backend)
-        if not self.username:
+        if self.email and self.username != self.email:
             self.username = self.email
         super().save(*args, **kwargs)
 
