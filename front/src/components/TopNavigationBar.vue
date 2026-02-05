@@ -92,7 +92,7 @@
               </div>
               <div class="dropdown-divider"></div>
               <router-link 
-                v-if="isStudent || isApplicant" 
+                v-if="isStudent || isApplicant || isTeacher || isManager || isAdmin" 
                 :to="{ name: 'dashboard' }" 
                 class="dropdown-item" 
                 @click="closeUserMenu"
@@ -153,7 +153,7 @@ const isApplicant = computed(() => normalizedRole.value === 'applicant')
 
 const hasAdminAccess = computed(() => isAdmin.value || isManager.value)
 
-const canEditProfile = computed(() => isApplicant.value || isStudent.value)
+const canEditProfile = computed(() => isApplicant.value || isStudent.value || isTeacher.value || isManager.value || isAdmin.value)
 
 const roleDisplayName = computed(() => {
   const roleNames = {

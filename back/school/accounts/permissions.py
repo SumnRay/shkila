@@ -110,3 +110,21 @@ class IsStudentOrApplicantOrAdmin(BasePermission):
 
         role = getattr(u, "role", None)
         return bool(role in ("STUDENT", "APPLICANT", "ADMIN") or u.is_superuser)
+
+
+class IsStudentOrApplicantOrTeacherOrManagerOrAdmin(BasePermission):
+    """
+    Даёт доступ STUDENT, APPLICANT, TEACHER, MANAGER и ADMIN.
+    Используется для унифицированных API, доступных всем этим ролям.
+    """
+
+    def has_permission(self, request, view):
+        u = request.user
+        if not (u and u.is_authenticated):
+            return False
+
+        if is_root_admin(u):
+            return True
+
+        role = getattr(u, "role", None)
+        return bool(role in ("STUDENT", "APPLICANT", "TEACHER", "MANAGER", "ADMIN") or u.is_superuser)

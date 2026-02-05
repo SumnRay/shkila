@@ -7,7 +7,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from django.contrib.auth import get_user_model
 
-from accounts.permissions import IsStudentOrAdmin, IsStudentOrApplicantOrAdmin
+from accounts.permissions import (
+    IsStudentOrAdmin,
+    IsStudentOrApplicantOrTeacherOrManagerOrAdmin,
+)
 from .models import Course, Lesson, LessonBalance, Payment, StudentProfile, ClientRequest
 from .student_serializers import (
     StudentDashboardSerializer,
@@ -32,7 +35,7 @@ class UnifiedDashboardAPI(APIView):
     ФИО, роль, баланс, и опционально: уровень, XP, внутренняя валюта (для STUDENT).
     GET /api/dashboard/
     """
-    permission_classes = [IsAuthenticated, IsStudentOrApplicantOrAdmin]
+    permission_classes = [IsAuthenticated, IsStudentOrApplicantOrTeacherOrManagerOrAdmin]
 
     def get(self, request):
         user = request.user
@@ -106,7 +109,7 @@ class StudentLessonsListAPI(generics.ListAPIView):
     Список уроков ученика/абитуриента.
     GET /api/student/lessons/?status=PLANNED|DONE|CANCELLED&ordering=scheduled_at
     """
-    permission_classes = [IsAuthenticated, IsStudentOrApplicantOrAdmin]
+    permission_classes = [IsAuthenticated, IsStudentOrApplicantOrTeacherOrManagerOrAdmin]
     serializer_class = StudentLessonSerializer
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ["status"]
@@ -198,7 +201,7 @@ class StudentCreateClientRequestAPI(APIView):
     POST /api/student/requests/create/
     Body: {"comment": "Текст комментария (необязательно)"}
     """
-    permission_classes = [IsAuthenticated, IsStudentOrAdmin]
+    permission_classes = [IsAuthenticated, IsStudentOrApplicantOrTeacherOrManagerOrAdmin]
 
     def post(self, request):
         ser = StudentClientRequestCreateSerializer(data=request.data, context={'request': request})

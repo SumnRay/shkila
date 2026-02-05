@@ -43,7 +43,7 @@ const routes = [
     path: '/dashboard',
     name: 'dashboard',
     component: DashboardView,
-    meta: { requiresAuth: true, roles: ['applicant', 'student'] },
+    meta: { requiresAuth: true, roles: ['applicant', 'student', 'teacher', 'manager', 'admin'] },
   },
   {
     path: '/applicant',
@@ -61,7 +61,7 @@ const routes = [
     path: '/edit-profile',
     name: 'edit-profile',
     component: EditProfileView,
-    meta: { requiresAuth: true, roles: ['applicant', 'student'] },
+    meta: { requiresAuth: true, roles: ['applicant', 'student', 'teacher', 'manager', 'admin'] },
   },
   {
     path: '/admin',
