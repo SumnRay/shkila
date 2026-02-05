@@ -233,7 +233,7 @@
     <!-- Модальное окно редактирования урока -->
     <div v-if="showEditModal && activeLesson" class="modal-backdrop" @click="closeEdit">
       <div class="modal" @click.stop>
-        <h2>Редактировать урок</h2>
+        <h2>Редактировать урок - {{ activeLesson.student_email || 'ID ' + activeLesson.student }}</h2>
         <form @submit.prevent="handleUpdate">
           <label class="field">
             <span>Статус</span>
@@ -258,18 +258,6 @@
               </option>
             </select>
           </label>
-
-          <div v-if="canEditTime" class="field-row">
-            <label class="field field--half">
-              <span>Дата</span>
-              <input v-model="editForm.date" type="date" />
-            </label>
-
-            <label class="field field--half">
-              <span>Время</span>
-              <input v-model="editForm.time" type="time" />
-            </label>
-          </div>
 
           <label class="field">
             <span>Ссылка на урок *</span>
