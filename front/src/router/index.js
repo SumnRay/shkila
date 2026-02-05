@@ -7,7 +7,6 @@ import RegisterView from '../pages/auth/RegisterView.vue'
 import LandingPage from '../pages/common/LandingPage.vue'
 import EditProfileView from '../pages/common/EditProfileView.vue'
 import DashboardView from '../pages/common/DashboardView.vue'
-import ApplicantDashboardView from '../pages/applicant/ApplicantDashboardView.vue'
 import AdminDashboardView from '../pages/admin/AdminDashboardView.vue'
 import AdminScheduleView from '../pages/admin/AdminScheduleView.vue'
 import AdminLogsView from '../pages/admin/AdminLogsView.vue'
@@ -17,7 +16,6 @@ import ManagerBalanceView from '../pages/manager/ManagerBalanceView.vue'
 import ManagerRequestsView from '../pages/manager/ManagerRequestsView.vue'
 import TeacherStudentsView from '../pages/teacher/TeacherStudentsView.vue'
 import TeacherScheduleView from '../pages/teacher/TeacherScheduleView.vue'
-import StudentDashboardView from '../pages/student/StudentDashboardView.vue'
 import PaymentCalculatorView from '../pages/common/PaymentCalculatorView.vue'
 import AboutServiceView from '../pages/common/AboutServiceView.vue'
 import AboutTeacherView from '../pages/common/AboutTeacherView.vue'
@@ -122,7 +120,7 @@ const routes = [
   {
     path: '/student',
     name: 'student-dashboard',
-    component: StudentDashboardView,
+    component: DashboardView,
     meta: { requiresAuth: true, roles: ['student'] },
   },
   {
